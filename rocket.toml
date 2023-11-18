@@ -1,0 +1,5 @@
+[default.databases.sqlite_meu_banco]
+url = "./meu_banco.db" 
+
+[release]
+secret_key = "Y7gjP2j5G8K5yT9Zq4cAeEphsFjXZz+8b1/2mZxG/J0="
