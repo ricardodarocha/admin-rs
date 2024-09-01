@@ -52,13 +52,13 @@ pub async fn inserir_empresa(
 
 pub async fn abrir_empresa_one(
     pool: &Pool<Postgres>,
-    empresa_id: &String,
+    id_empresa: &String,
 ) -> Result<Empresa> {
     
     let rec = sqlx::query_as!(
         Empresa,
         "select id, nome, id_cnpj from empresa where id = $1",
-        empresa_id,
+        id_empresa,
     )
     .fetch_one(pool) //fetch_optional
     .await?;

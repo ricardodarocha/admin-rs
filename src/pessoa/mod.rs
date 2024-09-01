@@ -10,6 +10,7 @@ pub mod controller {
     // use actix_web::Error;
     use actix_web::{post, get,}; //put  delete
     use minijinja::context;
+    use crate::admin::repo::abrir_empresa_one;
     use crate::auth::model::{UserOperation, UserPermission};
     use crate::auth::session::{get_user, has_logged, has_permission, user_has_not_permission};
     use crate::infra::models::Colunas;
@@ -44,6 +45,7 @@ pub mod controller {
         };
     let usuario = get_user(pool, &session).await;
     let id_empresa = usuario.clone().unwrap().id_empresa.clone().unwrap().to_string();
+    let empresa = abrir_empresa_one(pool, &id_empresa.clone()).await.unwrap();
     let found_pessoa: Option<Pessoa> = repo::abrir_pessoa(pool, id_empresa.clone(), &current_id.clone()).await;
     // < OTHER ENTITIES >
     let flash = session.remove("flash").unwrap_or("".to_string());
@@ -72,6 +74,7 @@ pub mod controller {
         menus,
         // < OTHER ENTITIES >
         usuario,
+        empresa,
         current_id,
         form,
         flash,
@@ -150,7 +153,6 @@ pub mod controller {
         // path: web::Path<(String, String)>,
         data: web::Data<AppState>,
         args: web::Query<PessoaPagination>,
-        id_empresa: String,
 
         ) -> impl Responder {
 
@@ -171,7 +173,9 @@ pub mod controller {
 
         let web::Query(args) = args;
         let usuario = get_user(pool, &session).await;
-        let grade = repo::listar_pessoas_all(pool, id_empresa.clone(), args).await.unwrap();
+        let id_empresa = usuario.clone().unwrap().id_empresa;
+        let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
+        let grade = repo::listar_pessoas_all(pool, id_empresa.clone().unwrap(), args).await.unwrap();
    
         let colunas = Colunas::new(vec!["id", "nome", "razão social", "telefone", "email"]);
         let flash = session.remove("flash").unwrap_or("".to_string()); 
@@ -186,6 +190,7 @@ pub mod controller {
         crate::infra::render::render_minijinja("pessoa/pessoa_lista.html", context!(
             menus, 
             usuario, 
+            empresa,
             colunas, 
             grade, 
             flash, 
@@ -200,9 +205,9 @@ use controller::*;
     
     pub fn routes(cfg: &mut crate::web::ServiceConfig) {
     cfg.service(
-        crate::web::scope("/contato")
-            .service(pessoa_form)
+        crate::web::scope("/contato") 
             .service(list_pessoa)
+            .service(pessoa_form)
             .service(get_pessoa)
             // .service(put_pessoa)
             .service(post_pessoa)

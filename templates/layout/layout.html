@@ -51,11 +51,31 @@
     {% endif %}
     <div class="wrapper">
     
+        
 
-    <div class="content">
-        {% block content %}
-        {% endblock%}
-    </div></div>
+        {% if flash | length > 0 %}
+        <!-- <p><span style="color:green;"> flash </span></p> -->
+
+        <div class="alert alert-primary" role="alert">
+            { flash }
+        </div>
+
+        {% endif %}
+
+        {% if msg_error | length > 0 %}
+        <!-- <p><span style="color:red;"> msg_error </span></p> -->
+
+        <div class="alert alert-warning" role="alert">
+            { msg_error }
+        </div>
+
+        {% endif %}
+
+        <div class="content">
+            {% block content %}
+            {% endblock%}
+        </div>
+    </div>
 </div>
 
 <!-- {% include "footer/footer.html" %} -->

@@ -27,6 +27,21 @@ Dashboard
         </div>
     </div>
     <div class="client">
+        <div class="row" justify-content="space-between">
+            <div class="col">
+                <div class="p-3 mb-4 .fs-6 text">
+                    {% if empresa  %}
+                    🏦 {{ empresa.nome }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col">
+                <div class="p-3 mb-4  text-end .fs-6 text">
+                    {{ usuario.nome }} 🧑
+                </div>
+            </div>
+        </div>
+
         {% block clientarea %}
         
         {% endblock clientarea %}

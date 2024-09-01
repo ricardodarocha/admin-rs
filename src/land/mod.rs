@@ -9,6 +9,7 @@ pub mod controller {
     use actix_web::{web, HttpRequest, Responder}; //HttpResponse, 
     use actix_web::get;
     use minijinja::context;
+    use crate::admin::repo::abrir_empresa_one;
     // use actix_web::http::header::LOCATION;
     use crate::app::AppState;
     use crate::auth::session::{get_user, has_logged};
@@ -41,6 +42,8 @@ pub mod controller {
         // };
 
         let usuario = get_user(pool, &session).await;
+        let id_empresa = usuario.clone().unwrap().id_empresa;
+        let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
 
         let menus: Vec<Menu> = 
             match usuario.clone() {
@@ -71,6 +74,7 @@ pub mod controller {
             crate::infra::render::render_minijinja("dash/dash_usuario.html", context!(
                 menus, 
                 usuario, 
+                empresa,
                 indicadores,
                 clientes,
                 flash,
@@ -78,7 +82,7 @@ pub mod controller {
         } else
         {   let navbar = true;
             println!("Not Logged");
-            crate::infra::render::render_minijinja("land/land.html", context!(navbar, usuario, flash, msg_error)).unwrap() 
+            crate::infra::render::render_minijinja("land/land.html", context!(navbar, usuario, empresa, flash, msg_error)).unwrap() 
         }
     
     }  
@@ -95,12 +99,14 @@ pub mod controller {
         let pool = &data.database.conn;
 
         let usuario = get_user(pool, &session).await;
+        let id_empresa = usuario.clone().unwrap().id_empresa;
+        let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
 
         let flash = session.remove("flash").unwrap_or("".to_string()); 
         let msg_error = format!("{}", session.remove("msg_error").unwrap_or("".to_string()));   
         let navbar = true;
 
-        crate::infra::render::render_minijinja("land/land.html", context!(navbar, usuario, flash, msg_error)) 
+        crate::infra::render::render_minijinja("land/land.html", context!(navbar, usuario, empresa, flash, msg_error)) 
     
     }  
 

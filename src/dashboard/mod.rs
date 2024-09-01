@@ -10,6 +10,7 @@ pub mod controller {
     use actix_web::get;
     use minijinja::context;
     use actix_web::http::header::LOCATION;
+    use crate::admin::repo::abrir_empresa_one;
     use crate::app::AppState;
     use crate::auth::session::{get_user, has_logged}; //, has_permission
     use crate::dashboard::repo::dash_for_user;
@@ -34,15 +35,17 @@ pub mod controller {
             .finish())
         };
 
-        let usuario = get_user(pool, &session).await.unwrap();
-        let dashboard = dash_for_user(pool, usuario.clone().id).await.unwrap();
+        let usuario = get_user(pool, &session).await;
+        let id_empresa = usuario.clone().unwrap().id_empresa;
+        let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
+        let dashboard = dash_for_user(pool, usuario.clone().unwrap().id).await.unwrap();
         // let form = LoginForm::default();
 
         let flash = session.remove("flash").unwrap_or("".to_string()); 
         let msg_error = format!("{}", session.remove("msg_error").unwrap_or("".to_string()));   
 
 
-        crate::infra::render::render_minijinja("dash/dash_lista_pedidos.html", context!(usuario, dashboard, flash, msg_error)) 
+        crate::infra::render::render_minijinja("dash/dash_lista_pedidos.html", context!(usuario, empresa, dashboard, flash, msg_error)) 
     
     }  
 
@@ -65,13 +68,15 @@ pub mod controller {
             .finish())
         };
 
-        let usuario = get_user(pool, &session).await.unwrap();
-        let dashboard = dash_for_user(pool, usuario.clone().id).await.unwrap();
+        let usuario = get_user(pool, &session).await;
+        let id_empresa = usuario.clone().unwrap().id_empresa;
+        let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
+        let dashboard = dash_for_user(pool, usuario.clone().unwrap().id).await.unwrap();
         // let form = LoginForm::default();
 
         let flash = session.remove("flash").unwrap_or("".to_string()); 
         let msg_error = format!("{}", session.remove("msg_error").unwrap_or("".to_string()));   
-        crate::infra::render::render_minijinja("dash/dash_pedido.html", context!(usuario, dashboard, flash, msg_error)) 
+        crate::infra::render::render_minijinja("dash/dash_pedido.html", context!(usuario, dashboard,  empresa, flash, msg_error)) 
     }
 
     #[get("/pedido/new")]
@@ -93,13 +98,15 @@ pub mod controller {
             .finish())
         };
 
-        let usuario = get_user(pool, &session).await.unwrap();
-        let dashboard = dash_for_user(pool, usuario.clone().id).await.unwrap();
+        let usuario = get_user(pool, &session).await;
+        let id_empresa = usuario.clone().unwrap().id_empresa;
+        let dashboard = dash_for_user(pool, usuario.clone().unwrap().id).await.unwrap();
+        let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
         // let form = LoginForm::default();
 
         let flash = session.remove("flash").unwrap_or("".to_string()); 
         let msg_error = format!("{}", session.remove("msg_error").unwrap_or("".to_string()));   
-        crate::infra::render::render_minijinja("dash/dash_pedido_form.html", context!(usuario, dashboard, flash, msg_error)) 
+        crate::infra::render::render_minijinja("dash/dash_pedido_form.html", context!(usuario, dashboard, empresa, flash, msg_error)) 
     }
 }
 
