@@ -1,0 +1,21 @@
+{% extends "layout/client.html" %}
+{% block clientarea %}
+<div class="row">
+    <div class="column">
+        {% include "demo/tabela.html" %}
+    </div>
+</div>
+<div class="row">
+    <div class="column">
+        {% include "comp/pedido/pedido.html" %}
+    </div>
+    <div class="column">
+        {% include "comp/pedido/pedido.html" %}
+    </div>
+</div>
+<div class="row">
+    <div class="column">
+        {% include "comp/pedido/pedido.html" %}
+    </div>
+</div>
+{% endblock clientarea %}

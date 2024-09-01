@@ -1,0 +1,57 @@
+{% extends "layout/client.html" %}
+
+{% block clientarea %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mt-5">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="row">
+                        <a class="nav-link" href="#">
+                            <img src="{{ empresa.avatar }}" alt="Avatar da Empresa" class="user-photo" width="30px">
+                            {{ empresa.fantasia }}
+                        </a>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#empresaModal">
+                            Selecionar Empresa
+                        </button>
+                    </div>
+
+                    <h5 class="card-title">PEDIDO NUMERO {{ pedido.numero }}</h5>
+                    <form action="/pedido/new/{{pedido.id}}" method="POST">
+                        <button type="button" class="btn btn-primary">Adicionar item</button>
+                    </form>
+                </div>
+                <div class="card-body">
+                    {% for item in pedido.itens %}
+                    <div class="card-item" id="item-{{ pedido.id }}-{{ item.id }}">
+                        <img src="{{item.url}}" alt="Produto" class="product-img">
+                        <div class="product-details">
+                            <h5>{{ item.nome_produto }}</h5>
+                            <p>{{ item.informacoes_produto }}</p>
+                        </div>
+                        <div class="product-price">{{ item.preco }}</div>
+                        <div class="quantity-controls" id="item-{{ pedido.id }}-{{ item.id }}">
+                            <button type="button" class="btn btn-secondary" 
+                             hx-post="/pedido/action/incrementa/{{ id_pedido }}/{{ item.id }}" 
+                             hx-trigger="change"
+                             hx-include="[find input-{{ pedido.id }}-{{ item.id }}]"
+                             hx-swap="outerHTML">                            
+                            >+</button>
+                            <input type="number" class="form-control" value="{{ item.quantidade }}" id="input-{{ pedido.id }}-{{ item.id }}">
+                            <button type="button" class="btn btn-secondary">-</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5>Total: {{ pedido.total }}</h5>
+                        <button type="submit" class="btn btn-success">Salvar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock clientarea %}

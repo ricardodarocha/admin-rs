@@ -1,0 +1,47 @@
+{% extends "email.html" %}
+{% block content %}
+<h1>Suporte</h1>
+<b> Contato para acesso ao sistema</b>
+<pre> OS 63.142 Ricardo da Rocha Inc - Design de Sistemas </pre>pre>
+<p> {{nome}} </p>
+<p> Seu acesso ao sistema foi configurado </p>
+<p>Para o primeiro acesso use a senha provisória</p>
+<h3>{{senha_provisoria}}</h3>
+
+<p> Atenção! </p>
+<p> Esta senha só tem validade para o primeiro acesso, ao entrar será solicitado que você cadastre uma nova senha</p>
+<!-- Action -->
+<table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+        <td align="center">
+            <!-- Border based button https://litmus.com/blog/a-guide-to-bulletproof-buttons-in-email-design -->
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td align="center">
+                        <table border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td>
+                                    <a href="www.pedidonanuvem.com.br/login" class="button button--" target="_blank">Configurar nova senha</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<p> Alguma dúvida envie um email para ricardodarocha@outlook.com </p>
+<p>Atenciosamente,
+    <br>- Ricardo da Rocha, designer 
+</p>
+<!-- Sub copy -->
+<table class="body-sub">
+    <tr>
+        <td>
+            <p class="sub">Se o botão não funcionar copie e cole o link abaixo.</p>
+            <p class="sub">/send</p>
+        </td>
+    </tr>
+</table>
+{% endblock %}

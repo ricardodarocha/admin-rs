@@ -1,0 +1,33 @@
+{% extends "email/layout.html" %}
+{% block content %}
+<h1>Reset Your Password</h1>
+<p>A reset password request was recently submitted for this account. If this was you, follow the button or link below to
+    continue.</p>
+<!-- Action -->
+<table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+        <td align="center">
+            <!-- Border based button https://litmus.com/blog/a-guide-to-bulletproof-buttons-in-email-design -->
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td align="center">
+                        <table border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td>
+                                    <span class="button button--">Your new Password: {{ password }}</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<p>Thanks,
+    <br>- The Team
+</p>
+
+
+{% endblock %}

@@ -1,0 +1,35 @@
+<div class="card">
+    <h3>Itens do Pedido</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Nome do Item</th>
+                <th>SKU</th>
+                <th>Quantidade</th>
+                <th>Preço</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in pedido.itens %}
+            <tr>
+                <td>{{ item.nome }}</td>
+                <td>{{ item.sku }}</td>
+                <td>{{ item.quantidade | fmt3("") }}</td>
+                <td>{{ item.preco | fmt("") }}</td>
+                <td>{{ item.total | fmt("") }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4">Total</td>
+                <td>{{ pedido.total | fmt("") }}</td>
+            </tr>
+            <tr>
+                <td colspan="4">Desconto</td>
+                <td>{{ pedido.desconto | fmt("") }}</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

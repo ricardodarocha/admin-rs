@@ -1,44 +1,120 @@
-pub mod reg;
-pub mod auth;
-#[macro_use] extern crate rocket;
+pub mod produto;
+pub mod land;
+pub mod auditoria;
+pub mod pedido;
+pub mod entidade;
+pub mod relatorios;
+pub mod dashboard;
+pub mod app;
+pub mod pessoa; //a classe mais abstrata de Pessoa
+pub mod pessoas; //clientes, fornecedores etc
+pub mod itens;
+pub mod operacoes;
+pub mod infra;
+pub mod sentinel; //Sistema de notificações remotas
+pub mod admin; //Sistema de cadastros em geral, empresas
+pub mod auth; //Sistema de cadastro de usuários e permissões
+pub mod config; //configuracoes do sistema 
 
-pub mod mate;
-pub mod prod;
-pub mod db;
+use actix_web::{cookie::Key, middleware, web, App, HttpRequest, HttpServer, Responder};
+use actix_session::{storage::CookieSessionStore, Session, SessionMiddleware};
+use app::AppState;
+// use auth::{model::User, session::has_logged};
+use config::database;
+use env_logger::Env;
+use infra::controller::ping;
+use minijinja::context;
 
-use mate::*;
-use prod::*;
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    env_logger::init_from_env(Env::default().default_filter_or("info"));
+    dotenv::dotenv().ok();
+    let port = std::env::var("PORT_API").unwrap().parse::<u32>().unwrap();
+    let host = std::env::var("SERVER_API").unwrap();
+    let database = database::DbInstance::init().await;
 
-#[get("/hello")]
-fn hello() -> &'static str {
-    "Hello, world!"
+
+    let _ = sqlx::migrate!().run(&database.conn.clone()).await.map_err(|e| format!("Erro na migração do banco de dados {e}"));
+    let app_data = web::Data::new(app::AppState {
+                    client: reqwest::Client::new(),
+                    database,
+                });
+
+                
+    // minijinja_embed::load_templates!(&mut env);
+
+    let _secret =
+        std::env::var("SECRET").unwrap_or_else(|_| "935b43f5-4313-5f8b-8cfe-5e05692226dd".to_string());
+    let _database_url = std::env::var("DATABASE_URL").unwrap();
+   
+   
+    let secret_key = Key::generate(); 
+
+    println!("running ... 🌎 {}:{}", host.clone(), port);
+    // let host1 = host.clone();
+    let host2 = host.clone();
+    HttpServer::new(move || {
+            let cors = actix_cors::Cors::default()
+            // .allowed_origin(format!("http://{}:{port}", host1 ).as_str())
+            // .allowed_origin(format!("http://localhost:{port}" ).as_str())
+            // .allowed_origin(format!("http://27.0.0.1:{port}" ).as_str())
+            // .allowed_origin(format!("http://www.pedidonanuvem.com.br:{port}" ).as_str())
+            .allow_any_header()
+            .allow_any_origin()
+            .allow_any_method()
+            .expose_any_header()
+            .supports_credentials();
+
+        App::new()
+            .app_data(app_data.clone())
+            .wrap(cors)
+            .wrap(SessionMiddleware::new(
+                CookieSessionStore::default(),
+                secret_key.clone(),
+            ))
+            .wrap(middleware::Logger::new(
+                "%{r}a %r %s %b %{Referer}i %{User-Agent}i %T",
+            )) // enable logger
+            // .service(web::resource("/api/ping").route(web::get().to(ping)))
+            .service(actix_files::Files::new("/static","./static")
+                .show_files_listing()
+                .use_last_modified(true)
+                // .index_file("index.html")
+            )            
+            .route("/index", web::get().to(index))
+            .service(ping)
+            // .service(index)
+            .service(actix_files::Files::new("/images", "./static/img"))
+            .configure(auth::routes)
+            .configure(produto::routes)
+            .configure(pessoa::routes)
+            .configure(dashboard::routes)
+            .configure(pedido::routes)
+            .configure(admin::routes)
+            .configure(land::routes)
+            // .configure(controller::vitrine::routes)
+            // .configure(controller::compras::routes)
+            // .configure(controller::estoque::routes)
+            // .configure(controller::crm::routes)
+            // .configure(controller::pedido::routes)
+            // .configure(controller::vendas::routes)
+            // .configure(controller::financeiro::routes)
+            // .configure(controller::recursos_humanos::routes)
+            // .configure(controller::projetos::routes)
+            // .configure(controller::custos::routes)
+            // .route("/", web::get().to(index))
+            // .route("/login", web::post().to(login))
+            // .route("/logout", web::post().to(logout))
+    })
+    .bind(format!("{}:{}", host2, port))?
+    .run()
+    .await
 }
 
-// use rocket::serde::{Serialize, Deserialize, json::{Json, Value}};
-use rocket_db_pools::Database;
-use crate::db::DbMeuBanco;
-
-#[rocket::main]
-async fn main() {
-    let _ = rocket::build()
-        .attach(db::DbMeuBanco::init())
-        .mount("/", routes![ 
-            hello,  
-            //produtos, ver mod prod
-            form_prod, 
-            newprod,
-            getprod,
-            getallprod,   
-            
-            //materiais ver mod mate
-            form_mate,
-            newmate,
-            getmate,
-            getallmate,
-            ]
-    
-    )
-        .launch()
-        .await;
+//Serving the Registration and sign-in page
+async fn index(data:  web::Data<AppState>, session: Session, _req: HttpRequest) -> impl Responder {
+    // let path: PathBuf = "./static/index.html".parse().unwrap();
+    // Ok(NamedFile::open(path).unwrap())
+    let usuario = auth::session::get_user(&data.database.conn, &session).await;
+    infra::render::render_minijinja("index.html", context!(usuario) )
 }
-

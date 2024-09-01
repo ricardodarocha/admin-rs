@@ -1,0 +1,132 @@
+{% extends "layout/layout.html" %}
+
+{% block content %}
+<!-- -->
+<div class="section">
+  <div class="container" style="background-color: white;">
+
+    <div class="text-center mb-5">
+
+      <h1 class="display-8 fw-bold">Inscreva-se para receber sua autorização de acesso</h1>
+      <p class="text-muted">
+        <img src="/static/img/logo.png" alt="Logo"
+          style="height: 50px; margin-bottom: 0.5rem; margin-right: 0.5rem; vertical-align: middle; display: inline-block;">
+      </p>
+      <p class="lead m-0">
+        Ricardo da Rocha Inc. © 2024 - Todos os direitos reservados
+      </p>
+    </div>
+
+    <div class="col-md-9 col-lg-6 mx-auto">
+
+      <!-- form -->
+      <form action="/login/primeiroacesso" method="POST" class="bs-validate p-4 p-md-5 card rounded-xl">
+
+
+        <!--
+            <p class="text-danger">
+              Ups! Please check again
+            </p>
+            -->
+    <!-- 
+
+    "" ==> cnpj
+    {{telefone}} ==> telefone
+    {{nome}} ==> responsavel
+    "" => cpf
+    {{password}} ==> passworad
+
+ -->
+
+        <div class="form-floating mb-3">
+          <input placeholder="Razão Social" id="nome" name="nome" type="text" class="form-control" value="{{ form.instituicao }}" required >
+          <label for="nome">Instituição</label>
+        </div>
+
+        <div class="form-floating mb-3">
+          <input  placeholder="Nome completo" id="cnpj" name="cnpj" type="text" class="form-control" value="" required>
+          <label for="cnpj">Informe o CNPJ da instituição</label>
+        </div>
+
+        <div class="form-floating mb-3">
+          <input placeholder="" id="segmento" name="segmento" type="text" class="form-control" value="Escola" required >
+          <label for="segmento">segmento</label>
+        </div>
+
+        <div class="input-group-over mb-3">
+          <div class="form-floating">
+            <input placeholder="E-mail" id="email" name="email" type="email" class="form-control"
+              value="{{ form.email }}" required> 
+            <label for="email">e-mail</label>
+          </div>
+
+        <div class="input-group-over mb-3">
+          <div class="form-floating">
+            <input placeholder="Telefone" id="telefone" name="telefone" type="phone" class="form-control"
+              value="{{ form.telefone }}" required >
+            <label for="email">telefone</label>
+          </div>
+     
+        <div class="form-floating mb-3">
+          <input placeholder="Nome do Responsável" id="responsavel" name="responsavel" type="text" class="form-control" value="{{form.nome}}" required >
+          <label for="responsavel">Responsável</label>
+        </div>
+        
+        <div class="form-floating mb-3">
+          <input  placeholder="" id="cpf" name="cpf" type="text" class="form-control" value="" required >
+          <label for="cpf">Informe o CPF do responsável</label>
+        </div>
+
+        <div class="form-floating mb-3">
+          <input  placeholder="" id="senha" name="senha" type="password" class="form-control" value="{{form.password}}" required>
+          <label for="senha">Senha</label>
+        </div>
+
+        <input type="checkbox" id="privacyPolicy" name="policy" value="agree" required>
+        <label for="privacyPolicy">Concordo com o tratamento dos meus dados pessoais, para Ricardo da Rocha Inc e seus parceiros, em conformidade com a Lei nº
+        13.709 | Lei Geral de Proteção de Dados Pessoais (LGPD)</label>
+        
+        </div>
+
+        {% if flash | length > 0 %}
+        <p><span style="color:green;"> flash </span></p>
+        {% endif %}
+        {% if msg_error | length > 0 %}
+        <p><span style="color:red;"> msg_error </span></p>
+        {% endif %}
+
+        <div class="row">
+         
+          
+          <div class="col-12 col-md-12 mt-4">
+            <button type="submit" class="btn btn-success w-100 fw-medium">
+              Enviar Inscrição
+            </button>
+          </div>
+
+          
+          <div class="col-6 col-md-6 mt-4  text-align-end text-center-xs">
+            <a href="/login/register" class="btn px-0 link-normal">
+              voltar
+            </a>
+          </div>
+
+
+        </div>
+
+      </form>
+
+
+
+    </div>
+
+  </div>
+</div>
+<!-- / -->
+
+
+<script>
+  
+</script>
+
+{% endblock content %}

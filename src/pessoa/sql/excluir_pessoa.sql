@@ -1,0 +1,1 @@
+delete from pessoa where id = :id;

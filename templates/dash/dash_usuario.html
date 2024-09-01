@@ -1,0 +1,54 @@
+{% extends "layout/client.html" %}
+{% block clientarea %}
+<div class="row">
+    <div class="col">
+        <div class="p-3 mb-4 bg-light rounded">
+            👋 Olá {{ usuario.nome }}
+        </div>
+    </div>
+</div>
+
+<!-- Indicadores do cliente -->
+<div class="row">
+    {% for indicador in indicadores   %}
+    <div class="col-12 col-md-3 mb-3">
+        <div class="indicador">
+
+            <div class="indicador-nome">{{ indicador.titulo }} <span>{{ indicador.valor }}</span></div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Conteúdo Principal - Indicadores de Destaque -->
+<div class="row scroll-hidden">
+    {% for destaque in indicadores %}
+    <div class="col-12 col-md-4 mb-4">
+        <div class="card card-destaque shadow-sm">
+            <img width="40px" src="{{ destaque.avatar }}" alt="Produto" class="rounded-circle me-3">
+            <div class="card-header">{{ destaque.titulo }}</div>
+            <div class="card-atualizacao">{{ destaque.descricao }}</div>
+            <div class="card-body">
+                <div class="card-valor">{{ destaque.valor }}</div>
+                <div class="card-atualizacao">{{ destaque.atualizado | fmttimeopt }}</div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Últimos Clientes -->
+<div class="row">
+    <div class="col">
+        <h5 class="mt-4">Últimos Clientes</h5>
+        <ul class="list-group">
+            {% for cliente in clientes %}
+            <li class="list-group-item">
+                <img width="28px" src="{{ cliente.avatar }}" alt="Produto" class="rounded-circle me-3">
+                <a href="/pedido/add?pessoa={{ cliente.id }}">{{ cliente.nome }} </a><span class="text-muted">{{ cliente.data | fmtdateopt }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock clientarea %}

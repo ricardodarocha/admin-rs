@@ -1,0 +1,19 @@
+{% extends "index.html" %}
+{% block clientarea %}
+
+<div class="main--content">
+    <div class="header--wrapper">
+        <div class="header--title">
+            <span>Pedido/Todos</span>
+            <h2>Todos os pedidos</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="column">
+            {% include "pedido/lista_pedidos.html" %}
+        </div>
+    </div>
+</div>
+
+{% endblock clientarea %}

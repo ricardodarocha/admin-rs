@@ -1,0 +1,31 @@
+{% extends "index.html" %}
+{% block clientarea %}
+
+<div class="main--content">
+    <div class="header--wrapper">
+        <div class="header--title">
+            <span>Pedido/Detalhes do pedido</span>
+            <h2>#{{pedido.order_number}}</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="column">
+            {% include "pedido/resumo.html" %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="column">
+        {% include "pedido/pedido.html" %}
+        </div>
+        <div class="column">
+            {% include "pedido/deliver.html" %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="column">
+            {% include "pedido/detalhes_pedido.html" %}
+        </div>
+    </div>
+</div>
+
+{% endblock clientarea %}

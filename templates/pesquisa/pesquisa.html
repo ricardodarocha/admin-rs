@@ -1,0 +1,44 @@
+<input class="input" 
+    placeholder="pesquisar" 
+    name="q" 
+    type="text" 
+    hx-get="/buscaproduto" 
+    hx-trigger="keyup changed delay:1200ms" 
+    hx-target="resultado-da-busca"
+/>
+
+<div class="table-responsive">
+    <table id="basic-datatables" class="display table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Office</th>
+                <th>Age</th>
+                <th>Start date</th>
+                <th>Salary</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Office</th>
+                <th>Age</th>
+                <th>Start date</th>
+                <th>Salary</th>
+            </tr>
+        </tfoot>
+        <tbody id="resultado-da-busca">
+            <tr>
+                <td>Tiger Nixon</td>
+                <td>System Architect</td>
+                <td>Edinburgh</td>
+                <td>61</td>
+                <td>2011/04/25</td>
+                <td>$320,800</td>
+            </tr>
+     
+        </tbody>
+    </table>
+</div>

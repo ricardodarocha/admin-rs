@@ -1,0 +1,95 @@
+{% extends "dash.html" %}
+
+{% block content %}
+
+
+<!-- -->
+
+
+<div class="col-md-12 col-lg-12 mx-auto">
+    <h1 class=" fw-bold">Minha conta</h1>
+    <!-- form -->
+    <form class="bs-validate p-4 p-md-5 card rounded-xl" novalidate method="post" action="#"
+        data-error-toast-text="<i class='fi fi-circle-spin fi-spin float-start'></i> Preencha todos os campos necessários!"
+        data-error-toast-delay="3000" data-error-toast-position="top-right">
+
+
+        <!--
+            <p class="text-danger">
+              Ups! Please check again
+            </p>
+            -->
+
+
+        <div class="form-floating mb-3">
+            <input required id="full_name" name="name" type="text" class="form-control" value="{{user.username}}">
+            <label for="account_full_name">Nome completo</label>
+        </div>
+
+        <!-- <div class="form-floating mb-3">
+            <input required placeholder="CPF" id="cpf" name="cpf" type="text" class="form-control" value="{{user.cpf}}"
+                disabled>
+            <label for="cpf">Cpf</label>
+        </div> -->
+        <!-- <input type="hidden" name="cpf" value="cantchange"> -->
+        <div class="form-floating mb-3">
+            <input required placeholder="Seu Email" id="email" name="email" type="email" class="form-control"
+                value="{{user.email}}">
+            <label for="email">Email</label>
+        </div>
+
+        <div class="input-group-over mb-3">
+            <div class="form-floating">
+                <input required placeholder="Senha" id="password" type="password" name="passw" class="form-control"
+                    value="">
+                <label for="account_password">Senha</label>
+            </div>
+
+            <!-- `SOW : Form Advanced` plugin used -->
+            <a href="" class="btn smaller btn-password-type-toggle">
+                <span class="group-icon" onclick="toggleVisibilitePassword()">
+                    <i class="fi fi-eye m-0"></i>
+                    <i class="fi fi-close m-0"></i>
+                </span>
+            </a>
+        </div>
+
+
+
+        <div class="row">
+
+
+            {% if flash | length > 0 %}
+            <p><span style="color:green;"> {{t(l,flash) }} </span></p>
+            {% endif %}
+            {% if msg_error | length > 0 %}
+            <p><span style="color:red;"> {{t(l,msg_error) }} </span></p>
+            {% endif %}
+
+            <div class="col-12 col-md-12">
+                <button type="submit" class="btn btn-success w-100 fw-medium">
+                   Atualizar
+                </button>
+            </div>
+
+
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- / -->
+<script>
+    function toggleVisibilitePassword() {
+        if (document.querySelector("#password").type == 'text') {
+            document.querySelector("#password").type = 'password';
+        } else {
+            document.querySelector("#password").type = 'text';
+        }
+    }
+</script>
+
+{% endblock content %}

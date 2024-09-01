@@ -1,0 +1,113 @@
+@import url("https://fonts.cdnfonts.com/css/source-sans-pro");
+
+body {
+   font-family: "Source Sans Pro", sans-serif;
+    background-color: white;
+    height: 100vh;
+    margin: 0;
+}
+
+.sidebar {
+    width: 240px;
+    background-color: #198754;
+    color: white;
+    padding: 1.7rem;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+
+.client {
+    margin-left: 240px; /* Espaço igual à largura da sidebar */
+    padding: 1rem;
+    flex: 1;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+	width: 0px;
+    }
+
+	.client {
+	    margin-left: 0px; /* Espaço igual à largura da sidebar */
+	}
+}
+
+.logo {
+  height: 80px;
+  padding: 16px;
+}
+
+.menu {
+  height: 88%;
+  position: relative;
+  list-style: none;
+  padding: 0;
+}
+
+.menu li {
+  padding: 1rem;
+  margin: 8px 0;
+  border-radius: 8px;
+  transition: all 0.5s;
+}
+
+.menu a {
+  color: white;
+  font-size: 14px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.menu a span {
+  overflow: hidden;
+}
+
+.menu a i {
+  font-size: 1.2rem;
+}
+
+.menu li:hover,
+.active {
+  background: #f6f8ff;
+}
+
+.logout {
+  position: absolute;
+  bottom: 0;
+}
+
+.card {
+  background: #fff;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+table,
+th,
+td {
+  border: 1px solid #ddd;
+}
+th,
+td {
+  padding: 15px;
+  text-align: left;
+}
+th {
+  background-color: #f2f2f2;
+}
+tfoot td {
+  text-align: right;
+  font-weight: bold;
+}

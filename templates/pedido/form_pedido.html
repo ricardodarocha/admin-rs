@@ -1,0 +1,221 @@
+{% extends "layout/client.html" %}
+
+{% block style %}
+<style>
+    .right-icon {
+        position: absolute;
+        right: 13px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .a2lines {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        /* number of lines to show */
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .prod-description {
+        font-size: 0.9rem;
+        color: gray;
+    }
+
+    .prod-price {
+        font-weight: bold;
+    }
+
+    .prod-tags {
+        font-size: 0.8rem;
+        color: #28a745;
+    }
+
+    .prod-options input,
+    .prod-predefined div {
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block clientarea %}
+<div class="container mt-4">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#produtosModal"><i
+            class="fa fa-clone"></i></button>
+    <div class="modal fade" id="produtosModal" tabindex="-1" role="dialog" aria-labelledby="empresaModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="produtosModalLabel">Galeria</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% include "produto/galeria.html" %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Header -->
+    <!-- <form id="it" action="/pedido/{{ form.id }}" method="POST" class="bs-validate p-4 p-md-5 card rounded-xl"> -->
+    <div class="card-header">
+        <h3 class="mb-0">Pedido {{ form.codigo }}</h3>
+    </div>
+    <div class="card-body">
+        <!-- List of Products -->
+        <div class="list-group">
+            <!-- List Item -->
+            {% for item in form.itens %}
+            <form id="ped{{ form.id }}-item{{item.id_item}} " action="/pedido/{{ form.id }}" method="POST"
+                class="bs-validate input-group">
+
+                <div class="list-group-item">
+                    <!-- Primeira Linha: Imagem, Título, Descrição e Ícone -->
+                    <div class="row">
+                        <!-- Coluna com Imagem -->
+                        <div class="col-2 d-flex align-items-start">
+                            <img width="64px" src="{{ item.url }}" alt="🍎" class="rounded-circle">
+                        </div>
+
+                        <!-- Coluna com Título e Descrição -->
+                        <div class="col-8">
+                            <strong class="fs-5">{{ item.produto }}</strong>
+                            <p class="text-muted a2lines">{{ item.descricao }} </p>
+                        </div>
+
+                        <!-- Coluna com Ícone -->
+                        <div class="justify-content-center align-items-center">
+                            <i class="right-icon fa-solid fa-chevron-right"></i>
+                        </div>
+                    </div>
+
+                    <!-- Segunda Linha: Preço e Total à Esquerda, Controles à Direita -->
+                    <div class="row mt-0">
+                        <!-- Preço e Total -->
+                        <div class="col-2"></div>
+                        <div class="col-4 ml-5">
+                            <span class="fs-5">Preço: {{ item.preco }}</span><br>
+                            <span>Total: {{ item.total }}</span>
+                        </div>
+
+                        <!-- Botões de Controle e Input Numérico -->
+                        <div class="col-5 d-flex justify-content-end align-items-center">
+                            <input type="number" name="quantidade" id="quantidade" value="{{ item.quantidade }}"
+                            class="form-control text-center me-1" style="width: 120px;"
+                            hx-get="/pedido/up/{{ item.id_pedido }}/{{ item.id_produto }}/{{ item.id_item }}"
+                            hx-trigger="keyup changed delay:1500ms" hx-target="#total-{{ item.id_item }}">
+                            <label for="quantidade" class="m-3">{{ item.unidade }}</label>
+                            <button type="button" class="btn btn-round btn-light incrementButton"><i class="fa-solid fa-plus fa-fw"></i></button>
+                            <button type="button" class="btn btn-round btn-light decrementButton"><i class="fa-solid fa-minus fa-fw"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Linhas para Detalhes do Produto (Exemplo: Tamanhos L e XL) -->
+                     {% if item.nome_medida1 %}
+                    <div class="row mt-2 input-group">
+                        <div class="col-3"></div>
+                        <div class="col-2 ml-5">
+                            <label class="fs-6">{{ item.nome_medida1 }}</label>
+                        </div>
+                        <div class="col-6 d-flex justify-content-end align-items-center">
+                            <input type="number" name="campo1" id="campo1" value="{{ item.medida1 }}"
+                            class="form-control text-center me-1" style="width: 120px;">
+                            <label for="campo1" class="ms-2">{{ item.id_unidade_medida1 }}</label>
+                            <button type="button" class="btn btn-round ml-auto btn-light m-1 "><i class="fa-solid fa-plus fa-fw"></i></button>
+                            <button type="button" class="btn btn-round ml-auto btn-light m-1 "><i class="fa-solid fa-minus fa-fw"></i></button>
+                        </div>
+                    </div>
+                    {% endif %}   <!-- Linhas para Detalhes do Produto (Exemplo: Tamanhos L e XL) -->
+                     {% if item.nome_medida2 %}
+                    <div class="row mt-2 input-group">
+                        <div class="col-3"></div>
+                        <div class="col-2 ml-5">
+                            <label class="fs-6">{{ item.nome_medida2 }}</label>
+                        </div>
+                        <div class="col-6 d-flex justify-content-end align-items-center">
+                            <input type="number" name="campo2" id="campo2" value="{{ item.medida2 }}"
+                            class="form-control text-center me-1" style="width: 120px;">
+                            <label for="campo2" class="ms-2">{{ item.id_unidade_medida2 }}</label>
+                            <button type="button" class="btn btn-round ml-auto btn-light m-1 "><i class="fa-solid fa-plus fa-fw"></i></button>
+                            <button type="button" class="btn btn-round ml-auto btn-light m-1 "><i class="fa-solid fa-minus fa-fw"></i></button>
+                        </div>
+                    </div>
+                    {% endif %}  <!-- Linhas para Detalhes do Produto (Exemplo: Tamanhos L e XL) -->
+                     {% if item.nome_medida3 %}
+                    <div class="row mt-2 input-group">
+                        <div class="col-3"></div>
+                        <div class="col-2 ml-5">
+                            <label class="fs-6">{{ item.nome_medida3 }}</label>
+                        </div>
+                        <div class="col-6 d-flex justify-content-end align-items-center">
+                            <input type="number" name="campo3" id="campo3" value="{{ item.medida3 }}"
+                                class="form-control text-center me-1" style="width: 120px;">
+                                <label for="campo3" class="ms-2">{{ item.id_unidade_medida3 }}</label>
+                                <button type="button" class="btn btn-round ml-auto btn-light m-1 "><i class="fa-solid fa-plus fa-fw"></i></button>
+                                <button type="button" class="btn btn-round ml-auto btn-light m-1 "><i class="fa-solid fa-minus fa-fw"></i></button>
+                        </div>
+                    </div>
+                    {% endif %} <!-- Linhas para Detalhes do Produto (Exemplo: Tamanhos L e XL) -->
+                     {% if item.nome_medida4 %}
+                    <div class="row mt-2 input-group">
+                        <div class="col-3"></div>
+                        <div class="col-2 ml-5">
+                            <label class="fs-6">{{ item.nome_medida4 }}</label>
+                        </div>
+                        <div class="col-6 d-flex justify-content-end align-items-center">
+                            <input type="number" name="campo4" id="campo4" value="{{ item.medida4 }}"
+                                class="form-control text-center me-1" style="width: 120px;">
+                                <label for="campo4" class="ms-2">{{ item.id_unidade_medida4 }}</label>
+                                <button type="button" class="btn btn-round ml-auto btn-light m-1 "><i class="fa-solid fa-plus fa-fw"></i></button>
+                                <button type="button" class="btn btn-round ml-auto btn-light m-1 "><i class="fa-solid fa-minus fa-fw"></i></button>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </form>
+            {% endfor %}
+        </div>
+        <!-- Fim List Item -->
+    </div>
+</div>
+<!-- Footer -->
+<div class="card-footer text-end">
+    <button class="btn btn-primary" type="submit">Salvar</button>
+</div>
+<!-- </form> -->
+</div>
+
+{% endblock clientarea %}
+
+{% block script %}
+<script>
+    // Seleciona todos os elementos do grupo de inputs
+    console.log("Olá mundo");
+    const inputGroups = document.querySelectorAll('.input-group');
+
+    // Adiciona os eventos de clique para cada grupo de inputs
+    inputGroups.forEach(group => {
+        const input = group.querySelector('input');
+        const incrementButton = group.querySelector('.incrementButton');
+        const decrementButton = group.querySelector('.decrementButton');
+
+        // Função para incrementar o valor do input
+        incrementButton.onclick = () => {
+            const stepSize = parseFloat(input.getAttribute('step')) || 1;
+            input.value = parseInt(input.value) + stepSize;
+            input.focus(); // Mantém o foco no input
+        };
+
+        // Função para decrementar o valor do input
+        decrementButton.onclick = () => {
+            const stepSize = parseFloat(input.getAttribute('step')) || 1;
+            input.value = parseInt(input.value) - stepSize;
+            input.focus(); // Mantém o foco no input
+        };
+    });
+</script>
+{% endblock %}

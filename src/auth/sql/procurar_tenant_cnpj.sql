@@ -1,0 +1,1 @@
+select id from tenant where cnpj = $1

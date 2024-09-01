@@ -1,0 +1,105 @@
+{% extends "layout/layout.html" %}
+
+{% block content %}
+<!-- -->
+<div class="section">
+  <div class="container" style="background-color: white">
+
+    <div class="text-center mb-5">
+
+      <h1 class="display-8 fw-bold">Informe suas credenciais</h1>
+      <p class="text-muted">
+        <img src="/static/img/logo.png" alt="Logo"
+          style="height: 50px; margin-bottom: 0.5rem; margin-right: 0.5rem; vertical-align: middle; display: inline-block;">
+      </p>
+      <p class="lead m-0">
+        Ricardo da Rocha Inc. © 2024 - Todos os direitos reservados
+      </p>
+    </div>
+
+    <div class="col-md-9 col-lg-6 mx-auto">
+
+      <!-- form -->
+      <form novalidate action="/login" method="POST" class="bs-validate p-4 p-md-5 card rounded-xl">
+
+
+        <!--
+            <p class="text-danger">
+              Ups! Please check again
+            </p>
+            -->
+
+
+        <div class="form-floating mb-3">
+          <input required placeholder="Usuário" id="username" name="username" type="usuario" class="form-control" value="{{ form.username }}">
+          <label for="usuario">usuario</label>
+        </div>
+
+        <div class="input-group-over mb-3">
+          <div class="form-floating">
+            <input required placeholder="Password" id="password" name="password" type="password" class="form-control"
+              value="{{ form.password }}">
+            <label for="account_password">Senha</label>
+          </div>
+
+          <a href="" class="btn smaller btn-password-type-toggle">
+            <span class="group-icon" onclick="toggleVisibilitePassword()">
+              <i class="fi fi-eye m-0"></i>
+              <i class="fi fi-close m-0"></i>
+            </span>
+          </a>
+
+
+
+        </div>
+
+        {% if flash | length > 0 %}
+        <p><span style="color:green;"> flash </span></p>
+        {% endif %}
+        {% if msg_error | length > 0 %}
+        <p><span style="color:red;"> msg_error </span></p>
+        {% endif %}
+
+        <div class="row">
+          <div class="col-12 col-md-12 mt-4">
+            <button type="submit" class="btn btn-success w-100 fw-medium">
+              Acessar
+            </button>
+          </div>
+
+          <div class="col-6 col-md-6 mt-4 text-align-end text-center-xs">
+            <a href="/login/register" class="btn px-0 link-normal">
+              Não tem uma conta ainda?
+            </a>
+          </div>
+          <div class="col-6 col-md-6 mt-4  text-align-end text-center-xs">
+            <a href="/recover_access" class="btn px-0 link-normal">
+              Recuperar a senha
+            </a>
+          </div>
+
+
+        </div>
+
+      </form>
+
+
+
+    </div>
+
+  </div>
+</div>
+<!-- / -->
+
+
+<script>
+  function toggleVisibilitePassword() {
+    if (document.querySelector("#password").type == 'text') {
+      document.querySelector("#password").type = 'password';
+    } else {
+      document.querySelector("#password").type = 'text';
+    }
+  }
+</script>
+
+{% endblock content %}

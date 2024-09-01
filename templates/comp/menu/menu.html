@@ -1,0 +1,11 @@
+<div class="section">
+    <div class="logo"></div>
+    <ul class="menu">
+        {% for menu in menus %}
+        <li><a href="{{menu.caminho}}"><i class="{{menu.classe}}"></i><span>{{menu.titulo}}</span></a></li>
+        {% for user in menus %}
+        <hr class="solid">
+
+        <li><a href="/logout"><i class="fas fa-sign-out-alt"></i><span>Encerrar sessão</span></a></li>
+    </ul>
+</div>

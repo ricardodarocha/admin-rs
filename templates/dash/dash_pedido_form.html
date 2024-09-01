@@ -1,0 +1,53 @@
+{% extends "layout/client.html" %}
+{% block clientarea %}
+
+<div class="row">
+    <div class="mt-5">
+    <!-- Card com dados do cliente -->
+    <div class="card">
+        <div class="card-header">
+            <h4>Dados do Cliente</h4>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Nome do Cliente</h5>
+            <p class="card-text">Email: cliente@exemplo.com</p>
+            <p class="card-text">Telefone: (XX) XXXX-XXXX</p>
+        </div>
+    </div>
+
+    <!-- Lista de pedidos -->
+    <div class="mt-4">
+        <h4>Pedidos</h4>
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <h5>Pedido #1</h5>
+                    <p>Data: 2024-08-01</p>
+                    <p>Valor: R$ 100,00</p>
+                    <p>Status: Enviado</p>
+                </div>
+                <span class="badge badge-primary badge-pill">Enviado</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <h5>Pedido #2</h5>
+                    <p>Data: 2024-08-02</p>
+                    <p>Valor: R$ 150,00</p>
+                    <p>Status: Processando</p>
+                </div>
+                <span class="badge badge-warning badge-pill">Processando</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <h5>Pedido #3</h5>
+                    <p>Data: 2024-08-03</p>
+                    <p>Valor: R$ 200,00</p>
+                    <p>Status: Cancelado</p>
+                </div>
+                <span class="badge badge-danger badge-pill">Cancelado</span>
+            </li>
+            <!-- Adicione mais pedidos conforme necessário -->
+        </ul>
+    </div>
+</div>
+{% endblock clientarea %}

@@ -1,0 +1,13 @@
+{% extends "modal/modal.html" %}
+{% block modal_content %}
+<ul class="list-group">
+    {% for empresa in empresas %}
+        <li class="list-group-item">
+            <div class="d-flex align-items-center">
+                <img src="{{ empresa.avatar }}" alt="Empresa {{ empresa.fantasia }}">
+                <span>{{ empresa.fantasia }}</span>
+            </div>
+            <input type="radio" name="empresa" class="form-check-input" {% if {{ empresa.id }} == {{ selected }} %} checked {{% endif %}}>
+        </li>
+</ul>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "layout/client.html" %}
+
+{% block clientarea %}
+<!-- -->
+<div class="row">
+    <div class="table-responsive">
+        <table id="add-row" class="display table table-striped table-hover">
+            <thead>
+                <tr>
+                    {% for field in colunas.itens %}
+                    <th>{{ field.nome }}</th>
+                    {% endfor %}
+                    <th></th>
+                </tr>
+            </thead>
+            <tfoot>
+                <tr>
+                    {% for field in colunas.itens %}
+                    <th>{{ field.nome }}</th>
+                    {% endfor %}
+                </tr>
+            </tfoot>
+            <tbody>
+                {% for row in grade %}
+                <tr>
+                    <td><a href="/contato/{{row.id}}">{{row._id}}</a></td>
+                    <td>{{row.nome}}</td>
+                    <td>{{row.telefone}}</td>
+                    <td>
+                        <div class="form-button-action">
+                            <a href="/contato/{{row.id}}">
+                                <button type="button" data-toggle="tooltip" title=""
+                                    class="btn btn-link btn-primary btn-lg" data-original-title="Editar">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                            </a>
+                            <a href="/contato/hide/{{row.id}}">
+                                <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger"
+                                    data-original-title="Remover">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock clientarea %}

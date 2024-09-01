@@ -1,0 +1,26 @@
+<div class="list-group-item d-flex align-items-center">
+    <img width="64px" src="{{ item.url }}" alt="🍎" class="rounded-circle me-3">
+    <div class="flex-grow-1">
+        <strong>{{ item.produto }}</strong>
+    </div>
+    <div class="flex-grow-1"> {{ item.preco }} </div>
+
+    <input hidden type="text" name="id" value={{ item.id_item }} class="form-control text-center" style="width: 60px;">
+
+    <button class="btn btn-outline-secondary">-</button>
+    <button class="btn btn-outline-secondary ">+</button>
+
+    <div class="d-flex align-items-center  col-md-2 ">
+        <input type="number" name="quantidade" id="quantidade" value={{ item.quantidade }}
+            class="form-control text-center" style="width: 160px;"
+            hx-get="/pedido/up/{{ item.id_pedido }}/{{ item.id_produto }}/{{ item.id_item }}"
+            hx-trigger="keyup changed delay:1500ms" hx-target="#total-{{ item.id_item  }}">
+        <label for="quantidade" class="m-2"> {{ item.unidade }} </label>
+    </div>
+    <div id="total-{{ item.id_item  }}">
+        {% if item.total > 0.0 %}
+        <span> {{ item.total }} </span>
+        {% endif %}
+    </div>
+    <i class="right-icon fa-solid fa-chevron-right"></i>
+</div>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-br" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %} {% endblock %} Pedido na Nuvem | ☁</title> 
+
+    <!-- <title>{{title}}</title> -->
+    <meta name="description" content="...">
+
+    <meta name="viewport" content="width=device-width, maximum-scale=5, initial-scale=1">
+    
+    <!-- webapp manifest -->
+    <link rel="manifest" href="/static/manifest.json" />
+
+    <!-- up to 10% speed up for external res -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com/">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com/">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/">
+    <!-- preloading icon font is helping to speed up a little bit -->
+    <!-- <link rel="preload" href="/static/fonts/helvetica.woff2" as="font" type="font/woff2"  crossorigin> -->
+
+    <link rel="stylesheet" href="/static/assets/css/core.min.css">
+    <link rel="stylesheet" href="/static/assets/css/vendor_bundle.min.css">
+    <link rel="stylesheet" href="/static/assets/css/index.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+
+    <!-- favicon -->
+    <link rel="shortcut icon" href="/static/img/App.png">
+    {% block head %}
+    {% endblock head %}
+
+    {% block stylesheets %}
+    {% endblock stylesheets %}
+
+    {% block style %}
+    {% endblock style %}
+
+</head>
+
+<body style="background-color: white;">
+    <div class="container">
+    {% if navbar %}
+        {% include "comp/nav/nav.html" %}
+    {% endif %}
+    <div class="wrapper">
+    
+
+    <div class="content">
+        {% block content %}
+        {% endblock%}
+    </div></div>
+</div>
+
+<!-- {% include "footer/footer.html" %} -->
+
+<!-- Your custom javascripts -->
+     {% include "scripts/scripts.html" %}
+     
+    {% block script %}
+    {% endblock %}
+
+</body>
+
+</html>
