@@ -323,8 +323,8 @@ pub struct Pedido {
 pub struct Credencial {} //Persona, Vendedor, Cliente, Admin
 
 impl Usuario {
-    fn primeiro_acesso() -> Self {
-        
+    fn primeiro_acesso(self) -> Self {
+        self
     }
 
     fn gerar_senha() {
