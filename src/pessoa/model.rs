@@ -1,3 +1,4 @@
+use rust_decimal::Decimal;
 use serde::{Serialize, Deserialize};
 use time::{OffsetDateTime, PrimitiveDateTime};
 use crate::infra::pagination::Pagination;
@@ -6,12 +7,14 @@ use sqlx::FromRow;
 #[derive(Deserialize)]
 pub struct PessoaPagination {
     #[serde(flatten)]
-    pub pagination: Pagination
+    pub pagination: Pagination,
+    pub categoria: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, FromRow)]
 pub struct PessoaList {  
     pub id: String, 
+    pub id_: Option<String>,
    	pub nome: Option<String>,
    	pub razao_social: Option<String>,
    	pub tipo_pessoa: Option<String>,
@@ -101,7 +104,32 @@ pub struct PostPessoa {
     pub cidade: String,
     pub estado: String,
 
+    //Documentos    
+    pub cns: Option<String>,
+    pub identidade: Option<String>,
+    pub cnh: Option<String>,
+    pub oab: Option<String>,
+    pub tituloeleitor: Option<String>,
+
+    //Funcionário    
+    pub ctps: Option<String>,
+    pub pis: Option<String>,
+    pub salario: Option<Decimal>,
+
+    //Vendedor    
+    pub regiao: Option<String>,
+    pub comissao: Option<Decimal>,
+
 }
+#[derive(Default, Serialize, Deserialize)]
+pub struct GrupoPessoa {
+    pub id: String, 
+    pub classe: Option<String>, 
+    pub nome: Option<String>,     
+    pub url: Option<String>,
+    pub qt: Option<i64>
+}
+
 
 #[derive(Deserialize)]
 pub struct PutPessoaForm {

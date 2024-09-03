@@ -199,4 +199,5 @@ update pessoa set avatar = 'https://static.vecteezy.com/system/resources/thumbna
       id_produto varchar(40) not null references produto(id), created_at TIMESTAMP not null default current_timestamp ,
       ativo bool not null default true);
       
-      
+      alter table grupo_produto add classe varchar not null default 'bg-warning';
+      alter table categoria_produto add classe varchar not null default 'bg-warning';

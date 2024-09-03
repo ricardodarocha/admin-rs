@@ -27,23 +27,21 @@
                 </div>
                 <div class="form-group">
                     <div>
-                        <label for="endereco">Ruas</label>
-                        <input type="text" id="endereco" name="endereco" autocomplete="street-address" required
+                        <label for="endereco">Rua</label>
+                        <input type="text" class="form-control" id="endereco" name="endereco" autocomplete="street-address" required
                             enterkeyhint="next"></input>
                     
                     </div>
                     <div>
                         <label for="cep">CEP</label>
-                        <input class="postal-code" id="cep" name="cep" autocomplete="postal-code" enterkeyhint="next">
+                        <input class="postal-code form-control" id="cep" name="cep" autocomplete="postal-code" enterkeyhint="next">
                     </div>
                     <div>
                         <label for="city">Cidade</label>
-                        <input required type="text" id="cidade" name="cidade" autocomplete="address-level2" enterkeyhint="next">
+                        <input required type="text" class="form-control" id="cidade" name="cidade" autocomplete="address-level2" enterkeyhint="next">
                     </div>
                     <div>
-                        <label for="country">Estado</label>
-                        {% with itens = estados, label = "Selecione", value = form.id_estado, name =
-                        "id_estado" %}
+                        {% with itens = estados, label = "Estado", value = form.id_estado, name = "id_estado" %}
                         {% include "comp/select/select.html" %}
                         {% endwith %}
                     </div>
@@ -52,12 +50,12 @@
                     <input type="radio" class="tabs__radio" name="tabtipopessoa" id="tabcpf" checked>
                     <label for="tabcpf" class="tabs__label">Cpf</label>
                     <div class="tabs__content">
-                    <input type="text" class="cpf-cnpj" name="cpf" maxlength="11">
+                    <input type="text" class="cpf-cnpj form-control" name="cpf" maxlength="11">
                     </div>
                     <input type="radio" class="tabs__radio" name="tabtipopessoa" id="tabcnpj" checked>
                     <label for="tabcnpj" class="tabs__label">Cnpj</label>
                     <div class="tabs__content">
-                    <input type="text" class="cpf-cnpj" name="cnpj" maxlength="14">
+                    <input type="text" class="cpf-cnpj form-control" name="cnpj" maxlength="14">
                     </div>
                 </div>
                 <!-- <div class="form-group">
@@ -83,29 +81,93 @@
 
             </div>
             <input type="radio" class="tabs__radio" name="tabs-example" id="tab2">
-            <label for="tab2" class="tabs__label">Fornecimento</label>
+            <label for="tab2" class="tabs__label">Documentos</label>
             <div class="tabs__content">
 
                 <div class="form-group">
-                    <label for="marca">Nome da Marca</label>
-                    <input type="text" class="form-control" name="marca" value="{{ form.marca }}" id="marca"
-                        placeholder="Digite o nome da marca">
+                    <label for="cns">Cartão do Sus</label>
+                    <input type="text" class="form-control" name="cns" value="{{ form.cns }}" id="cns"
+                        placeholder="Digite o número do cartão">
                 </div>
                 <div class="form-group">
-                    <label for="codfornecedor">Código do Fornecedor</label>
-                    <input type="text" class="form-control" name="codfornecedor" value="{{ form.codigo_fornecedor }}" id="codfornecedor"
-                        placeholder="Digite o código do pessoa no fornecedor">
+                    <label for="identidade">Identidade</label>
+                    <input type="text" class="form-control" name="identidade" value="{{ form.identidade }}" id="identidade"
+                        placeholder="Digite o número da identidade">
                 </div>
                 <div class="form-group">
-                    <label for="preco">Preço</label>
-                    <input type="number" class="form-control" name="preco" value="{{ form.preco }}" id="preco" name="preco"
-                        placeholder="Digite o preço do pessoa">
+                    <label for="cnh">Carteira de Motorista</label>
+                    <input type="text" class="form-control" name="cnh" value="{{ form.cnh }}" id="cnh"
+                        placeholder="Digite o número da carteira de motorista">
                 </div>
                 <div class="form-group">
-                    <label for="estoque">Estoque</label>
-                    <input type="number" class="form-control" required name="estoque" value="{{ form.estoque }}" id="estoque" name="estoque"
-                        placeholder="Digite a quantidade em estoque">
+                    <label for="oab">Carteira Profissional</label>
+                    <input type="text" class="form-control" name="oab" value="{{ form.oab }}" id="oab"
+                        placeholder="OAB CRM CRC CREA COREN">
                 </div>
+                <div class="form-group">
+                    <label for="tituloeleitor">Título de eleitor</label>
+                    <input type="text" class="form-control" name="tituloeleitor" value="{{ form.tituloeleitor }}" id="tituloeleitor"
+                        placeholder="Digite o número do título">
+                </div>
+                         
+               
+                <div class="row">
+                    <div class="col-12 col-md-12 mt-4">
+                        <div class="col-12 col-md-12 mt-4">
+                            <button type="submit" class="btn btn-success w-100 fw-medium">
+                                Salvar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <input type="radio" class="tabs__radio" name="tabs-example" id="tab3">
+            <label for="tab3" class="tabs__label">Funcionário</label>
+            <div class="tabs__content">
+                <div class="form-group">
+                    <label for="ctps">Número da carteira de trabalho</label>
+                    <input type="text" class="form-control" name="ctps" value="{{ form.ctps }}" id="ctps"
+                        placeholder="Número">
+                </div>
+                <div class="form-group">
+                    <label for="pis">Número do PIS PASEP</label>
+                    <input type="text" class="form-control" name="pis" value="{{ form.pis }}" id="pis"
+                        placeholder="Número">
+                </div>
+                <div class="form-group">
+                    <label for="salario">Salário</label>
+                    <input type="number" class="form-control" name="salario" value="{{ form.salario }}" id="salario"
+                        placeholder="R$ Valor">
+                </div>
+                         
+               
+                <div class="row">
+                    <div class="col-12 col-md-12 mt-4">
+                        <div class="col-12 col-md-12 mt-4">
+                            <button type="submit" class="btn btn-success w-100 fw-medium">
+                                Salvar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <input type="radio" class="tabs__radio" name="tabs-example" id="tab4">
+            <label for="tab4" class="tabs__label">Vendedor</label>
+            <div class="tabs__content">
+                <div class="form-group">
+                    <label for="regiao">Região</label>
+                    <input type="text" class="form-control" name="regiao" value="{{ form.regiao }}" id="regiao"
+                        placeholder="Nome da região">
+                </div>
+                <div class="form-group">
+                    <label for="comissao">Comissão</label>
+                    <input type="number" class="form-control" name="comissao" value="{{ form.comissao }}" id="comissao"
+                        placeholder="R$ Valor">
+                </div>
+                         
+               
                 <div class="row">
                     <div class="col-12 col-md-12 mt-4">
                         <div class="col-12 col-md-12 mt-4">

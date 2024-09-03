@@ -3,6 +3,13 @@
 {% block clientarea %}
 <!-- -->
 <div class="row">
+    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+        <a class="btn  btn-block btn-light" href="add" role="button">
+            <i class="fa fa-plus"></i>Inserir
+        </a>
+    </div>
+    {% include "comp/categorias/categorias.html" %}
+    
     <div class="table-responsive">
         <table id="add-row" class="display table table-striped table-hover">
             <thead>
@@ -23,20 +30,20 @@
             <tbody>
                 {% for row in grade %}
                 <tr>
-                    <td><a href="/pessoa/{{row.id}}">{{row.id_}}</a></td>
+                    <td><a href="/contato/{{row.id}}">{{row.id_}}</a></td>
                     <td>{{row.nome}}</td>
                     <td>{{row.razao_social}}</td>
                     <td>{{row.telefone}}</td>
                     <td>{{row.email}}</td>
                     <td>
                         <div class="form-button-action">
-                            <a href="/pessoa/{{row.id}}">
+                            <a href="/contato/{{row.id}}">
                                 <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg"
                                 data-original-title="Editar">
                                 <i class="fa fa-edit"></i>
                             </button>
                             </a>
-                            <a href="/pessoa/hide/{{row.id}}">
+                            <a href="/contato/hide/{{row.id}}">
                             <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger"
                                 data-original-title="Remover">
                                 <i class="fa fa-trash"></i>

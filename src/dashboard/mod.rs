@@ -12,6 +12,7 @@ pub mod controller {
     use actix_web::http::header::LOCATION;
     use crate::admin::repo::abrir_empresa_one;
     use crate::app::AppState;
+    use crate::auth::repo::recados_do_usuario;
     use crate::auth::session::{get_user, has_logged}; //, has_permission
     use crate::dashboard::repo::dash_for_user;
     // use crate::infra::result::Result;
@@ -36,6 +37,15 @@ pub mod controller {
         };
 
         let usuario = get_user(pool, &session).await;
+        
+        let recados = match usuario.clone() {
+            Some(usuario) => {
+                  let recados = recados_do_usuario(pool, &usuario.id).await.unwrap();
+                  Some(recados)
+            },
+            None => None ,
+        };
+
         let id_empresa = usuario.clone().unwrap().id_empresa;
         let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
         let dashboard = dash_for_user(pool, usuario.clone().unwrap().id).await.unwrap();
@@ -45,7 +55,7 @@ pub mod controller {
         let msg_error = format!("{}", session.remove("msg_error").unwrap_or("".to_string()));   
 
 
-        crate::infra::render::render_minijinja("dash/dash_lista_pedidos.html", context!(usuario, empresa, dashboard, flash, msg_error)) 
+        crate::infra::render::render_minijinja("dash/dash_lista_pedidos.html", context!(usuario, recados, empresa, dashboard, flash, msg_error)) 
     
     }  
 

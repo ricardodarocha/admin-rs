@@ -3,6 +3,7 @@ use actix_session::Session;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use time::OffsetDateTime;
+use time::serde::iso8601::option;
 
 #[derive(Debug, Deserialize, Serialize, FromRow, Clone)]
 pub struct User {
@@ -30,6 +31,23 @@ pub struct Subscriber {
     #[serde(with = "time::serde::iso8601")]
     pub created: OffsetDateTime,
     pub id_email: Option<String>,
+}
+
+#[derive(FromRow, Serialize, Deserialize)]
+pub struct Recado {
+    pub codigo: i32,
+    pub id: Option<String>,
+    pub mensagem: Option<String>,
+    pub url: Option<String>,
+        
+    #[serde(with = "time::serde::iso8601")]
+    pub created_at: OffsetDateTime,
+
+    #[serde(with = "option")]
+    pub readed_at: Option<OffsetDateTime>,
+
+    pub id_usuario: String,
+    
 }
 
     #[allow(unused)]

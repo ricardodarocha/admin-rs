@@ -13,13 +13,14 @@ pub mod controller {
     use crate::admin::repo::abrir_empresa_one;
     use crate::auth::model::{UserOperation, UserPermission};
     use crate::auth::session::{get_user, has_logged, has_permission, user_has_not_permission};
+    use crate::cidade::repo::lista_estados;
     use crate::infra::models::Colunas;
     use crate::land::model::Menu;
     use crate::land::repo::get_menus;
     use crate::pessoa::model::{Pessoa, PessoaPagination, PostPessoa};
     use crate::app::AppState;
     use actix_web::http::header::LOCATION;
-    use crate::pessoa::repo as repo;
+    use crate::pessoa::repo::{self as repo, lista_grupos_pessoas};
 
     #[get("/{id}")]
     pub async fn pessoa_form(
@@ -46,8 +47,9 @@ pub mod controller {
     let usuario = get_user(pool, &session).await;
     let id_empresa = usuario.clone().unwrap().id_empresa.clone().unwrap().to_string();
     let empresa = abrir_empresa_one(pool, &id_empresa.clone()).await.unwrap();
+
     let found_pessoa: Option<Pessoa> = repo::abrir_pessoa(pool, id_empresa.clone(), &current_id.clone()).await;
-    // < OTHER ENTITIES >
+    let estados = lista_estados(pool).await.unwrap();
     let flash = session.remove("flash").unwrap_or("".to_string());
     let msg_error = format!("{}", session.remove("msg_error").unwrap_or("".to_string()));
     let menus: Vec<Menu> =
@@ -61,7 +63,7 @@ pub mod controller {
       crate::infra::render::render_minijinja(
       "pessoa/form_pessoa.html", context!(
         menus,
-        // < OTHER ENTITIES >
+        estados,
         usuario,
         current_id,
         form,
@@ -156,7 +158,7 @@ pub mod controller {
 
         ) -> impl Responder {
 
-        dbg!("GET /produto_list -> ");
+        dbg!("GET /pessoa_list -> ");
         let pool = &data.database.conn;
         // let url_for = format!("{}/", std::env::var("SITE").unwrap());
 
@@ -175,6 +177,11 @@ pub mod controller {
         let usuario = get_user(pool, &session).await;
         let id_empresa = usuario.clone().unwrap().id_empresa;
         let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
+        let categorias = match id_empresa.clone() {
+            Some(empresa) => { lista_grupos_pessoas(pool, empresa).await.unwrap() },
+            None => { vec!()},
+        };
+  
         let grade = repo::listar_pessoas_all(pool, id_empresa.clone().unwrap(), args).await.unwrap();
    
         let colunas = Colunas::new(vec!["id", "nome", "razão social", "telefone", "email"]);
@@ -190,6 +197,7 @@ pub mod controller {
         crate::infra::render::render_minijinja("pessoa/pessoa_lista.html", context!(
             menus, 
             usuario, 
+            categorias,
             empresa,
             colunas, 
             grade, 

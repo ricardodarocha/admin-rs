@@ -3,8 +3,30 @@
 <div class="row">
     <div class="col">
         <div class="p-3 mb-4 bg-light rounded">
-            👋 Olá {{ usuario.nome }}
+            👋 Olá {{ usuario.nome }} <br/>
+                {% if recados %}
+
+                {% for recado in recados %}
+
+                🗨 {{ recado.mensagem }} 
+                
+                    {% if recado.url %}
+                    <a href="{{ recado.url }}">🍕</a> 
+                    {% endif %}
+                
+                    <br />
+                {% endfor %}
+
+                {% else %}
+
+
+                ✔ Você não tem nenhuma mensagem
+
+                {% endif %}
+
         </div>
+
+
     </div>
 </div>
 

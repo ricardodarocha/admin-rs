@@ -3,6 +3,14 @@
 {% block clientarea %}
 <!-- -->
 <div class="row">
+    
+    <div class="btn-group btn-group-toggle" data-toggle="buttons">        
+        <a class="btn  btn-block btn-light" href="add" role="button">
+            <i class="fa fa-plus"></i>Inserir
+        </a>
+    </div>
+    {% include "comp/categorias/categorias.html" %}
+
     <div class="table-responsive">
         <table id="add-row" class="display table table-striped table-hover">
             <thead>

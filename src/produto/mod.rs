@@ -13,13 +13,14 @@ pub mod controller {
     use crate::land::model::Menu;
     use crate::land::repo::get_menus;
     use crate::produto::service as service;
-    use crate::produto::repo as repo;
+    use crate::produto::repo::{self as repo, lista_grupos_produtos};
     use crate::auth::model::{UserOperation, UserPermission};
     use crate::auth::session::{get_user, has_logged, has_permission, user_has_not_permission};
     use crate::infra::models::Colunas;
     use crate::produto::model::*;
     use actix_web::http::header::LOCATION;
     use crate::auditoria::service::*;
+    use crate::admin::repo::abrir_empresa_one;
 
 
     #[get("/{id}")]
@@ -111,6 +112,14 @@ pub mod controller {
 
         let web::Query(pagination) = pagination;
         let usuario = get_user(pool, &session).await;
+        let id_empresa = usuario.clone().unwrap().id_empresa;
+        let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
+        let categorias = match id_empresa {
+            Some(empresa) => { lista_grupos_produtos(pool, empresa).await.unwrap() },
+            None => { vec!()},
+        };
+
+
         let grade = repo::lista_produtos(pool, usuario.clone().unwrap().id_empresa.clone().unwrap(), pagination).await.unwrap();
         let colunas = Colunas::new(vec!["id", "nome", "codbarras", "preco", "und", "estoque"]);
         let flash = session.remove("flash").unwrap_or("".to_string()); 
@@ -125,6 +134,8 @@ pub mod controller {
         crate::infra::render::render_minijinja("produto/produto_lista.html", context!(
             menus, 
             usuario, 
+            categorias,
+            empresa,
             colunas, 
             grade, 
             flash, 

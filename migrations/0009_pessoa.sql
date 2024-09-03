@@ -57,7 +57,7 @@ drop table if exists grupo_pessoa cascade;
 
  create table if not exists grupo_pessoa (
     id  VARCHAR(40) not null PRIMARY key,
-    descricao  varchar not null
+    nome  varchar not null
     );
 
     insert into grupo_pessoa VALUES
@@ -134,3 +134,5 @@ create table if not exists pessoa  (
     vendedor bool not null default true,  
     id_user VARCHAR(40) 
     );
+
+alter table grupo_pessoa add classe varchar not null default 'bg-warning';

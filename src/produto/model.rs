@@ -6,14 +6,16 @@ use crate::infra::pagination::*;
 #[derive(Deserialize)]
 pub struct ProdutoPagination {
     #[serde(flatten)]
-    pub pagination: Pagination
+    pub pagination: Pagination,
+    pub categoria: Option<String>,
 }
 
 impl ProdutoPagination {
     pub fn setup(page: u32, size: u32) -> Self {
         let pagination = Pagination{page, size};
         Self {
-            pagination        
+            pagination,
+            categoria: None,      
         }
     }
 }
@@ -169,6 +171,9 @@ pub struct PostProdutoFull {
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct GrupoProduto {
-    pub id: String,
-    pub nome: Option<String>,
+    pub id: String, 
+    pub classe: Option<String>, 
+    pub nome: Option<String>,     
+    pub url: Option<String>,
+    pub qt: Option<i64>
 }

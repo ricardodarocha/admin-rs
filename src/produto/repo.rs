@@ -292,12 +292,13 @@ pub async fn lista_grupos_produtos (
     let rec =
     sqlx::query_as!(
         GrupoProduto, r#"
-        select g.* from grupo_produto g 
+        select g.*, 'all?categoria='  || lower( id ) as  url,
+ 	    (select count(*) from produto where id_grupo_produto = g.id) as qt
+        from grupo_produto g 
         join grupo_produto_empresa e on g.id = e.id_grupo_produto 
-        where e.id_empresa = $1 and id <> '0' and id <> 'INDEFINIDO' "#,
+        where e.id_empresa = $1 and id <> '0' and id <> 'INDEFINIDO' order by 4 desc "#,
         id_empresa)
         .fetch_all(pool).await;
-
    match rec {
     Ok(rec) => Ok(rec),
     Err(err) => Err(Sqlx(err))

@@ -1,8 +1,10 @@
-<div class="section">
+<div>
     {% for categoria in categorias %}
 
     <a href=" {{ categoria.url }}"> 
         <span class="badge rounded-pill {{ categoria.classe }}">{{ categoria.nome }} </span>
     </a>
+
+    {% endfor %}
 
 </div>

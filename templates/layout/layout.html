@@ -8,7 +8,8 @@
     <!-- <title>{{title}}</title> -->
     <meta name="description" content="...">
 
-    <meta name="viewport" content="width=device-width, maximum-scale=5, initial-scale=1">
+    <!-- <meta name="viewport" content="width=device-width, maximum-scale=5, initial-scale=1"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
     <!-- webapp manifest -->
     <link rel="manifest" href="/static/manifest.json" />
@@ -49,9 +50,7 @@
     {% if navbar %}
         {% include "comp/nav/nav.html" %}
     {% endif %}
-    <div class="wrapper">
-    
-        
+    <div class="wrapper">      
 
         {% if flash | length > 0 %}
         <!-- <p><span style="color:green;"> flash </span></p> -->

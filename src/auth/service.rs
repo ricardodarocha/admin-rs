@@ -157,7 +157,7 @@ pub async fn register(
             return reject("Este e-mail já foi cadastrado. Solicite uma nova senha")};
 
         let password_hash = if let Some(password) = &form.password {
-            println!("Senha informada {}", password.clone());
+            // println!("Senha informada {}", password.clone());
             format!("{:x}", md5::compute(password))
         } 
         else

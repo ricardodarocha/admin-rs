@@ -1,3 +1,6 @@
+pub mod aapp; //Abstract App - a camada semântica
+pub mod app; //App State used by Actixweb
+pub mod cidade;
 pub mod produto;
 pub mod land;
 pub mod auditoria;
@@ -5,7 +8,6 @@ pub mod pedido;
 pub mod entidade;
 pub mod relatorios;
 pub mod dashboard;
-pub mod app;
 pub mod pessoa; //a classe mais abstrata de Pessoa
 pub mod pessoas; //clientes, fornecedores etc
 pub mod itens;
@@ -24,6 +26,7 @@ use config::database;
 use env_logger::Env;
 use infra::controller::ping;
 use minijinja::context;
+use crate::infra::job::job_scheduler;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -32,6 +35,11 @@ async fn main() -> std::io::Result<()> {
     let port = std::env::var("PORT_API").unwrap().parse::<u32>().unwrap();
     let host = std::env::var("SERVER_API").unwrap();
     let database = database::DbInstance::init().await;
+
+    let pool_clone = database.conn.clone();
+    actix_web::rt::spawn(async move {
+        job_scheduler(pool_clone).await;
+    });
 
 
     let _ = sqlx::migrate!().run(&database.conn.clone()).await.map_err(|e| format!("Erro na migração do banco de dados {e}"));

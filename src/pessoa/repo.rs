@@ -1,9 +1,10 @@
-use crate::infra::error::Error::{self, *};
+use crate::infra::error::Error;
 use crate::{pessoa::model::*, infra::uuid::UuidKind};
 use log::info;
 use sqlx::{Pool, Postgres};
 use crate::infra::uuid::generate_uuid;
 use crate::infra::result::Result;
+use crate::infra::error::Error::*;
 
 pub async fn inserir_pessoa(
     pool: &Pool<Postgres>,
@@ -116,6 +117,7 @@ pub async fn listar_pessoas_all(
         PessoaList,
         "select 
         pessoa.id, 
+        right(pessoa.id, 6) as id_,  
         pessoa.nome,
         pessoa.razao_social,
         tp.nome as tipo_pessoa,
@@ -144,64 +146,24 @@ pub async fn listar_pessoas_all(
     Ok(rec)
 }
 
-// pub async fn atualizar_pessoa(
-//     pool: &Pool<Postgres>,
-//     pessoa: &PutPessoa,
-//     id_empresa: String,
-// ) -> Result<Pessoa> {
-
-//     let found = abrir_pessoa(pool, &pessoa.id, id_empresa).await?;
-
-//     let rec = sqlx::query_file_as!(
-//         Pessoa,
-//         "abrir_pessoa_one",
-//         pessoa.nome.as_ref().unwrap_or(&found.nome),
-//         pessoa.id,
-//     )
-//     .fetch_one(pool)
-//     .await?;
-
-//     Ok(rec)
-// }
-
-
-// pub async fn excluir_pessoa(
-//     pool: &Pool<Postgres>,
-//     pessoa_id: String,
-// ) -> Result<()> {
-
-//    sqlx::query_file!(
-//         "sql/excluir_pessoa.sql",
-//         pessoa_id,
-//     )
-//     .execute(pool)
-//     .await?;
-
-//     Ok(())
-// }
-
-use crate::produto::model::GrupoProduto;
-
-pub async fn lista_estados (
+pub async fn lista_grupos_pessoas (
     pool: &Pool<Postgres>,
         id_empresa: String,
 
-) -> Result<Vec<GrupoProduto>> {
+) -> Result<Vec<GrupoPessoa>> {
 
     let rec =
     sqlx::query_as!(
-        GrupoProduto, r#"
-        select g.* from grupo_produto g 
-        join grupo_produto_empresa e on g.id = e.id_grupo_produto 
-        where e.id_empresa = $1 and id <> '0' and id <> 'INDEFINIDO' "#,
+        GrupoPessoa, r#"
+        select g.*, 'all?categoria='  || lower( id ) as  url,
+ 	    (select count(*) from pessoa where id_grupo_pessoa = g.id) as qt
+        from grupo_pessoa g 
+        join grupo_pessoa_empresa e on g.id = e.id_grupo_pessoa 
+        where e.id_empresa = $1 and id <> '0' and id <> 'INDEFINIDO' order by 4 desc "#,
         id_empresa)
         .fetch_all(pool).await;
-
    match rec {
     Ok(rec) => Ok(rec),
     Err(err) => Err(Sqlx(err))
    }
 }
-
-
-

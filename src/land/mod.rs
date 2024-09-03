@@ -12,6 +12,7 @@ pub mod controller {
     use crate::admin::repo::abrir_empresa_one;
     // use actix_web::http::header::LOCATION;
     use crate::app::AppState;
+    use crate::auth::repo::recados_do_usuario;
     use crate::auth::session::{get_user, has_logged};
     use crate::dashboard::repo::{clientes_for_user, dash_for_user};
     use crate::land::model::Menu;
@@ -42,9 +43,22 @@ pub mod controller {
         // };
 
         let usuario = get_user(pool, &session).await;
-        let id_empresa = usuario.clone().unwrap().id_empresa;
-        let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
-
+        let empresa = match usuario.clone() {
+            Some(usuario) => {
+                  let id_empresa = usuario.clone().id_empresa;
+                  let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
+                  Some(empresa)
+            },
+            None => None ,
+        };
+        let recados = match usuario.clone() {
+            Some(usuario) => {
+                  let recados = recados_do_usuario(pool, &usuario.id).await.unwrap();
+                  Some(recados)
+            },
+            None => None ,
+        };
+       
         let menus: Vec<Menu> = 
             match usuario.clone() {
                 Some(usuario) => repo::get_menus(pool, usuario.id, "").await.unwrap(),
@@ -76,6 +90,7 @@ pub mod controller {
                 usuario, 
                 empresa,
                 indicadores,
+                recados,
                 clientes,
                 flash,
                 msg_error)).unwrap() 

@@ -263,7 +263,7 @@ pub async fn abrir_usuario(
 
 ) -> Option<User> {
 
-    sqlx::query_as!(
+    let result = sqlx::query_as!(
         User,
         r#"SELECT u.id, u.nome, u.id_empresa, c.descricao as email, 
         'https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-Download-Image.png' as photo
@@ -274,9 +274,39 @@ pub async fn abrir_usuario(
         password,
     )
     .fetch_optional(pool)
-    .await
-    .unwrap()
+    .await;
+
+    result.expect("Usuário não encontrado")
 }
+
+pub async fn recados_do_usuario(
+    pool: &Pool<Postgres>,
+    id_usuario: &String, 
+
+) -> Result<Vec<Recado>>  {
+
+    let result = sqlx::query_as!(
+        Recado,
+        r#"
+    select * from recado where id_usuario = $1 and 
+    (readed_at is null or readed_at <  CURRENT_DATE - 1)"#,
+        id_usuario.clone(),
+    )
+    .fetch_all(pool)
+    .await;
+
+    //Marca como lido
+    let _ = sqlx::query!("
+    update recado set readed_at = CURRENT_TIMESTAMP 
+    where id_usuario = $1
+    and readed_at is null
+    ", id_usuario)
+    .execute(pool).await;
+
+    Ok(result?)
+}
+
+
 pub async fn abrir_usuario_from_id(
     pool: &Pool<Postgres>,
     id: &String, 
