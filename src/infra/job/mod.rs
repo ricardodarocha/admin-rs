@@ -4,7 +4,7 @@ pub mod service;
 pub mod repo;
 pub mod concrete;
 
-
+use log::info;
 use std::time::Duration;
 use tokio::time::interval;
 use sqlx::PgPool;
@@ -17,7 +17,7 @@ pub async fn job_scheduler(pool: PgPool) {
 
         let jobs = sqlx::query!(
             r#"
-            SELECT id, description, context FROM job
+            SELECT id, description, context, execute_at FROM job
             WHERE execute_at <= now() AND status = 'pending'
             "#
         )
@@ -25,8 +25,11 @@ pub async fn job_scheduler(pool: PgPool) {
         .await
         .expect("Failed to fetch jobs");
 
+        println!("🔎 searching jobs");
+
         for job in jobs {
-            println!("Executing job: {}", job.description);
+            println!("🔨found job: {} to execute at {:?}", job.description, job.execute_at);
+            info!("▶ executing... {:?} ", job.context);
 
             // Marcar o job como concluído
             sqlx::query!(

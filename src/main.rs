@@ -38,6 +38,7 @@ async fn main() -> std::io::Result<()> {
 
     let pool_clone = database.conn.clone();
     actix_web::rt::spawn(async move {
+        println!("🟢 job running... 🔨");
         job_scheduler(pool_clone).await;
     });
 
@@ -58,7 +59,7 @@ async fn main() -> std::io::Result<()> {
    
     let secret_key = Key::generate(); 
 
-    println!("running ... 🌎 {}:{}", host.clone(), port);
+    println!("🌎 live server at {}:{}", host.clone(), port);
     // let host1 = host.clone();
     let host2 = host.clone();
     HttpServer::new(move || {
