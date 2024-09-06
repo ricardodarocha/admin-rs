@@ -3,5 +3,6 @@
 - [x] Executar um job simples
 - [x] Enviar um email
 - [x] Cadastrar um usuário
-- [] remover campos none
-- [] trasnformar o job runner em uma async
+- [x] remover campos none
+- [x] trasnformar o job runner em uma async
+- [] implementar filtro por categorias

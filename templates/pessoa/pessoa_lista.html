@@ -32,9 +32,9 @@
                 <tr>
                     <td><a href="/contato/{{row.id}}">{{row.id_}}</a></td>
                     <td>{{row.nome}}</td>
-                    <td>{{row.razao_social}}</td>
-                    <td>{{row.telefone}}</td>
-                    <td>{{row.email}}</td>
+                    <td>{{'' if row.razao_social == none else row.razao_social}}</td>
+                    <td>{{'' if row.telefone == none else row.telefone}}</td>
+                    <td>{{'' if row.email == none else row.email}}</td>
                     <td>
                         <div class="form-button-action">
                             <a href="/contato/{{row.id}}">

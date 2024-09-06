@@ -4,7 +4,6 @@
 {% endblock head %}
 
 <div class="container mt-5">
-
     <h2>Cadastro de Pessoa</h2>
     <form action="/pessoa/{{ form.id }}" method="POST" class="bs-validate p-4 p-md-5">
         <div class="tabs">
@@ -19,10 +18,10 @@
                 </div>
                 <div class="form-group">
                     <label for="telefone">Telefone</label>
-                    <input type="phone" class="form-control" value="{{ form.telefone }}" autocomplete="phone" id="telefone" name="telefone"
+                    <input type="phone" class="form-control" value="{{ '' if form.telefone == none else form.telefone }}" autocomplete="phone" id="telefone" name="telefone"
                         placeholder="Telefone">
                     <label for="email">Email</label>
-                    <input type="email" class="form-control" value="{{ form.email }}"  autocomplete="email" id="email" name="email"
+                    <input type="email" class="form-control" value="{{'' if form.email == none else  form.email }}"  autocomplete="email" id="email" name="email"
                         placeholder="E-mail">
                 </div>
                 <div class="form-group">
@@ -50,12 +49,12 @@
                     <input type="radio" class="tabs__radio" name="tabtipopessoa" id="tabcpf" checked>
                     <label for="tabcpf" class="tabs__label">Cpf</label>
                     <div class="tabs__content">
-                    <input type="text" class="cpf-cnpj form-control" name="cpf" maxlength="11">
+                    <input type="text" class="cpf-cnpj form-control" name="cpf" maxlength="11" value="{{'' if form.cpf == none else form.cpf }}">
                     </div>
                     <input type="radio" class="tabs__radio" name="tabtipopessoa" id="tabcnpj" checked>
                     <label for="tabcnpj" class="tabs__label">Cnpj</label>
                     <div class="tabs__content">
-                    <input type="text" class="cpf-cnpj form-control" name="cnpj" maxlength="14">
+                    <input type="text" class="cpf-cnpj form-control" name="cnpj" maxlength="14" value="{{'' if form.cnpj == none else form.cnpj }}">
                     </div>
                 </div>
                 <!-- <div class="form-group">
