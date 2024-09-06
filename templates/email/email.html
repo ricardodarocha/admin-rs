@@ -495,7 +495,23 @@
             /*@editable*/
             text-decoration: underline;
         }
-
+        
+         .codigo {
+            font-size: 48px;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #007bff;
+            padding: 20px;
+            border-radius: 8px;
+            letter-spacing: 10px;
+            display: inline-block;
+            margin: 20px 0;
+        }
+        .message {
+            font-size: 16px;
+            color: #555555;
+            margin-bottom: 30px;
+        }
         /* ///////// MOBILE STYLES ///////// */
 
         @media only screen and (max-width: 480px) {
@@ -710,7 +726,7 @@
                                 <table border="0" cellpadding="0" cellspacing="0" width="100%" id="templateFooter">
                                     <tr>
                                         <td valign="top" class="footerContent" style="padding-top:0;">
-                                            <em>Copyright &copy; {{ year }} Ricardo da Rocha Inc, Todos os direitos reservados.</em>
+                                            <em>Copyright &copy; {{ year if year else "2023"}} Ricardo da Rocha Inc, Todos os direitos reservados.</em>
                                             <br /><br />
                                             <strong>Nosso endereço de e-mail:</strong>
                                             <br />

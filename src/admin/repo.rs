@@ -2,6 +2,7 @@ use crate::{admin::model::*, infra::uuid::UuidKind};
 use sqlx::{Pool, Postgres};
 use crate::infra::uuid::generate_uuid;
 use crate::infra::result::Result;
+use crate::entidade::identificacao::repo::upsert_identificacao;
 
 pub async fn inserir_empresa(
     pool: &Pool<Postgres>,
@@ -13,13 +14,49 @@ pub async fn inserir_empresa(
         _ => generate_uuid(UuidKind::V7),
     };
 
+    match &empresa.clone().cnpj {
+        Some(cnpj) => {    
+            let encontrou_cnpj = crate::entidade::identificacao::repo::abrir_identificacao(pool, &cnpj.clone()).await; 
+            let tipo_cnpj = crate::entidade::identificacao::repo::abrir_tipo_identificacao(pool, &"CNPJ".to_owned()).await;
+                    
+            if let Some(_valid_cnpj) = encontrou_cnpj {
+                //Se o Cnpj ja esta no sistema, provavelmente a empresa foi cadastrada, exceto se tiver sido excluída
+                //Se encontrar a empresa, retorna, senão insere
+                if let Ok(empresa) = crate::admin::repo::abrir_empresa_one(pool, &cnpj).await {
+                    return Ok(empresa)
+                }            
+                else {
+                    let _result = upsert_identificacao(pool, &cnpj.clone(), tipo_cnpj.unwrap().into()).await;
+                }
+            
+            }    
+            else {
+                let _result = upsert_identificacao(pool, &cnpj.clone(), tipo_cnpj.unwrap().into()).await;
+            }
+        },
+        None => {},
+    };
+
     let rec = sqlx::query_as!(
         Empresa,
-        "INSERT INTO empresa (id, nome)
-        VALUES (coalesce($1,'0'), $2)
-        RETURNING  id, nome, id_cnpj",
+        "INSERT INTO empresa (id, id_cnpj, nome, fantasia, endereco, cidade, estado, telefone, email)
+        VALUES (
+        coalesce($1, '0'), --id
+        (select id from identificacao where descricao = $2), --identificacao cnpj
+        $3, --nome
+        $3, --fantasia
+        'Não informado', --endereco
+        'Não informado', --cidade
+        'Não informado', --estado
+        $4,
+        $5
+        )
+        RETURNING  id, nome, id_cnpj, $4 as cnpj",
         id.clone(),
+        empresa.cnpj,
         empresa.nome,
+        empresa.telefone,
+        empresa.email,
     )
     .fetch_one(pool)
     .await?;
@@ -57,7 +94,10 @@ pub async fn abrir_empresa_one(
     
     let rec = sqlx::query_as!(
         Empresa,
-        "select id, nome, id_cnpj from empresa where id = $1",
+        "select e.id, e.nome, e.id_cnpj, i.descricao as cnpj 
+        from empresa e
+        left join identificacao i on i.id = e.id_cnpj
+        where e.id = $1 or i.descricao = $1",
         id_empresa,
     )
     .fetch_one(pool) //fetch_optional
@@ -72,7 +112,13 @@ pub async fn listar_empresas_all(
     
     let rec: Vec<Empresa> = sqlx::query_as!(
         Empresa,
-        "select id, nome, id_cnpj from empresa order by nome",
+        "select e.id, 
+            e.nome, 
+            e.id_cnpj, 
+            i.descricao as cnpj 
+        from empresa e
+        left join identificacao i on i.id = e.id_cnpj
+        order by nome",
     )
     .fetch_all(pool)
     .await?;
@@ -94,7 +140,7 @@ pub async fn atualizar_empresa(
         set nome = $1,
         id_cnpj = $2
         where id = $3
-        RETURNING id, nome, id_cnpj",
+        RETURNING id, nome, id_cnpj, $3 as cnpj",
         empresa.nome.as_ref().unwrap_or(&found.nome),
         empresa.cnpj.as_ref().unwrap_or(&found_cnpj),
         empresa.id,

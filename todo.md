@@ -1,5 +1,7 @@
 # Todo List
 
 - [x] Executar um job simples
-- [] Enviar um email
-- [] Cadastrar um usuário
+- [x] Enviar um email
+- [x] Cadastrar um usuário
+- [] remover campos none
+- [] trasnformar o job runner em uma async

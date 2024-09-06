@@ -1,15 +1,17 @@
 use serde::{Serialize, Deserialize};
+use serde_json::Value;
 use sqlx::prelude::FromRow;
 use time::OffsetDateTime;
 
 #[derive(Serialize, Deserialize, Clone, Debug, FromRow)]
 pub struct Job {
-    pub id: i32,
+    pub id: String,
     pub description: String,
     pub execute_at: OffsetDateTime,
+    pub context: Value,
     pub status: String,
 }
 
 pub trait Jober {
-    fn run(&self, _job: Job) {}
+    async fn run(_job: Job) {}
 }

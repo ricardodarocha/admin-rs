@@ -6,6 +6,7 @@ pub struct Empresa {
     pub id: String,
     pub nome: String, 
     pub id_cnpj: Option<String>,
+    pub cnpj: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]

@@ -1,3 +1,4 @@
+use crate::entidade::identificacao::repo::upsert_identificacao;
 use crate::infra::error::Error;
 use crate::{pessoa::model::*, infra::uuid::UuidKind};
 use log::info;
@@ -5,6 +6,7 @@ use sqlx::{Pool, Postgres};
 use crate::infra::uuid::generate_uuid;
 use crate::infra::result::Result;
 use crate::infra::error::Error::*;
+use crate::entidade::EntidadeId;
 
 pub async fn inserir_pessoa(
     pool: &Pool<Postgres>,
@@ -27,11 +29,25 @@ pub async fn inserir_pessoa(
         _ => {},
     };
 
-    let identificacao = match tipo_pessoa {
-        &"PF" => { pessoa.clone().cpf.unwrap() }, 
-        &"PJ" => { pessoa.clone().cnpj.unwrap() }, 
-        _ => {"".to_owned()},
+    let (tipo_identificacao, identificacao, ) = match tipo_pessoa {
+        &"PF" => { (
+            crate::entidade::identificacao::repo::abrir_tipo_identificacao(pool, &"CPF".to_owned()).await,
+            pessoa.clone().cpf.unwrap(),
+        ) }, 
+        &"PJ" => { (
+            crate::entidade::identificacao::repo::abrir_tipo_identificacao(pool, &"CNPJ".to_owned()).await,
+            pessoa.clone().cnpj.unwrap(),
+        ) }, 
+        _ => {(None, "".to_owned())},
     };
+ 
+    //verifica se a identificacao já foi inserida, se não tiver insere    
+    match tipo_identificacao {
+        Some(tipo) => { let _ = upsert_identificacao(pool, &identificacao, EntidadeId { id: tipo.id }, ).await;},
+        None => {}
+    }
+
+   
 
     let rec = sqlx::query_as!(
         Pessoa,

@@ -2,9 +2,12 @@ use std::net::IpAddr;
 
 use actix_session::Session;
 use actix_web::{web, HttpResponse};
+use minijinja::context;
 use serde_json::json;
 use actix_web::http::header::LOCATION;
+use sqlx::{Pool, Postgres};
 
+use crate::infra::job::model::Job;
 // use crate::admin::model::Empresa;
 // use crate::admin::repo::atualizar_empresa;
 use crate::infra::psw::genpassword;
@@ -146,6 +149,27 @@ pub async fn enviar_email(_nome: String, _email: String, _senhaprovisoria: Strin
 /// De acordo com o plano escolhido, o supervisor irá configurar quais permissões serão liberadas
 /// Isso irá criar os menus que o usuário tem direito
 
+pub async fn incluir_job_enviar_email(pool: &Pool<Postgres>, id_empresa: String, usuario: &RegisterUser, senha_provisoria: String, 
+
+)
+-> Result<Job> {
+    let job_name = "✉".to_owned();
+    let execute_at = time::OffsetDateTime::now_utc();
+    let assunto = "☁ Pedido na Nuvem | Primeiro Acesso";
+
+    //"comp/pedido/view_total_pedido_item.html",
+    let texto = crate::infra::render::render_to_string("comp/email/primeiro_acesso.html", context!(
+        usuario => usuario.nome, 
+        codigo_acesso => senha_provisoria,
+        empresa => usuario.instituicao,
+        subject => assunto
+    
+    ));
+
+    let content = json!({"usuario": usuario, "assunto": assunto , "texto": texto});
+    crate::infra::job::repo::incluir_job(&pool, id_empresa, job_name, execute_at, content).await
+}
+   
 pub async fn register(
     data: web::Data<AppState>, 
     form: &RegisterUser, 
@@ -165,7 +189,9 @@ pub async fn register(
             // gera uma senha provisória para o usuário
             let senha_provisoria = genpassword(6);
             println!("Senha gerada {}", senha_provisoria.clone());
-            incluir_enviar_email_primeiro_acesso(pool, form.email.clone(), senha_provisoria.clone()).await;
+            let id_empresa = "INDEFINIDO".to_owned();
+            let _ = incluir_enviar_email_primeiro_acesso(pool, form.email.clone(), senha_provisoria.clone()).await;
+            let _ = incluir_job_enviar_email(pool, id_empresa, &form.clone(), senha_provisoria.clone()).await;
             format!("{:x}", md5::compute(senha_provisoria))
         
         };
@@ -191,6 +217,8 @@ pub async fn primeiro_acesso(
 ) -> Result<HttpResponse> {
         let pool = &data.database.conn;
         let encontrou = repo::abrir_usuario_from_email(pool, &form.email).await;
+
+        //Se encontrou este usuario, retorna, senão cadastra
         let novo_usuario = 
         if let Some(usuario) = encontrou {
             usuario
@@ -199,9 +227,20 @@ pub async fn primeiro_acesso(
             let _ = register(data.clone(), &RegisterUser::from(form.clone())).await;
             repo::abrir_usuario_from_email(pool, &form.email).await.unwrap()
         };
-
         
         let _id_admin = &"d47e184c-8118-554e-a11c-97c308ad7669"; //Ricardo
+
+        //por segurança, vê se a este CNPJ já foi vinculado a outro CNPJ. Se for o caso, recusa
+        let encontrou_cnpj = crate::entidade::identificacao::repo::abrir_identificacao(pool, &form.clone().cnpj.clone()).await; 
+        if let Some(encontrou_cnpj) = encontrou_cnpj {
+            //Se o Cnpj ja esta no sistema, provavelmente a empresa foi cadastrada, exceto se tiver sido excluída
+            //Se já tiver vinculado a empresa, precisa emitir um erro
+            if let Some(numero_cnpj) = encontrou_cnpj.descricao {
+                if let Ok(_empresa_ja_vinculada) = crate::admin::repo::abrir_empresa_one(pool, &numero_cnpj).await {
+                    return reject("Esta empresa já foi vinculada por outro usuário. Solicite acesso ao administrador")};
+                 }
+            };
+        
         inserir_empresa_primeiro_acesso(pool, novo_usuario.id, form.clone()).await;
         
         // let url_for = format!("{}/login", std::env::var("SITE").unwrap());

@@ -1,0 +1,32 @@
+{% extends "email/email.html" %}
+{% block content %}
+
+        <div class="header">
+            Seu primeiro acesso
+        </div>
+        <div class="message">
+            Olá {{ usuario }}, Bem vindo ao sistema ☁ Pedido na Nuvem.
+        </div>
+        
+        <div class="message">
+        Já estamos providencinando acesso para a sua empresa {{ empresa }}.
+        </div>
+        
+        <div class="message">
+            Este é o seu primeiro acesso. Use o código abaixo para configurar a sua conta.
+        </div>
+        <div class="codigo" style="text-align: center;"><span style="font-size:22px;font-weight:bold">
+            {{ codigo_acesso }}</span>
+        </div>
+
+        <p>
+            Ao entrar no sistema você poderá cadastrar produtos, contatos e pedidos. Veja também como integrar a nossa plataforma ao seu sistema. Entre em contato com o desenvolvedor pelo telefone 32 98405 2664
+        </p>
+
+        <div class="message">
+            Se você não solicitou este código, por favor, ignore este e-mail.
+            O código de acesso irá expirar em 24 hs
+        </div>
+
+
+{% endblock %}

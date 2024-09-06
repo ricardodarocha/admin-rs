@@ -43,5 +43,5 @@ url = "2.5.2"
 log = "0.4.22"
 thiserror = "1.0.63"
 serde_with = "3.9.0"
-lettre = "0.11.7"
+lettre = {version = "0.11.7", features = ["smtp-transport"] }
 secrecy = "0.8.0"

@@ -82,10 +82,7 @@ pub fn reject_not_found(mensagem: &str, id: &str, kind: &str)
         Ok(result())    
 }
 
-pub fn render_minijinja(template_name: &str, ctx: Value) -> Result<HttpResponse> {
-    
-    
-    
+pub fn render_to_string(template_name: &str, ctx: Value) -> String { 
     let (template_to_render, contexto) = match TEMPLATE.get_template(template_name) {
 
         Ok(tmpl) => (tmpl, ctx),
@@ -104,6 +101,11 @@ pub fn render_minijinja(template_name: &str, ctx: Value) -> Result<HttpResponse>
         Err(error) => error.to_string()
     };
     dbg!(template_name);
+    result
+}
+
+pub fn render_minijinja(template_name: &str, ctx: Value) -> Result<HttpResponse> {    
+    let result = render_to_string(template_name, ctx);   
     Ok(HttpResponse::Ok().content_type(ContentType::html()).body(result))
 }
 
