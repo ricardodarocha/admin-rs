@@ -2,7 +2,9 @@
     {% for categoria in categorias %}
 
     <a href=" {{ categoria.url }}"> 
-        <span class="badge rounded-pill {{ categoria.classe }}">{{ categoria.nome }} </span>
+        <small>
+        <span class="badge rounded-pill  {{ categoria.classe }}">{{ categoria.nome | lower }} </span>
+        </small>
     </a>
 
     {% endfor %}

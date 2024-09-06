@@ -18,7 +18,7 @@
                 </div>
                 <div class="form-group">
                     <label for="codbarras">Código de Barras</label>
-                    <input type="text" class="form-control" value="{{ form.codbarras }}" id="codbarras"
+                    <input type="text" class="form-control" value="{{ '' if form.codbarras == none else  form.codbarras }}" id="codbarras"
                         name="codbarras" placeholder="Digite o código de barras">
                 </div>
                 <div class="form-group">

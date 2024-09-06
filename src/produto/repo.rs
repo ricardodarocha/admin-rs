@@ -262,6 +262,7 @@ pub async fn lista_produtos (
             nome, 
             descricao, 
             codbarras,
+            und,
             right(id, 6) as id_, 
             id_grupo_produto, 
             id_categoria_produto, 

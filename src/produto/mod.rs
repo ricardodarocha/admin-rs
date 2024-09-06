@@ -121,7 +121,7 @@ pub mod controller {
 
 
         let grade = repo::lista_produtos(pool, usuario.clone().unwrap().id_empresa.clone().unwrap(), pagination).await.unwrap();
-        let colunas = Colunas::new(vec!["id", "nome", "codbarras", "preco", "und", "estoque"]);
+        let colunas = Colunas::new(vec!["id", "nome", "códiogo de barras", "preço", "unidade", "estoque"]);
         let flash = session.remove("flash").unwrap_or("".to_string()); 
         let msg_error = format!("{}", session.remove("msg_error").unwrap_or("".to_string()));  
         

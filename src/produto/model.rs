@@ -26,6 +26,7 @@ pub struct ProdutoList {
     pub id: String,
     pub id_: Option<String>,
     pub nome: String,
+    pub und: String,
     pub codbarras: Option<String>,
     pub descricao: Option<String>,
     pub preco: Option<Decimal>,
