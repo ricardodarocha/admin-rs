@@ -5,7 +5,8 @@ create table if not exists dashboard (
     valor varchar(40) not null default '0',
     titulo varchar(40) not null default 'Demonstração',
     descricao varchar(40),
-    atualizado TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+    atualizado TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    avatar VARCHAR
 );
 
 --Insere pelo menos um card de dashboard para o usuário

@@ -1,3 +1,4 @@
+use log::info;
 use sqlx::{FromRow, Pool, Postgres};
 
 #[allow(unused)]
@@ -38,15 +39,19 @@ pub struct Profile {
 
 pub async fn get_database_connection() -> Pool<Postgres> {
     dotenv::dotenv().ok();
-    let host = std::env::var("HOST").unwrap();
-    let database = std::env::var("DATABASE").unwrap();
-    let port = std::env::var("PORT").unwrap();
-    let user = std::env::var("USER").unwrap();
-    let password = std::env::var("PASSWORD").unwrap();
+    // let host = std::env::var("HOST").unwrap();
+    // let database = std::env::var("DATABASE").unwrap();
+    // let port = std::env::var("PORT").unwrap();
+    // let user = std::env::var("USER").unwrap();
+    // let password = std::env::var("PASSWORD").unwrap();
     
-    let database_url = format!(
-        "postgres://{user}:{password}@{host}:{port}/{database}"
-    );
+    // let database_url = format!(
+    //     "postgres://{user}:{password}@{host}:{port}/{database}"
+    // );
+
+    
+    let database_url = std::env::var("DATABASE_URL").unwrap();
+    info!("{url}", url=database_url.clone());
     let conn = sqlx::postgres::PgPool::connect(&database_url)
      .await.unwrap();
     

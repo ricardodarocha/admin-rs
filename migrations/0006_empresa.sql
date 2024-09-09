@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS pessoa (
 	razao_social varchar NOT NULL,
 	id_telefone varchar(40) NOT NULL,
 	id_celular varchar(40) NULL,
-	id_endereco_principal varchar(40) NOT NULL,
+	id_endereco_principal varchar(40) NOT NULL REFERENCES ENDERECO(ID) DEFAULT 'INDEFINIDO',
 	id_endereco_financeiro varchar(40) NULL,
 	id_endereco_comercial varchar(40) NULL,
 	id_endereco_cobranca varchar(40) NULL,

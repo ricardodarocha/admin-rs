@@ -120,7 +120,7 @@ create table if not exists pessoa  (
     abc varchar(1) not null default '_',
     ativo bool not null default true,
     --create table endereco_pessoa tipo_endereco (comercial, residencial), id_endereco varchar(40) references endereco(id)
-    id_endereco_principal varchar(40) not null references endereco(id),
+    id_endereco_principal varchar(40) not null references endereco(id)  DEFAULT 'INDEFINIDO', 
     id_endereco_financeiro varchar(40) null references endereco(id),
     id_endereco_comercial varchar(40) null references endereco(id),
     id_endereco_cobranca varchar(40) null references endereco(id),

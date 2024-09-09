@@ -60,7 +60,7 @@ pub struct Produto {
     pub avatar: Option<String>,
 
     #[serde(with = "time::serde::iso8601")]
-    pub created: OffsetDateTime,
+    pub created_at: OffsetDateTime,
 
     pub id_categoria_produto: String,
     pub id: String,

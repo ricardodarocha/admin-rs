@@ -46,8 +46,17 @@ pub mod controller {
         let empresa = match usuario.clone() {
             Some(usuario) => {
                   let id_empresa = usuario.clone().id_empresa;
-                  let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
-                  Some(empresa)
+                  match id_empresa {
+                    Some(id) => {
+                        if let Ok(empresa) = abrir_empresa_one(pool, &id).await {
+                            Some(empresa)
+                        }
+                        else {
+                        None
+                        }
+                    },
+                    None => None,
+                  }
             },
             None => None ,
         };

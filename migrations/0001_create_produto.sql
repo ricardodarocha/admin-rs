@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS produto (
     fator_venda REAL,
     nometemp TEXT,
     redireciona varchar(40),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
     
 );
 

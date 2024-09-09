@@ -6,7 +6,11 @@ create table rua(
 	create table bairro(
     	id varchar(40) not null primary key,
 	    nome varchar not null
-	);    
+	);   
+
+    
+    insert into rua values ('INDEFINIDO','INDEFINIDO');
+    insert into bairro values ('INDEFINIDO','INDEFINIDO');
 	
 	drop table if exists estado ;
 	create table estado(
@@ -34,7 +38,9 @@ create table endereco (id varchar(40) not null primary key,
     codigocidade integer references cidade(codigo) on delete cascade,
     codigoestado INTEGER REFERENCES estado(codigo) ON DELETE CASCADE,
     complemento varchar);
-	
+
+ insert into endereco (id, id_logradouro, id_rua, id_bairro) values ('INDEFINIDO','RUA', 'INDEFINIDO', 'INDEFINIDO');
+
     
 insert into estado (codigo, id, nome, siglauf) values 
 (11,'11','Rondônia',  'RO'),
@@ -6750,3 +6756,13 @@ INSERT INTO public.cidade (codigo,codigoestado,nome,codigoibge,uf) VALUES
 ,(1722081,17,'Wanderlândia',1722081,'TO')
 ,(1722107,17,'Xambioá',1722107,'TO')
 ;
+ALTER TABLE CIDADE ADD ID VARCHAR(40);
+ALTER TABLE CIDADE ADD ID_ESTADO VARCHAR(40);
+UPDATE CIDADE SET ID = CODIGO::VARCHAR(40);
+UPDATE CIDADE SET ID_ESTADO = CODIGOESTADO::VARCHAR(40);
+
+alter table CIDADE alter COLUMN ID SET not null;
+alter table CIDADE alter COLUMN ID_ESTADO SET not null;
+
+alter table ESTADO add constraint U_ESTADO_ID unique (ID);
+alter table CIDADE add constraint FK_ESTADO foreign key (ID_ESTADO) references ESTADO(ID);
