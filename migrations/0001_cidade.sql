@@ -6766,3 +6766,6 @@ alter table CIDADE alter COLUMN ID_ESTADO SET not null;
 
 alter table ESTADO add constraint U_ESTADO_ID unique (ID);
 alter table CIDADE add constraint FK_ESTADO foreign key (ID_ESTADO) references ESTADO(ID);
+
+alter table endereco add id_cidade varchar(40);
+alter table endereco add id_estado varchar(40);

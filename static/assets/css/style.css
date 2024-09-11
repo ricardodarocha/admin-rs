@@ -628,3 +628,14 @@ label {
   overflow-x: hidden;
 }
 
+a:link, a:visited {
+  color: rgb(24, 48, 129);
+  padding: 14px 25px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
+
+a:hover, a:active {
+  background-color: rgb(56, 231, 152);
+}

@@ -1,0 +1,161 @@
+{% block head %}
+<link rel="stylesheet" href="/static/assets/css/tab/tab.css">
+{% endblock head %}
+
+<div class="container mt-5">
+
+    <h2>Perfil do usuário</h2>
+    <form action="/admin/account" id="admin" method="POST" class="bs-validate p-4 p-md-5">
+        <div class="tabs">
+            <input type="radio" class="tabs__radio" name="tabs-geral" id="tab0">
+            <label for="tab0" class="tabs__label">Dados do usuário</label>
+            <div class="tabs__content">
+                <input hidden type="text" class="form-control" required value="{{ form.id_usuario }}" id="id_usuario" name="id_usuario">
+                <div class="form-group">
+                    <label for="nome_usuario">Nome de exibição</label>
+                    <input type="text" class="form-control" required value="{{ form.nome_usuario }}" id="nome_usuario"
+                        name="nome_usuario" placeholder="Nome de exibição">
+                    </div>     
+                    <label for="email_usuario">E-mail</label>
+                    <input type="email" class="form-control" required value="{{ form.email_usuario }}" id="email_usuario"
+                        name="email_usuario" readonly>
+                    </div>
+            </div>
+            <input type="radio" class="tabs__radio" name="tabs-geral" id="tab1" checked>
+            <label for="tab1" class="tabs__label">Dados da empresa</label>
+            <div class="tabs__content">
+                <input hidden type="text" class="form-control" required value="{{ form.id_empresa }}" id="id_empresa" name="id_empresa">
+                <div class="form-group">
+                    <label for="razao_social">Razão Social</label>
+                    <input type="text" class="form-control" required value="{{ form.razao_social }}" id="razao_social" name="razao_social"
+                        placeholder="Razão Social">
+                </div>
+                <div class="form-group">
+                    <label for="nome_fantasia">Nome Fantasia</label>
+                    <input type="text" class="form-control" required value="{{ form.nome_fantasia }}" id="nome_fantasia" name="nome_fantasia"
+                        placeholder="Nome Fantasia">
+                </div>
+                <div class="form-group">
+                    <div>
+                        <input type="radio" id="cnpj" name="tipo_identificacao" value="Cnpj" checked />
+                        <label for="cnpj">Cnpj</label>                           
+                        
+                        <input type="radio" id="cpf" name="tipo_identificacao" value="Cpf" />
+                        <label for="cpf">Cpf</label>
+                    </div>
+
+                    <label for="cnpj">Número do documento</label>
+                    <input type="text" class="form-control"
+                        value="{{ '' if form.cnpj == none else  form.cnpj }}" id="cnpj" name="cnpj"
+                        placeholder="Número do documento">
+                </div>
+                <div class="input-group-over mb-3">
+                    {% with itens = segmentos, label = "Segmento", value = form.segmento, name =
+                    "segmento" %}
+                    {% include "comp/select/select.html" %}
+                    {% endwith %}
+                </div>
+
+                <div class="form-group">
+                    <label for="telefone">Telefone</label>
+                    <input type="phone" class="form-control" value="{{ '' if form.telefone == none else form.telefone }}"
+                        autocomplete="phone" id="telefone" name="telefone" placeholder="Telefone">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" value="{{'' if form.email == none else  form.email }}" autocomplete="email"
+                        id="email" name="email" placeholder="E-mail">
+                </div>
+                
+                <input type="radio" class="tabs__radio" name="tabs-endereco" id="tab_endereco_principal"  checked>
+                <label for="tab_endereco_principal" class="tabs__label">Endereço Principal</label>
+                <div class="tabs__content">
+                    <div class="form-group">
+                        <div>
+                            <label for="endereco_principal">Rua</label>
+                            <input type="text" class="form-control" id="endereco_principal" name="endereco_principal" autocomplete="street-address" required
+                                enterkeyhint="next"></input>
+                    
+                        </div>
+                        <div>
+                            <label for="cep_principal">CEP</label>
+                            <input class="postal-code form-control" id="cep_principal" name="cep_principal" autocomplete="postal-code" enterkeyhint="next">
+                        </div>
+                        <div>
+                            <label for="cidade_principal">Cidade</label>
+                            <input required type="text" class="form-control" id="cidade_principal" name="cidade_principal" autocomplete="address-level2"
+                                enterkeyhint="next">
+                        </div>
+                        <div>
+                            {% with itens = estados, label = "Estado", value = form.id_estado_principal, name = "id_estado_principal" %}
+                            {% include "comp/select/select.html" %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+                <input type="radio" class="tabs__radio" name="tabs-endereco" id="tab_endereco_entrega">
+                <label for="tab_endereco_entrega" class="tabs__label">Endereço de entrega</label>
+                <div class="tabs__content">
+                    <div class="form-group">
+                        <div>
+                            <label for="endereco_entrega">Rua</label>
+                            <input type="text" class="form-control" id="endereco_entrega" name="endereco_entrega" autocomplete="street-address" required
+                                enterkeyhint="next"></input>
+                    
+                        </div>
+                        <div>
+                            <label for="cep_entrega">CEP</label>
+                            <input class="postal-code form-control" id="cep_entrega" name="cep_entrega" autocomplete="postal-code" enterkeyhint="next">
+                        </div>
+                        <div>
+                            <label for="cidade_entrega">Cidade</label>
+                            <input required type="text" class="form-control" id="cidade_entrega" name="cidade_entrega" autocomplete="address-level2"
+                                enterkeyhint="next">
+                        </div>
+                        <div>
+                            {% with itens = estados, label = "Estado", value = form.id_estado_entrega, name = "id_estado_entrega" %}
+                            {% include "comp/select/select.html" %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+                <input type="radio" class="tabs__radio" name="tabs-endereco" id="tab_endereco_cobranca">
+                <label for="tab_endereco_cobranca" class="tabs__label">Endereço de cobrança</label>
+                <div class="tabs__content">
+                    <div class="form-group">
+                        <div>
+                            <label for="endereco_cobranca">Rua</label>
+                            <input type="text" class="form-control" id="endereco_cobranca" name="endereco_cobranca" autocomplete="street-address" required
+                                enterkeyhint="next"></input>
+                    
+                        </div>
+                        <div>
+                            <label for="cep_cobranca">CEP</label>
+                            <input class="postal-code form-control" id="cep_cobranca" name="cep_cobranca" autocomplete="postal-code" enterkeyhint="next">
+                        </div>
+                        <div>
+                            <label for="cidade_cobranca">Cidade</label>
+                            <input required type="text" class="form-control" id="cidade_cobranca" name="cidade_cobranca" autocomplete="address-level2"
+                                enterkeyhint="next">
+                        </div>
+                        <div>
+                            {% with itens = estados, label = "Estado", value = form.id_estado_cobranca, name = "id_estado_cobranca" %}
+                            {% include "comp/select/select.html" %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </form>
+    <div class="row">
+        <div class="col-12 col-md-12 mt-4">
+            <div class="col-12 col-md-12 mt-4">
+                <button type="submit" form="admin" class="btn btn-success w-100 fw-medium">
+                    Salvar
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+</div>

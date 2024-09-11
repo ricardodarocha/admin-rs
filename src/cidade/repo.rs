@@ -12,7 +12,7 @@ pub async fn lista_estados (
     let rec =
     sqlx::query_as!(
         Estado, r#"
-        select * from estado "#,
+        select * from estado order by nome"#,
         )
         .fetch_all(pool).await;
 

@@ -2,7 +2,9 @@ use rust_decimal::Decimal;
 use serde::{Serialize, Deserialize};
 use sqlx::{FromRow, Pool, Postgres};
 
-#[derive(Serialize)]
+use utoipa::ToSchema;
+
+#[derive(Serialize, ToSchema)]
 pub struct PedidoForm {
     pub id: String,
     pub itens: Vec<ItemPedido>,
@@ -38,13 +40,13 @@ impl PedidoForm {
     }
 }
 
-#[derive(Serialize, FromRow)]
+#[derive(Serialize, FromRow, ToSchema)]
 pub struct PedidoX {
     pub id: String,
     pub produtos: sqlx::types::Json<Vec<ItemPedidoAgg>> 
 }
 
-#[derive(Default, Debug, FromRow, Serialize, Deserialize)]
+#[derive(Default, Debug, FromRow, Serialize, Deserialize, ToSchema)]
 pub struct ItemPedido {
    pub numero: i32,
    pub preco: Option<Decimal>,
@@ -68,7 +70,7 @@ pub struct ItemPedido {
    pub id_unidade_medida3: Option<String>,
 }
 
-#[derive(Default, Debug, Serialize, Deserialize, sqlx::Type)]
+#[derive(Default, Debug, Serialize, Deserialize, sqlx::Type, ToSchema)]
 pub struct ItemPedidoAgg {
    pub preco: Option<Decimal>,
    pub id_produto: String,
@@ -77,12 +79,12 @@ pub struct ItemPedidoAgg {
    pub quantidade: Option<Decimal>,
 }
 
-#[derive(Default, Debug, Serialize, FromRow)]
+#[derive(Default, Debug, Serialize, FromRow, ToSchema)]
 pub struct Galeria {
     pub itens: Vec<GaleriaItem>,
 }
 
-#[derive(Clone, Default, Debug, Serialize, FromRow)]
+#[derive(Clone, Default, Debug, Serialize, FromRow, ToSchema)]
 pub struct GaleriaItem {
    pub id: String,
    pub nome: String,
@@ -96,14 +98,14 @@ pub struct GaleriaItem {
 //    pub options: ,
 }
 
-#[derive(Default, Debug, Serialize, FromRow)]
+#[derive(Default, Debug, Serialize, FromRow, ToSchema)]
 pub struct EntidadeItemPedido {
    pub id_pedido: String,
    pub id_produto: String,
    pub id_item: i32,
 }
 
-#[derive(Default, Debug, Deserialize)]
+#[derive(Default, Debug, Deserialize, ToSchema)]
 pub struct FormItem {
     pub quantidade: Decimal,
 }

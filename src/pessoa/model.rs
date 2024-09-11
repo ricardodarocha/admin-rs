@@ -107,7 +107,8 @@ pub struct PostPessoa {
     pub endereco: String,
     pub bairro: String,
     pub cidade: String,
-    pub estado: String,
+    pub id_estado: String,
+    pub cep: String,
 
     //Documentos    
     pub cns: Option<String>,

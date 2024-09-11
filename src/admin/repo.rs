@@ -1,8 +1,10 @@
 use crate::{admin::model::*, infra::uuid::UuidKind};
+use log::info;
 use sqlx::{Pool, Postgres};
 use crate::infra::uuid::generate_uuid;
 use crate::infra::result::Result;
 use crate::entidade::identificacao::repo::upsert_identificacao;
+use crate::infra::error::Error::Sqlx;
 
 pub async fn inserir_empresa(
     pool: &Pool<Postgres>,
@@ -14,24 +16,30 @@ pub async fn inserir_empresa(
         _ => generate_uuid(UuidKind::V7),
     };
 
+    info!("Inserindo a empresa {e}", e = empresa.clone() );
+
     match &empresa.clone().cnpj {
         Some(cnpj) => {    
             let encontrou_cnpj = crate::entidade::identificacao::repo::abrir_identificacao(pool, &cnpj.clone()).await; 
             let tipo_cnpj = crate::entidade::identificacao::repo::abrir_tipo_identificacao(pool, &"CNPJ".to_owned()).await;
                     
-            if let Some(_valid_cnpj) = encontrou_cnpj {
+            if let Some(valid_cnpj) = encontrou_cnpj {
                 //Se o Cnpj ja esta no sistema, provavelmente a empresa foi cadastrada, exceto se tiver sido excluída
                 //Se encontrar a empresa, retorna, senão insere
                 if let Ok(empresa) = crate::admin::repo::abrir_empresa_one(pool, &cnpj).await {
+                    info!("Cnpj {cnpj} já foi cadastrado. Retornando empresa {e}", cnpj = valid_cnpj.descricao.unwrap(), e = empresa.clone().id );
                     return Ok(empresa)
                 }            
                 else {
-                    let _result = upsert_identificacao(pool, &cnpj.clone(), tipo_cnpj.unwrap().into()).await;
+                    // let novo_cnpj = upsert_identificacao(pool, &cnpj.clone(), tipo_cnpj.unwrap().into()).await;
+                    info!("Cnpj {cnpj} já está no sistema, mas a empresa ainda não foi cadastrada, ou foi excluída", cnpj = valid_cnpj.descricao.unwrap() );
+              
                 }
             
             }    
             else {
-                let _result = upsert_identificacao(pool, &cnpj.clone(), tipo_cnpj.unwrap().into()).await;
+                let novo_cnpj = upsert_identificacao(pool, &cnpj.clone(), tipo_cnpj.unwrap().into()).await.unwrap();
+                info!("Cnpj {cnpj} foi inserido. Id {id_cnpj}", cnpj = novo_cnpj.descricao.unwrap(), id_cnpj = novo_cnpj.id );
             }
         },
         None => {},
@@ -188,4 +196,93 @@ pub async fn empresas_associadas(
     .fetch_one(pool)
     .await.unwrap()
 
+}
+
+pub async fn abrir_dados_empresa_principal(
+    pool: &Pool<Postgres>,  
+    id_usuario: String,
+
+) -> Option<DadosAccount> { 
+  info!("looking for dados da empresa usuario = {id}", id = id_usuario.clone());  
+  let result = sqlx::query_as!(
+    DadosAccount, r#"
+    select 
+	u.id as "id_usuario!", 	
+	e.id as "id_empresa!",
+    u.nome as "nome_usuario!",
+    u.nome as "nome_responsavel!",
+    '' as "cpf_responsavel!",
+    u.id_email as "email_usuario!",
+    e.nome as "razao_social!",
+    e.fantasia as nome_fantasia,
+    cnpj.descricao as cnpj,
+    coalesce(t_id.simbolo, 'cnpj') as "tipo_identificacao!",
+    tel.descricao as "telefone!",
+    '' as "segmento!",
+    mail.descricao as "email!",
+    end_p.id_rua as "endereco_principal!",
+    end_p.id_bairro as "bairro_principal!",
+    end_p.cep as "cep_principal!",
+    cid.nome as "cidade_principal!",
+    uf.nome as "estado_principal!",
+    end_c.id_rua as endereco_cobranca,
+    end_c.id_bairro as bairro_cobranca,
+    end_c.cep as cep_cobranca,
+    cid_c.nome as cidade_cobranca,
+    uf_c.nome as estado_cobranca,
+    end_e.id_rua as endereco_entrega,
+    end_e.id_bairro as bairro_entrega,
+    end_e.cep as cep_entrega,
+    cid_e.nome as cidade_entrega,
+    uf_e.nome as estado_entrega
+from users u 
+inner join empresa e on e.id = u.id_empresa 
+inner join identificacao cnpj on cnpj.id = e.id_cnpj 
+inner join tipo_identificacao t_id on t_id.id = cnpj.id_tipo_identificacao 
+left join contato tel on tel.id = e.id_telefone 
+left join contato mail on mail.id = e.id_email
+left join endereco end_p on end_p.id = e.id_endereco_principal
+left join endereco end_c on end_c.id = e.id_endereco_cobranca
+left join endereco end_e on end_e.id = e.id_endereco_entrega
+left join cidade cid on cid.id = end_p.id_cidade
+left join cidade cid_c on cid_c.id = end_c.id_cidade
+left join cidade cid_e on cid_e.id = end_e.id_cidade
+left join estado uf on uf.id = end_p.id_estado
+left join estado uf_c on uf.id = end_c.id_estado
+left join estado uf_e on uf.id = end_e.id_estado
+where u.id = $1 limit 1
+    "#,
+    id_usuario,
+    )
+    .fetch_one(pool).await;
+
+  if let Ok(value) = result {
+    info!("Pessoa localizado");
+    Some(value)
+  }
+
+  else {
+    info!("Pessoa não encontrado");
+    None
+  }
+
+}
+
+pub async fn lista_segmentos (
+    pool: &Pool<Postgres>,
+
+) -> Result<Vec<Segmento>> {
+
+    let rec =
+    sqlx::query_as!(
+        Segmento, r#"
+        select id, nome, classe
+ 	   from SEGMENTO_PESSOA 
+       where id <> 'INDEFINIDO'
+         order by NOME "#,)
+        .fetch_all(pool).await;
+   match rec {
+    Ok(rec) => Ok(rec),
+    Err(err) => Err(Sqlx(err))
+   }
 }

@@ -26,6 +26,9 @@ use config::database;
 use env_logger::Env;
 use infra::controller::ping;
 use minijinja::context;
+use utoipa::openapi::{Modify, OpenApi};
+use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
+use utoipa_swagger_ui::SwaggerUi;
 use crate::infra::job::job_scheduler;
 
 #[actix_web::main]
@@ -54,10 +57,45 @@ async fn main() -> std::io::Result<()> {
 
     let _secret =
         std::env::var("SECRET").unwrap_or_else(|_| "935b43f5-4313-5f8b-8cfe-5e05692226dd".to_string());
-    let _database_url = std::env::var("DATABASE_URL").unwrap();
-   
+    let _database_url = std::env::var("DATABASE_URL").unwrap();   
    
     let secret_key = Key::generate(); 
+
+    #[derive(OpenApi)]
+    #[openapi(
+        paths(
+            auth::routes,
+            produto::routes,
+            pessoa::routes,
+            dashboard::routes,
+            pedido::routes,
+            admin::routes,
+            land::routes,
+        )
+    )]
+
+    struct ApiDoc;
+    struct SecurityAddon;
+    impl Modify for SecurityAddon {
+        fn modify (&self, openapi: &mut utoipa::openapi::OpenApi) {
+            let components = openapi::Components.as_mut().unwrap();
+            components.add_security_scheme(
+                "bearer_auth",
+                SecurityScheme::Http(HttpBuilder::new()
+            )       
+                .scheme(HttpAuthScheme::Bearer)
+                .bearer_format("JWT")
+                .build(),
+            );
+            components.add_security_scheme("basic_auth",
+                SecurityScheme::Http(HttpBuilder::new()
+            )       
+                .scheme(HttpAuthScheme::Basic)
+                .build(),
+            );
+
+        }
+    }
 
     println!("🌎 live server at {}:{}", host.clone(), port);
     // let host1 = host.clone();

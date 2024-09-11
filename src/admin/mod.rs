@@ -7,12 +7,16 @@ pub mod controller {
     use actix_session::Session;
     use actix_web::{web, HttpRequest, HttpResponse, Responder};
     use actix_web::{post, get,  put, delete};
+    use minijinja::context;
     // use serde_json::json;
     use crate::admin::model::{PostEmpresa, PutEmpresa};
     use crate::app::AppState;
     use crate::auth::model::{UserOperation, UserPermission};  
     // use actix_web::http::header::LOCATION;
-    use crate::auth::session::{get_user, has_permission, user_has_not_permission};
+    use crate::auth::session::{get_user, has_logged, has_permission, user_has_not_permission};
+    use crate::land::model::Menu;
+    use crate::land::repo::get_menus;
+    use actix_web::http::header::LOCATION;
 
     /// Insere uma empresa
     #[post("/empresa/{empresa_id}/{user_id}")]
@@ -135,15 +139,75 @@ pub mod controller {
             Err(e) => Ok(HttpResponse::BadRequest().json(e.to_string())),
         }
     }
+
+    #[get("/account")]
+    pub async fn usuario_form(
+        _req: HttpRequest,
+        session: Session,
+        // path: web::Path<String>,
+        data: web::Data<AppState>,
+
+        ) -> impl Responder {
+
+        dbg!("GET admin/account  -> form_usuario");
+        let pool = &data.database.conn;
+        // let current_id = path.into_inner();
+        // let url_for = format!("{}/", std::env::var("SITE").unwrap());
+
+        if !has_logged(pool, &session).await {
+             return Ok(HttpResponse::SeeOther()
+            .insert_header((LOCATION, "/login"))
+            .finish())
+        };
+
+        //permissao de cadastrar usuario, vai habilitar o botao cadastrar usuario
+        // let (operation, permission) = (UserOperation::Edit, UserPermission::Produto);
+        // if !has_permission(pool, &session, operation, permission).await {
+        //     return user_has_not_permission(&"edit produto")
+        // };
+        let usuario = get_user(pool, &session).await;
+        
+        let flash = session.remove("flash").unwrap_or("".to_string()); 
+        let msg_error = format!("{}", session.remove("msg_error").unwrap_or("".to_string()));  
+        
+        let menus: Vec<Menu> = 
+            match usuario.clone() {
+                Some(usuario) => get_menus(pool, usuario.id, "usuário").await.unwrap(),
+                None => vec![],
+        }; 
+
+        let segmentos = crate::admin::repo::lista_segmentos(pool).await.unwrap();
+        let estados = crate::cidade::repo::lista_estados(pool).await.unwrap();
+   
+        let id_usuario = usuario.clone().unwrap().id;
+        let found_empresa =  crate::admin::repo::abrir_dados_empresa_principal(pool, id_usuario).await;
+        let form = found_empresa.unwrap();
+
+        // exemplo de menu 
+        // usuario
+        //     alterar senha
+        //     excluir conta
+
+            crate::infra::render::render_minijinja("admin/form_usuario.html", context!(
+                menus,
+                usuario, 
+                segmentos,
+                estados,
+                form, 
+                flash, 
+                msg_error)) 
+    }
+
     
         // Define as rotas para o controlador de autenticação
 }
 
-use controller::{get_empresa, put_empresa, post_empresa, delete_empresa,};
+use controller::*;
 
 pub fn routes(cfg: &mut crate::web::ServiceConfig) {
 cfg.service(
     crate::web::scope("/admin")
+        .service(usuario_form)
         .service(get_empresa)
         .service(put_empresa)
         .service(post_empresa)

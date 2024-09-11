@@ -102,3 +102,7 @@ CREATE TABLE enviar_email (
 	body text NULL,
 	CONSTRAINT enviar_email_pkey PRIMARY KEY (id)
 );
+
+alter table empresa add id_endereco_principal varchar(40) not null references endereco(id) default 'INDEFINIDO';
+alter table empresa add id_endereco_entrega varchar(40) references endereco(id) ;
+alter table empresa add id_endereco_cobranca varchar(40) references endereco(id) ;
