@@ -26,7 +26,7 @@ use config::database;
 use env_logger::Env;
 use infra::controller::ping;
 use minijinja::context;
-use utoipa::openapi::{Modify, OpenApi};
+use utoipa::{openapi, Modify, OpenApi};
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa_swagger_ui::SwaggerUi;
 use crate::infra::job::job_scheduler;
@@ -64,38 +64,38 @@ async fn main() -> std::io::Result<()> {
     #[derive(OpenApi)]
     #[openapi(
         paths(
-            auth::routes,
-            produto::routes,
-            pessoa::routes,
-            dashboard::routes,
-            pedido::routes,
-            admin::routes,
-            land::routes,
+            // auth::controller::login_form,
+            // crate::produto::routes,
+            // crate::pessoa::routes,
+            // crate::dashboard::routes,
+            // crate::pedido::routes,
+            // crate::admin::routes,
+            // crate::land::routes,
         )
     )]
 
     struct ApiDoc;
-    struct SecurityAddon;
-    impl Modify for SecurityAddon {
-        fn modify (&self, openapi: &mut utoipa::openapi::OpenApi) {
-            let components = openapi::Components.as_mut().unwrap();
-            components.add_security_scheme(
-                "bearer_auth",
-                SecurityScheme::Http(HttpBuilder::new()
-            )       
-                .scheme(HttpAuthScheme::Bearer)
-                .bearer_format("JWT")
-                .build(),
-            );
-            components.add_security_scheme("basic_auth",
-                SecurityScheme::Http(HttpBuilder::new()
-            )       
-                .scheme(HttpAuthScheme::Basic)
-                .build(),
-            );
+    // struct SecurityAddon;
+    // impl Modify for SecurityAddon {
+    //     fn modify (&self, openapi: &mut utoipa::openapi::OpenApi) {
+    //         let components = openapi::Components.as_mut().unwrap();
+    //         components.add_security_scheme(
+    //             "bearer_auth",
+    //             SecurityScheme::Http(HttpBuilder::new()
+    //         )       
+    //             .scheme(HttpAuthScheme::Bearer)
+    //             .bearer_format("JWT")
+    //             .build(),
+    //         );
+    //         components.add_security_scheme("basic_auth",
+    //             SecurityScheme::Http(HttpBuilder::new()
+    //         )       
+    //             .scheme(HttpAuthScheme::Basic)
+    //             .build(),
+    //         );
 
-        }
-    }
+    //     }
+    // }
 
     println!("🌎 live server at {}:{}", host.clone(), port);
     // let host1 = host.clone();
@@ -122,6 +122,12 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::new(
                 "%{r}a %r %s %b %{Referer}i %{User-Agent}i %T",
             )) // enable logger
+            
+            .service(
+                SwaggerUi::new("/swagger-ui/{_:.*}")
+                    .url("/api-docs/openapi.json", ApiDoc::openapi()),
+            )
+            
             // .service(web::resource("/api/ping").route(web::get().to(ping)))
             .service(actix_files::Files::new("/static","./static")
                 .show_files_listing()

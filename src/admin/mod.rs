@@ -18,7 +18,11 @@ pub mod controller {
     use crate::land::repo::get_menus;
     use actix_web::http::header::LOCATION;
 
-    /// Insere uma empresa
+    /// Empresa
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Empresa")
+    ))]
     #[post("/empresa/{empresa_id}/{user_id}")]
     pub async fn post_empresa(
         app: web::Data<AppState>,
@@ -45,7 +49,11 @@ pub mod controller {
         }
     }
 
-    /// Exibe uma empresa pelo id
+    /// Empresa
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Empresa")
+    ))]
     #[get("/empresa/{empresa_id}/{user_id}")]
     pub async fn get_empresa(
         app: web::Data<AppState>,
@@ -69,7 +77,11 @@ pub mod controller {
         }
     }
 
-    /// Exibe uma lista de empresas
+    /// Lista de empresas
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Lista de empresas")
+    ))]
     #[get("/empresa/{empresa_id}/{user_id}")]
     pub async fn get_empresas_all(
         app: web::Data<AppState>,
@@ -93,7 +105,12 @@ pub mod controller {
             Err(e) => Ok(HttpResponse::BadRequest().json(e.to_string())),
         }
     }
-    
+
+    /// Alterar empresa
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Alterar empresa")
+    ))]
     #[put("/empresa/{empresa_id}/{user_id}")]
     pub async fn put_empresa(
         app: web::Data<AppState>,
@@ -116,7 +133,12 @@ pub mod controller {
             Err(e) => Ok(HttpResponse::BadRequest().json(e.to_string())),
         }
     }
-    
+
+    /// Excluir Empresa
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Excluir empresa")
+    ))]
     #[delete("/empresa/{empresa_id}/{user_id}")]
     pub async fn delete_empresa(
         app: web::Data<AppState>,
@@ -140,6 +162,11 @@ pub mod controller {
         }
     }
 
+    /// Alterar os dados do usuário
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Usuário")
+    ))]
     #[get("/account")]
     pub async fn usuario_form(
         _req: HttpRequest,

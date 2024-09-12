@@ -17,7 +17,11 @@ pub mod controller {
     use crate::dashboard::repo::dash_for_user;
     // use crate::infra::result::Result;
 
-    
+    /// Dashboard
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Dashboard")
+    ))]
     #[get("")]
     pub async fn get_dashboard(
         data: web::Data<AppState>,
@@ -59,6 +63,11 @@ pub mod controller {
     
     }  
 
+    /// Pedido
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Pedido")
+    ))]
     #[get("/pedido/{id}")]
     pub async fn get_pedido(
         data: web::Data<AppState>,
@@ -89,6 +98,11 @@ pub mod controller {
         crate::infra::render::render_minijinja("dash/dash_pedido.html", context!(usuario, dashboard,  empresa, flash, msg_error)) 
     }
 
+    /// Formulário de pedido
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Formulário de pedido")
+    ))]
     #[get("/pedido/new")]
     pub async fn get_form_pedido(
         data: web::Data<AppState>,

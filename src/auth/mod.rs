@@ -19,6 +19,11 @@ pub mod controller {
 
     use super::session::has_logged;
 
+    /// Login Form
+    #[utoipa::path(context_path = "/login",
+        responses(
+            (status = 200, description = "Login")
+    ))]
     #[get("")]
     pub async fn login_form(
         _req: HttpRequest,
@@ -47,6 +52,11 @@ pub mod controller {
         crate::infra::render::render_minijinja("login/login.html", context!(form, flash, msg_error)) 
 }
 
+    /// Subscribe Form
+    #[utoipa::path(context_path = "/login",
+        responses(
+            (status = 200, description = "Just subscribe your e-mail")
+    ))]
     #[get("/subscribe")]
     pub async fn subscribe_form(
         _req: HttpRequest,
@@ -65,6 +75,11 @@ pub mod controller {
         crate::infra::render::render_minijinja("login/subscribe.html", context!(form, flash, msg_error) )
 }
 
+    /// Login Form
+    #[utoipa::path(context_path = "/login",
+        responses(
+            (status = 200, description = "Login")
+    ))]
     #[post("")]
     pub async fn login(
         req: HttpRequest,
@@ -84,7 +99,12 @@ pub mod controller {
         service::login_user(data, &login_body, session, ip).await.unwrap() 
          
     }
- 
+
+    /// Subscribe
+    #[utoipa::path(context_path = "/login",
+        responses(
+            (status = 200, description = "Subscribe")
+    ))] 
     #[post("/subscribe")]
     pub async fn subscribe(
         _req: HttpRequest,
@@ -97,6 +117,12 @@ pub mod controller {
         service::subscribe(data, &subscriber).await.unwrap()          
     }
 
+
+    /// Logout
+    #[utoipa::path(context_path = "login",
+        responses(
+            (status = 200, description = "Logout")
+    ))]
     // Função para logout
     #[get("/logout")]
     pub async fn logout(        
@@ -109,6 +135,11 @@ pub mod controller {
         }
     }
 
+    /// Register Form
+    #[utoipa::path(context_path = "/login",
+        responses(
+            (status = 200, description = "Register")
+    ))]
     #[get("/register")]
     pub async fn register_form(
         _req: HttpRequest,
@@ -127,7 +158,11 @@ pub mod controller {
         crate::infra::render::render_minijinja("login/register.html", context!(form, flash, msg_error) )
 }
 
-    // Função para registro do usuario
+    /// Register
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Register")
+    ))]
     #[post("/register")]
     pub async fn register(
         data: web::Data<AppState>,
@@ -141,7 +176,12 @@ pub mod controller {
         }
     }
 
-
+    /// Primeiro Acesso Form
+    #[utoipa::path(
+        context_path = "/login",
+        responses(
+            (status = 200, description = "Formulário para cadastrar o primeiro acesso")
+    ))]
     #[post("/primeiroacesso/form")]
     pub async fn primeiroacessoform(
         _req: HttpRequest,
@@ -160,9 +200,12 @@ pub mod controller {
         crate::infra::render::render_minijinja("login/primeiro_acesso_form.html", context!(form, flash, msg_error) )
 }
 
-    
-
-    // Função para registro do usuario
+    /// Cadastro do primeiro acesso
+    #[utoipa::path(
+        context_path = "/login",
+        responses(
+            (status = 200, description = "Primeiro Acesso")
+    ))]
     #[post("/primeiroacesso")]
     pub async fn primeiroacesso(
         data: web::Data<AppState>,

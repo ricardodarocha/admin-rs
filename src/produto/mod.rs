@@ -22,7 +22,11 @@ pub mod controller {
     use crate::auditoria::service::*;
     use crate::admin::repo::abrir_empresa_one;
 
-
+    /// Formulário de cadastro de produtos
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Produto")
+    ))]
     #[get("/{id}")]
     pub async fn produto_form(
         _req: HttpRequest,
@@ -85,6 +89,11 @@ pub mod controller {
         } 
     }
 
+    /// Lista de todos os produtos
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Lista de produtos")
+    ))]
     #[get("/all")]
     pub async fn produto_list(
         _req: HttpRequest,
@@ -142,6 +151,11 @@ pub mod controller {
             msg_error)) 
     }
 
+    /// Salvar o produto
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Salvar produto")
+    ))]
     #[post("/{id}")]
     pub async fn post_produto(
         req: HttpRequest,
@@ -207,6 +221,11 @@ pub mod controller {
         }
     }
  
+    /// Atualizar Produto
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Atualizar produto")
+    ))]
     #[put("/{id}")]
     pub async fn put_produto(
         req: HttpRequest,
@@ -241,6 +260,11 @@ pub mod controller {
         }
     }
 
+    /// Lista de produtos
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Lista de produtos")
+    ))]
     #[get("/json/{id}")]
     pub async fn json_produto(
         _req: HttpRequest,
@@ -275,6 +299,12 @@ pub mod controller {
         Ok(HttpResponse::Ok().json(result))
     }
 
+
+    /// Lista de produtos
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Lista de produtos")
+    ))]
 #[get("/json")]
     pub async fn json_lista_produtos(
         _req: HttpRequest,
