@@ -4,7 +4,96 @@ use sqlx::{Pool, Postgres};
 use crate::infra::uuid::generate_uuid;
 use crate::infra::result::Result;
 use crate::entidade::identificacao::repo::upsert_identificacao;
-use crate::infra::error::Error::Sqlx;
+use crate::infra::error::Error::{self, Sqlx};
+
+
+pub async fn inserir_account(
+    pool: &Pool<Postgres>,
+    id_usuario: String,
+    empresa: &PostAccount,
+) -> Result<Empresa> {
+    let id = empresa.id.clone();
+    let id = if id != "" {id} else {generate_uuid(UuidKind::V7)};
+
+    info!("Inserindo a empresa {e}", e = empresa.clone() );
+
+    let cnpj = &empresa.clone().cnpj; 
+    let encontrou_cnpj = crate::entidade::identificacao::repo::abrir_identificacao(pool, &cnpj.clone()).await; 
+    let _tipo_cnpj = crate::entidade::identificacao::repo::abrir_tipo_identificacao(pool, &"CNPJ".to_owned()).await;
+                    
+    if let Some(valid_cnpj) = encontrou_cnpj {
+        //Se o Cnpj ja esta no sistema, provavelmente a empresa foi cadastrada, exceto se tiver sido excluída
+        //Se encontrar a empresa, retorna, senão insere
+        if let Ok(empresa) = crate::admin::repo::abrir_empresa_one(pool, &Some(cnpj.clone())).await {
+            if let Some(empresa)  = empresa {
+                info!("Cnpj {cnpj} já foi cadastrado. Retornando empresa {e}", cnpj = valid_cnpj.descricao.unwrap(), e = empresa.clone().id );
+                return Ok(empresa)
+            } else {
+            // let novo_cnpj = upsert_identificacao(pool, &cnpj.clone(), tipo_cnpj.unwrap().into()).await;
+            info!("Cnpj {cnpj} já está no sistema, mas a empresa ainda não foi cadastrada, ou foi excluída", cnpj = valid_cnpj.descricao.unwrap() );
+            }
+        }            
+        else {
+            // let novo_cnpj = upsert_identificacao(pool, &cnpj.clone(), tipo_cnpj.unwrap().into()).await;
+            info!("Cnpj {cnpj} já está no sistema, mas a empresa ainda não foi cadastrada, ou foi excluída", cnpj = valid_cnpj.descricao.unwrap() );
+        
+        }};
+            
+            // }    
+            // else {
+            //     let novo_cnpj = upsert_identificacao(pool, &cnpj.clone(), tipo_cnpj.unwrap().into()).await.unwrap();
+            //     info!("Cnpj {cnpj} foi inserido. Id {id_cnpj}", cnpj = novo_cnpj.descricao.unwrap(), id_cnpj = novo_cnpj.id );
+
+
+    let rec = sqlx::query_as!(
+        Empresa,
+        "INSERT INTO empresa (id, id_cnpj, nome, fantasia, endereco, cidade, estado, telefone, email)
+        VALUES (
+        coalesce($1, '0'), --id
+        (select id from identificacao where descricao = $2), --identificacao cnpj
+        $3, --nome
+        $3, --fantasia
+        'Não informado', --endereco
+        'Não informado', --cidade
+        'Não informado', --estado
+        $4,
+        $5
+        )
+        RETURNING  id, nome, id_cnpj, $4 as cnpj",
+        id.clone(),
+        empresa.cnpj,
+        empresa.nome_fantasia,
+        empresa.telefone,
+        empresa.email,
+    )
+    .fetch_one(pool)
+    .await?;
+
+    //Cria os perfis de usuario da empresa atual
+    let _ = sqlx::query!(
+        "insert into perfil_usuario_empresa (id_empresa , id_perfil_usuario , nome)
+    select $1, perfil_usuario.id, perfil_usuario.nome from perfil_usuario 
+    where not exists (select id_empresa from perfil_usuario_empresa)", id)
+    .execute(pool)
+    .await?;
+
+    //Insere os usuarios dev, super, admin para a empresa
+    let _ = sqlx::query!(
+        "insert into empresa_usuario (id_empresa , id_usuario)
+    select $1, id from users where login in ('caze','','')", id)
+    .execute(pool)
+    .await?;
+
+    //se o usuario ainda nao tiver uma empresa principal, vincula
+    let _ = sqlx::query!(
+        "update users set id_empresa = coalesce(
+            (select id_empresa from users where id = $1), $2)
+        where id = $1", id_usuario, id)
+    .execute(pool)
+    .await?;
+
+    Ok(rec)
+}
 
 pub async fn inserir_empresa(
     pool: &Pool<Postgres>,
@@ -16,9 +105,9 @@ pub async fn inserir_empresa(
         _ => generate_uuid(UuidKind::V7),
     };
 
-    info!("Inserindo a empresa {e}", e = empresa.clone() );
+    info!("Inserindo a empresa {e}", e = empresa );
 
-    match &empresa.clone().cnpj {
+    match &empresa.cnpj {
         Some(cnpj) => {    
             let encontrou_cnpj = crate::entidade::identificacao::repo::abrir_identificacao(pool, &cnpj.clone()).await; 
             let tipo_cnpj = crate::entidade::identificacao::repo::abrir_tipo_identificacao(pool, &"CNPJ".to_owned()).await;
@@ -26,9 +115,14 @@ pub async fn inserir_empresa(
             if let Some(valid_cnpj) = encontrou_cnpj {
                 //Se o Cnpj ja esta no sistema, provavelmente a empresa foi cadastrada, exceto se tiver sido excluída
                 //Se encontrar a empresa, retorna, senão insere
-                if let Ok(empresa) = crate::admin::repo::abrir_empresa_one(pool, &cnpj).await {
-                    info!("Cnpj {cnpj} já foi cadastrado. Retornando empresa {e}", cnpj = valid_cnpj.descricao.unwrap(), e = empresa.clone().id );
-                    return Ok(empresa)
+                if let Ok(empresa) = crate::admin::repo::abrir_empresa_one(pool, &Some(cnpj.clone())).await {
+                    if let Some(empresa)  = empresa {
+                        info!("Cnpj {cnpj} já foi cadastrado. Retornando empresa {e}", cnpj = valid_cnpj.descricao.unwrap(), e = empresa.clone().id );
+                        return Ok(empresa)
+                    } else {
+                    // let novo_cnpj = upsert_identificacao(pool, &cnpj.clone(), tipo_cnpj.unwrap().into()).await;
+                    info!("Cnpj {cnpj} já está no sistema, mas a empresa ainda não foi cadastrada, ou foi excluída", cnpj = valid_cnpj.descricao.unwrap() );
+                    }
                 }            
                 else {
                     // let novo_cnpj = upsert_identificacao(pool, &cnpj.clone(), tipo_cnpj.unwrap().into()).await;
@@ -97,21 +191,25 @@ pub async fn inserir_empresa(
 
 pub async fn abrir_empresa_one(
     pool: &Pool<Postgres>,
-    id_empresa: &String,
-) -> Result<Empresa> {
-    
-    let rec = sqlx::query_as!(
-        Empresa,
-        "select e.id, e.nome, e.id_cnpj, i.descricao as cnpj 
-        from empresa e
-        left join identificacao i on i.id = e.id_cnpj
-        where e.id = $1 or i.descricao = $1",
-        id_empresa,
-    )
-    .fetch_one(pool) //fetch_optional
-    .await?;
+    id_empresa: &Option<String>,
+) -> Result<Option<Empresa>> {
 
-    Ok(rec)
+    match id_empresa {
+        Some(id_empresa) => {
+            let rec = sqlx::query_as!(
+                Empresa,
+                "select e.id, e.nome, e.id_cnpj, i.descricao as cnpj 
+                from empresa e
+                left join identificacao i on i.id = e.id_cnpj
+                where e.id = $1 or i.descricao = $1",
+                id_empresa,
+            )
+            .fetch_optional(pool) 
+            .await?;
+
+            Ok(rec)},
+            None => Ok(None),
+        }
 }
 
 pub async fn listar_empresas_all(
@@ -139,24 +237,30 @@ pub async fn atualizar_empresa(
     empresa: &PutEmpresa,
 ) -> Result<Empresa> {
 
-    let found = abrir_empresa_one(pool, &empresa.id).await?;
-    let found_cnpj = &found.id_cnpj.unwrap_or("0".to_owned());
+    let found = abrir_empresa_one(pool, &Some(empresa.id.clone())).await?;
+
+    if let Some(found) = found {
+
+        let found_cnpj = &found.id_cnpj.unwrap_or("0".to_owned());
 
     let rec = sqlx::query_as!(
         Empresa,
         "UPDATE empresa 
-        set nome = $1,
-        id_cnpj = $2
-        where id = $3
+        set nome = $1
+        where id = $2
         RETURNING id, nome, id_cnpj, $3 as cnpj",
         empresa.nome.as_ref().unwrap_or(&found.nome),
-        empresa.cnpj.as_ref().unwrap_or(&found_cnpj),
+        // empresa.cnpj.as_ref().unwrap_or(&found_cnpj), // nao pode alterar cnpj
         empresa.id,
+        &found_cnpj,
     )
     .fetch_one(pool)
     .await?;
 
     Ok(rec)
+    } else {
+        Err(Error::Str(&"Empresa nao localizada"))
+    }
 }
 
 
@@ -273,8 +377,7 @@ pub async fn lista_segmentos (
 
 ) -> Result<Vec<Segmento>> {
 
-    let rec =
-    sqlx::query_as!(
+    let rec = sqlx::query_as!(
         Segmento, r#"
         select id, nome, classe
  	   from SEGMENTO_PESSOA 
@@ -283,6 +386,6 @@ pub async fn lista_segmentos (
         .fetch_all(pool).await;
    match rec {
     Ok(rec) => Ok(rec),
-    Err(err) => Err(Sqlx(err))
+    Err(err) => Err(Sqlx(err)),
    }
 }

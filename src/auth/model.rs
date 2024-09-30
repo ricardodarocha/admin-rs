@@ -1,6 +1,7 @@
 use actix_session::Session;
 // use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use serde::de::Deserializer;
 use sqlx::FromRow;
 use time::OffsetDateTime;
 use time::serde::iso8601::option;
@@ -80,23 +81,38 @@ pub struct RegisterUser {
     pub telefone: String,
     pub password: Option<String>, //senha sem criptografia
 }
+
+fn lgpd<'de, D>(deserializer: D) -> Result<bool, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: &str = Deserialize::deserialize(deserializer)?;
+    match s {
+        "Aceito" => Ok(true),
+        _ => Ok(false),
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct PrimeiroAcesso {
-    pub nome: String, //Nome da instituição
-    pub cnpj: String,
-    pub segmento: String,
-    pub email: String,
-    pub telefone: String,
-    pub responsavel: String,
-    pub cpf: String,
-    pub password: Option<String>, //senha sem criptografia
+    pub nome_instituicao: String, //Nome da instituição
+    pub cnpj: String, //Cnpj da instituição
+    pub segmento: String, //Segmento da instituição
+    pub email: String, //email do responsavel
+    pub nome_responsavel: String, //nome do responsável
+    pub cpf: String, //cpf do responsavel
+    pub telefone: String, //telefone da empresa, ou telefone do responsável
+    pub password: Option<String>, //senha sem criptografia; normalmente a primeira senha será gerada pelo programa
+    
+    #[serde(deserialize_with = "lgpd")]
+    pub lgpd: bool,
 }
 
 impl From<PrimeiroAcesso> for RegisterUser {
     fn from(value: PrimeiroAcesso) -> Self {
         RegisterUser {
-            nome: value.responsavel,
-            instituicao: value.nome,
+            nome: value.nome_responsavel,
+            instituicao: value.nome_instituicao,
             email: value.email,
             telefone: value.telefone,
             password: value.password,

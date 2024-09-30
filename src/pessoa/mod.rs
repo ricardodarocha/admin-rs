@@ -22,6 +22,11 @@ pub mod controller {
     use actix_web::http::header::LOCATION;
     use crate::pessoa::repo::{self as repo, lista_grupos_pessoas};
 
+    /// Login Form
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Login")
+    ))]
     #[get("/{id}")]
     pub async fn pessoa_form(
         _req: HttpRequest,
@@ -46,7 +51,7 @@ pub mod controller {
         };
     let usuario = get_user(pool, &session).await;
     let id_empresa = usuario.clone().unwrap().id_empresa.clone().unwrap().to_string();
-    let empresa = abrir_empresa_one(pool, &id_empresa.clone()).await.unwrap();
+    let empresa = abrir_empresa_one(pool, &Some(id_empresa.clone())).await.unwrap();
 
     let found_pessoa: Option<Pessoa> = repo::abrir_pessoa(pool, id_empresa.clone(), &current_id.clone()).await;
     let estados = lista_estados(pool).await.unwrap();
@@ -176,7 +181,7 @@ pub mod controller {
         let web::Query(args) = args;
         let usuario = get_user(pool, &session).await;
         let id_empresa = usuario.clone().unwrap().id_empresa;
-        let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
+        let empresa = abrir_empresa_one(pool, &id_empresa.clone()).await.unwrap();
         let categorias = match id_empresa.clone() {
             Some(empresa) => { lista_grupos_pessoas(pool, empresa).await.unwrap() },
             None => { vec!()},

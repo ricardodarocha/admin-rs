@@ -13,3 +13,6 @@
 - [] Alguns campos como telefone e email podem ter redundancia em tabelas de pessoas e empresa, alem do campo id_telefone e id_contato que referencial à tabela contato.id
 - [] Organizar as migrations
 - [] Cadastro de empresa dentro do perfil do usuário
+  - [x] Model
+  - [x] form
+  - [ ] post api

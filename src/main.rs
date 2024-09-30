@@ -26,8 +26,9 @@ use config::database;
 use env_logger::Env;
 use infra::controller::ping;
 use minijinja::context;
-use utoipa::{openapi, Modify, OpenApi};
-use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
+use utoipa::OpenApi;
+// use utoipa::{openapi, Modify, OpenApi};
+// use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa_swagger_ui::SwaggerUi;
 use crate::infra::job::job_scheduler;
 

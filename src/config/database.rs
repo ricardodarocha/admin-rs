@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use log::info;
 use sqlx::{FromRow, Pool, Postgres};
 
@@ -74,4 +76,22 @@ pub async fn get_database_connection() -> Pool<Postgres> {
     //     }
     // }
     conn
+}
+
+/// Função wrapper para verificar se a conexão está ativa e fechar o pool se a conexão falhar.
+/// Na próxima operação, o pool será reaberto automaticamente.
+pub async fn autorecover(pool: &Pool<Postgres>) -> Pool<Postgres> {
+    match sqlx::query("SELECT 1").execute(pool).await {
+        Ok(_) => {
+            let result = pool.clone(); 
+            result
+        }
+        Err(e) => {
+            println!("{} \n A conexão foi reiniciada automaticamente", e);
+            pool.close().await;
+            tokio::time::sleep(Duration::from_millis(2)).await;
+            let result = pool.clone(); 
+            result
+        }
+    }
 }

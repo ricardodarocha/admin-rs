@@ -4,6 +4,11 @@ pub enum UuidKind {
     V7,
 }
 
+pub enum UuidValue {
+    V4(String),
+    V7(String),
+}
+
 use UuidKind::*;
 
 pub fn generate_uuid(kind: UuidKind) -> String  {

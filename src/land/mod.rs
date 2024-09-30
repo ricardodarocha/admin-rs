@@ -48,7 +48,7 @@ pub mod controller {
                   let id_empresa = usuario.clone().id_empresa;
                   match id_empresa {
                     Some(id) => {
-                        if let Ok(empresa) = abrir_empresa_one(pool, &id).await {
+                        if let Ok(empresa) = abrir_empresa_one(pool, &Some(id)).await {
                             Some(empresa)
                         }
                         else {
@@ -124,7 +124,7 @@ pub mod controller {
 
         let usuario = get_user(pool, &session).await;
         let id_empresa = usuario.clone().unwrap().id_empresa;
-        let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
+        let empresa = abrir_empresa_one(pool, &id_empresa.clone()).await.unwrap();
 
         let flash = session.remove("flash").unwrap_or("".to_string()); 
         let msg_error = format!("{}", session.remove("msg_error").unwrap_or("".to_string()));   

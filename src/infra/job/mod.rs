@@ -11,6 +11,8 @@ use std::time::Duration;
 use tokio::time::interval;
 use sqlx::PgPool;
 
+use crate::config::database::autorecover;
+
 pub async fn job_scheduler(pool: PgPool) {
     let mut interval = interval(Duration::from_secs(10));
 
@@ -24,7 +26,7 @@ pub async fn job_scheduler(pool: PgPool) {
             WHERE execute_at <= now() AND status = 'pending'
             "#
         )
-        .fetch_all(&pool)
+        .fetch_all(&autorecover(&pool).await)
         .await
         .expect("Failed to fetch jobs");
 
@@ -41,7 +43,7 @@ pub async fn job_scheduler(pool: PgPool) {
                 sqlx::query!(
                     "UPDATE job SET status = 'processing...' WHERE id = $1",
                     job.clone().id
-                ).execute(&pool.clone())
+                ).execute(&autorecover(&pool).await)
                 .await
                 .expect("Failed to update job status");
 

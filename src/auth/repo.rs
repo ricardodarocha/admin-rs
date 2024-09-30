@@ -404,7 +404,7 @@ pub async fn inserir_empresa_primeiro_acesso(pool: &Pool<Postgres>,
         id_usuario,
         &PostEmpresa{
         id: None,
-        nome: empresa.nome,
+        nome: empresa.nome_instituicao,
         cnpj: Some(empresa.cnpj),
         email: Some(empresa.email),
         telefone: Some(empresa.telefone),

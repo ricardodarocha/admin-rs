@@ -20,10 +20,10 @@ impl SendEmail {
 
 #[derive(Deserialize)]
 struct UserAdapter {
-    nome: String,
-    instituicao: String,
+    _nome: String,
+    _instituicao: String,
     email: String,
-    telefone: String,
+    _telefone: String,
 }
 
 // Este adapter deve representar exatamente o JSON que é armazenado no Content dos job

@@ -51,7 +51,7 @@ pub mod controller {
         };
 
         let id_empresa = usuario.clone().unwrap().id_empresa;
-        let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
+        let empresa = abrir_empresa_one(pool, &id_empresa.clone()).await.unwrap();
         let dashboard = dash_for_user(pool, usuario.clone().unwrap().id).await.unwrap();
         // let form = LoginForm::default();
 
@@ -89,7 +89,7 @@ pub mod controller {
 
         let usuario = get_user(pool, &session).await;
         let id_empresa = usuario.clone().unwrap().id_empresa;
-        let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
+        let empresa = abrir_empresa_one(pool, &id_empresa.clone()).await.unwrap();
         let dashboard = dash_for_user(pool, usuario.clone().unwrap().id).await.unwrap();
         // let form = LoginForm::default();
 
@@ -125,7 +125,7 @@ pub mod controller {
         let usuario = get_user(pool, &session).await;
         let id_empresa = usuario.clone().unwrap().id_empresa;
         let dashboard = dash_for_user(pool, usuario.clone().unwrap().id).await.unwrap();
-        let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
+        let empresa = abrir_empresa_one(pool, &id_empresa.clone()).await.unwrap();
         // let form = LoginForm::default();
 
         let flash = session.remove("flash").unwrap_or("".to_string()); 

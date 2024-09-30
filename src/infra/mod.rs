@@ -1,3 +1,4 @@
+pub mod repo;
 pub mod job;
 pub mod email;
 pub mod pagination;

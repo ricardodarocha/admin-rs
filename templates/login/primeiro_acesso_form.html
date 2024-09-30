@@ -39,8 +39,8 @@
  -->
 
         <div class="form-floating mb-3">
-          <input placeholder="Razão Social" id="nome" name="nome" type="text" class="form-control" value="{{ form.instituicao }}" required >
-          <label for="nome">Instituição</label>
+          <input placeholder="Razão Social" id="nome_instituicao" name="nome_instituicao" type="text" class="form-control" value="{{ form.nome_instituicao }}" required >
+          <label for="nome_instituicao">Instituição</label>
         </div>
 
         <div class="form-floating mb-3">
@@ -68,8 +68,8 @@
           </div>
      
         <div class="form-floating mb-3">
-          <input placeholder="Nome do Responsável" id="responsavel" name="responsavel" type="text" class="form-control" value="{{form.nome}}" required >
-          <label for="responsavel">Responsável</label>
+          <input placeholder="Nome do Responsável" id="nome_responsavel" name="nome_responsavel" type="text" class="form-control" value="{{form.nome_responsavel}}" required >
+          <label for="nome_responsavel">Responsável</label>
         </div>
         
         <div class="form-floating mb-3">
@@ -82,8 +82,8 @@
           <label for="senha">Senha</label>
         </div>
 
-        <input type="checkbox" id="privacyPolicy" name="policy" value="agree" required>
-        <label for="privacyPolicy">Concordo com o tratamento dos meus dados pessoais, para Ricardo da Rocha Inc e seus parceiros, em conformidade com a Lei nº
+        <input type="checkbox" id="lgpd" name="lgpd" value="Aceito" required>
+        <label for="lgpd">Concordo com o tratamento dos meus dados pessoais, para Ricardo da Rocha Inc e seus parceiros, em conformidade com a Lei nº
         13.709 | Lei Geral de Proteção de Dados Pessoais (LGPD)</label>
         
         </div>

@@ -236,7 +236,7 @@ pub async fn primeiro_acesso(
             //Se o Cnpj ja esta no sistema, provavelmente a empresa foi cadastrada, exceto se tiver sido excluída
             //Se já tiver vinculado a empresa, precisa emitir um erro
             if let Some(numero_cnpj) = encontrou_cnpj.descricao {
-                if let Ok(_empresa_ja_vinculada) = crate::admin::repo::abrir_empresa_one(pool, &numero_cnpj).await {
+                if let Ok(_empresa_ja_vinculada) = crate::admin::repo::abrir_empresa_one(pool, &Some(numero_cnpj)).await {
                     return reject("Esta empresa já foi vinculada por outro usuário. Solicite acesso ao administrador")};
                  }
             };

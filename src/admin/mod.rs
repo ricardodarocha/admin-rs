@@ -9,7 +9,8 @@ pub mod controller {
     use actix_web::{post, get,  put, delete};
     use minijinja::context;
     // use serde_json::json;
-    use crate::admin::model::{PostEmpresa, PutEmpresa};
+    use crate::admin::model::{PostAccount, PostEmpresa, PutEmpresa};
+    use crate::admin::{repo, service};
     use crate::app::AppState;
     use crate::auth::model::{UserOperation, UserPermission};  
     // use actix_web::http::header::LOCATION;
@@ -71,7 +72,7 @@ pub mod controller {
 
         let (empresa_id, _usr_id) = path.into_inner();
 
-        match crate::admin::repo::abrir_empresa_one(&app.database.conn, &empresa_id).await {
+        match crate::admin::repo::abrir_empresa_one(&app.database.conn, &Some(empresa_id)).await {
             Ok(empresa) => Ok(HttpResponse::Ok().json(empresa)),
             Err(e) => Ok(HttpResponse::BadRequest().json(e.to_string())),
         }
@@ -225,8 +226,78 @@ pub mod controller {
                 msg_error)) 
     }
 
+    /// Salvar os dados da empresa
+    #[utoipa::path(
+        responses(
+            (status = 200, description = "Salvar account")
+    ))]
+    #[post("/{id}")]
+    pub async fn post_account(
+        _req: HttpRequest,
+        account_body: web::Form<PostAccount>,
+        path: web::Path<String>,
+        data: web::Data<AppState>,
+        session: Session,
+    ) -> HttpResponse {
     
-        // Define as rotas para o controlador de autenticação
+        let pool = &data.database.conn;
+        let id = path.into_inner();
+        let user = get_user(pool, &session).await.unwrap();
+    
+        let _scope = "".to_string();
+        let _id_usuario = user.clone().id;
+        let id_empresa = user.clone().id_empresa;
+
+        let web::Form(account_body) = account_body;
+    
+        // Audita
+        // let _ = auditar_requisicao(
+        //     pool,
+        //     req.clone(),
+        //     scope,
+        //     &id_empresa,
+        //     &id_usuario,
+        // ).await;
+    
+        // let ip: Option<IpAddr> = if let Some(val) = req.clone().peer_addr() {
+        //     Some(val.ip())
+        // } else {
+        //     None
+        // };
+    
+        // let _ = crate::auth::repo::inserir_consumo_rota(
+        //     &"POST account/".to_owned(),
+        //     &"SUCESSO".to_owned(),
+        //     &format!("{:?}", ip),
+        //     &user.id.clone()
+        // ).await;
+    
+        let account = repo::abrir_empresa_one(pool, &id_empresa).await.unwrap();
+        if let Some(_account) = account {
+            let res = service::atualizar_account(
+                pool,
+                &account_body.into(),
+            ).await;
+            match res {
+                Ok(empresa) =>  { HttpResponse::Ok().json(empresa) 
+            }, Err(_err) => {
+            HttpResponse::BadRequest().json("A empresa ja existe".to_owned()) }}
+        
+        } else {
+            let res = service::inserir_account(
+                    pool,
+                    id,
+                    &account_body,
+                ).await; 
+                
+         match res {
+                Ok(empresa) =>  { HttpResponse::Ok().json(empresa) 
+            }, Err(err) => {
+            HttpResponse::BadRequest().json(format!("Falha ao incluir a empresa {}", err)) }
+            
+        }
+        
+    }}
 }
 
 use controller::*;

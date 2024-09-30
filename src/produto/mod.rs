@@ -122,7 +122,7 @@ pub mod controller {
         let web::Query(pagination) = pagination;
         let usuario = get_user(pool, &session).await;
         let id_empresa = usuario.clone().unwrap().id_empresa;
-        let empresa = abrir_empresa_one(pool, &id_empresa.clone().unwrap()).await.unwrap();
+        let empresa = abrir_empresa_one(pool, &id_empresa.clone()).await.unwrap();
         let categorias = match id_empresa {
             Some(empresa) => { lista_grupos_produtos(pool, empresa).await.unwrap() },
             None => { vec!()},
