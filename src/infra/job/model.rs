@@ -12,6 +12,7 @@ pub struct Job {
     pub status: String,
 }
 
+#[allow(async_fn_in_trait)]
 pub trait Jober {
     async fn run(_job: Job) {}
 }

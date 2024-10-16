@@ -2,13 +2,20 @@ use std::fmt;
 
 use sqlx::FromRow;
 use serde::{Serialize, Deserialize};
+use crate::auth::model::User;
 
 #[derive(Clone, Deserialize, Serialize, FromRow)]
 pub struct Empresa {
     pub id: String,
     pub nome: String, 
+    pub fantasia: String,             
     pub id_cnpj: Option<String>,
     pub cnpj: Option<String>,
+    pub endereco             : String, 
+    pub cidade               : String, 
+    pub estado               : String, 
+    pub telefone             : Option<String>, 
+    pub email                : Option<String>, 
 }
 
 impl fmt::Display for Empresa {
@@ -74,14 +81,14 @@ pub struct PutEmpresa {
 impl From<PostAccount> for PutEmpresa {
     fn from(value: PostAccount) -> Self {
         PutEmpresa {
-            id: value.id,
-            nome: Some(value.nome_usuario),
+            id: value.id_empresa,
+            nome: Some(value.razao_social),
             fantasia: value.nome_fantasia,
             nome_responsavel: Some(value.nome_responsavel),
             cpf: Some(value.cpf_responsavel),
             email: Some(value.email),
+            segmento: value.segmento,
             telefone: Some(value.telefone),
-            segmento: Some(value.segmento),
             endereco_principal: Some(value.endereco_principal),
             bairro_principal: Some(value.bairro_principal),
             cidade_principal: Some(value.cidade_principal),
@@ -124,14 +131,15 @@ pub struct EmpresaAssociada {
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct PostAccount {
-    pub id: String,
+    pub id_usuario: String,
+    pub id_empresa: String,
     pub nome_usuario: String,
-    pub email_usuario: String, 
+    pub email_usuario: String,  
     pub razao_social: String, 
     pub nome_fantasia: Option<String>, 
     pub tipo_identificacao: String,
-    pub cnpj: String,
-    pub segmento: String,
+    pub cnpj: String, 
+    pub segmento: Option<String>,
     pub email: String,
     pub telefone: String,
     pub nome_responsavel: String,
@@ -165,32 +173,43 @@ pub struct DadosAccount {
     pub id_usuario: String,
     pub id_empresa: String,
     pub nome_usuario: String,
-    pub email_usuario: String, 
-    pub razao_social: String, 
-    pub nome_fantasia: Option<String>, 
-    pub tipo_identificacao: String,
-    pub cnpj: Option<String>,
-    pub segmento: Option<String>,
-    pub email: String,
-    pub telefone: String,
-    pub nome_responsavel: String,
+    pub nome_responsavel: Option<String>,
     pub cpf_responsavel: Option<String>,
+    pub email_usuario: String,
+    pub razao_social: Option<String>,
+    pub nome_fantasia: Option<String>,
+    pub cnpj: Option<String>,
+    pub tipo_identificacao: Option<String>,
+    pub telefone: Option<String>,
+    pub segmento: Option<String>,
+    pub email: Option<String>,
     pub endereco_principal: Option<String>,
     pub bairro_principal: Option<String>,
+    pub cep_principal: Option<String>,
     pub cidade_principal: Option<String>,
     pub estado_principal: Option<String>,
-    pub cep_principal: Option<String>,
     pub endereco_cobranca: Option<String>,
     pub bairro_cobranca: Option<String>,
+    pub cep_cobranca: Option<String>,
     pub cidade_cobranca: Option<String>,
     pub estado_cobranca: Option<String>,
-    pub cep_cobranca: Option<String>,
     pub endereco_entrega: Option<String>,
     pub bairro_entrega: Option<String>,
+    pub cep_entrega: Option<String>,
     pub cidade_entrega: Option<String>,
     pub estado_entrega: Option<String>,
-    pub cep_entrega: Option<String>,
-    
+}
+
+impl DadosAccount {
+    pub fn with_user(mut self, user: Option<User>) -> Self {
+        if let Some(user) = user {
+            self.id_usuario = user.id;
+            self.nome_usuario = user.nome;
+            self.email_usuario = user.email.unwrap_or_default();
+        }
+        self.id_empresa = "0".to_string();
+        self
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]

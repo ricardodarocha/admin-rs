@@ -7,9 +7,10 @@ pub mod controller {
     use actix_session::Session;
     use actix_web::{web, HttpRequest, HttpResponse, Responder};
     use actix_web::{post, get,  put, delete};
+    use log::info;
     use minijinja::context;
     // use serde_json::json;
-    use crate::admin::model::{PostAccount, PostEmpresa, PutEmpresa};
+    use crate::admin::model::{DadosAccount, PostAccount, PostEmpresa, PutEmpresa};
     use crate::admin::{repo, service};
     use crate::app::AppState;
     use crate::auth::model::{UserOperation, UserPermission};  
@@ -127,9 +128,9 @@ pub mod controller {
             return user_has_not_permission(&"edit empresa")
         };
 
-        let (_empresa_id, _usr_uuid) = path.into_inner();
+        let (id_empresa, _usr_uuid) = path.into_inner();
 
-        match crate::admin::service::atualizar_empresa(pool, &empresa).await {
+        match crate::admin::service::atualizar_empresa(&pool.clone(), &empresa, &id_empresa).await {
             Ok(empresa) => Ok(HttpResponse::Ok().json(empresa)),
             Err(e) => Ok(HttpResponse::BadRequest().json(e.to_string())),
         }
@@ -208,22 +209,30 @@ pub mod controller {
         let estados = crate::cidade::repo::lista_estados(pool).await.unwrap();
    
         let id_usuario = usuario.clone().unwrap().id;
+        info!("Buscando empresa do usuário {}", id_usuario.clone());
         let found_empresa =  crate::admin::repo::abrir_dados_empresa_principal(pool, id_usuario).await;
-        let form = found_empresa.unwrap();
+        info!("empresa encontrada {:?}", found_empresa.clone());
+        let account_form = found_empresa;
+        let form = if let Some(form) = account_form {
+            form
+        } else {
+            DadosAccount::default()
+                .with_user(usuario.clone())
+        };
 
         // exemplo de menu 
         // usuario
         //     alterar senha
         //     excluir conta
 
-            crate::infra::render::render_minijinja("admin/form_usuario.html", context!(
-                menus,
-                usuario, 
-                segmentos,
-                estados,
-                form, 
-                flash, 
-                msg_error)) 
+        crate::infra::render::render_minijinja("admin/form_usuario.html", context!(
+            menus,
+            usuario, 
+            segmentos,
+            estados,
+            form, 
+            flash, 
+            msg_error)) 
     }
 
     /// Salvar os dados da empresa
@@ -231,7 +240,7 @@ pub mod controller {
         responses(
             (status = 200, description = "Salvar account")
     ))]
-    #[post("/{id}")]
+    #[post("/account/{id}")]
     pub async fn post_account(
         _req: HttpRequest,
         account_body: web::Form<PostAccount>,
@@ -242,6 +251,7 @@ pub mod controller {
     
         let pool = &data.database.conn;
         let id = path.into_inner();
+        info!("{:?}", account_body.clone());
         let user = get_user(pool, &session).await.unwrap();
     
         let _scope = "".to_string();
@@ -277,11 +287,12 @@ pub mod controller {
             let res = service::atualizar_account(
                 pool,
                 &account_body.into(),
+                &id_empresa.unwrap(),
             ).await;
             match res {
                 Ok(empresa) =>  { HttpResponse::Ok().json(empresa) 
-            }, Err(_err) => {
-            HttpResponse::BadRequest().json("A empresa ja existe".to_owned()) }}
+            }, Err(err) => {
+            HttpResponse::BadRequest().json(format!("A empresa já existe. Erro ao atualizar: {}", err)) }}
         
         } else {
             let res = service::inserir_account(
@@ -306,6 +317,7 @@ pub fn routes(cfg: &mut crate::web::ServiceConfig) {
 cfg.service(
     crate::web::scope("/admin")
         .service(usuario_form)
+        .service(post_account)
         .service(get_empresa)
         .service(put_empresa)
         .service(post_empresa)

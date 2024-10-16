@@ -5,7 +5,7 @@
 <div class="container mt-5">
 
     <h2>Perfil do usuário</h2>
-    <form action="/admin/account" id="admin" method="POST" class="bs-validate p-4 p-md-5">
+    <form action="/admin/account/{{ form.id_empresa }}" id="admin" method="POST" class="bs-validate p-4 p-md-5">
         <div class="tabs">
             <input type="radio" class="tabs__radio" name="tabs-geral" id="tab0">
             <label for="tab0" class="tabs__label">Dados do usuário</label>
@@ -32,16 +32,16 @@
                 </div>
                 <div class="form-group">
                     <label for="nome_fantasia">Nome Fantasia</label>
-                    <input type="text" class="form-control" required value="{{ form.nome_fantasia }}" id="nome_fantasia" name="nome_fantasia"
+                    <input type="text" class="form-control" required value="{{'' if form.nome_fantasia == none else  form.nome_fantasia }}" id="nome_fantasia" name="nome_fantasia"
                         placeholder="Nome Fantasia">
                 </div>
                 <div class="form-group">
                     <div>
-                        <input type="radio" id="cnpj" name="tipo_identificacao" value="Cnpj" checked />
-                        <label for="cnpj">Cnpj</label>                           
+                        <input type="radio" id="choose-cnpj" name="tipo_identificacao" value="Cnpj" checked />
+                        <label for="choose-cnpj">Cnpj</label>                           
                         
-                        <input type="radio" id="cpf" name="tipo_identificacao" value="Cpf" />
-                        <label for="cpf">Cpf</label>
+                        <input type="radio" id="choose-cpf" name="tipo_identificacao" value="Cpf" />
+                        <label for="choose-cpf">Cpf</label>
                     </div>
 
                     <label for="cnpj">Número do documento</label>
@@ -50,8 +50,7 @@
                         placeholder="Número do documento">
                 </div>
                 <div class="input-group-over mb-3">
-                    {% with itens = segmentos, label = "Segmento", value = form.segmento, name =
-                    "segmento" %}
+                    {% with itens = segmentos, label = "Segmento", value = form.segmento, name = "segmento" %}
                     {% include "comp/select/select.html" %}
                     {% endwith %}
                 </div>
@@ -60,6 +59,12 @@
                     <label for="telefone">Telefone</label>
                     <input type="phone" class="form-control" value="{{ '' if form.telefone == none else form.telefone }}"
                         autocomplete="phone" id="telefone" name="telefone" placeholder="Telefone">
+                    <label for="nome_responsavel">Nome do responsável</label>
+                    <input type="text" class="form-control" value="{{'' if form.nome_responsavel == none else  form.nome_responsavel }}" autocomplete="nome"
+                    id="nome_responsavel" name="nome_responsavel" placeholder="Nome do Responsável">
+                    <label for="cpf_responsavel">CPF</label>
+                    <input type="text" class="form-control" value="{{'' if form.cpf_responsavel == none else  form.cpf_responsavel }}" autocomplete="cpf"
+                        id="cpf_responsavel" name="cpf_responsavel" placeholder="CPF">
                     <label for="email">Email</label>
                     <input type="email" class="form-control" value="{{'' if form.email == none else  form.email }}" autocomplete="email"
                         id="email" name="email" placeholder="E-mail">
@@ -73,6 +78,9 @@
                             <label for="endereco_principal">Rua</label>
                             <input type="text" class="form-control" id="endereco_principal" name="endereco_principal" autocomplete="street-address" required
                                 enterkeyhint="next"></input>
+                            <label for="bairro_principal">Bairro</label>
+                            <input type="text" class="form-control" id="bairro_principal" name="bairro_principal" autocomplete="address-line2" required
+                                enterkeyhint="next"></input>
                     
                         </div>
                         <div>
@@ -85,7 +93,7 @@
                                 enterkeyhint="next">
                         </div>
                         <div>
-                            {% with itens = estados, label = "Estado", value = form.id_estado_principal, name = "id_estado_principal" %}
+                            {% with itens = estados, label = "Estado", value = form.id_estado_principal, name = "estado_principal" %}
                             {% include "comp/select/select.html" %}
                             {% endwith %}
                         </div>
@@ -98,7 +106,9 @@
                         <div>
                             <label for="endereco_entrega">Rua</label>
                             <input type="text" class="form-control" id="endereco_entrega" name="endereco_entrega" autocomplete="street-address" required
-                                enterkeyhint="next"></input>
+                                enterkeyhint="next"></input><label for="bairro_entrega">Bairro</label>
+                                <input type="text" class="form-control" id="bairro_entrega" name="bairro_entrega" autocomplete="address-line2"
+                                    required enterkeyhint="next"></input>
                     
                         </div>
                         <div>
@@ -111,7 +121,7 @@
                                 enterkeyhint="next">
                         </div>
                         <div>
-                            {% with itens = estados, label = "Estado", value = form.id_estado_entrega, name = "id_estado_entrega" %}
+                            {% with itens = estados, label = "Estado", value = form.id_estado_entrega, name = "estado_entrega" %}
                             {% include "comp/select/select.html" %}
                             {% endwith %}
                         </div>
@@ -125,6 +135,8 @@
                             <label for="endereco_cobranca">Rua</label>
                             <input type="text" class="form-control" id="endereco_cobranca" name="endereco_cobranca" autocomplete="street-address" required
                                 enterkeyhint="next"></input>
+                                <input type="text" class="form-control" id="bairro_cobranca" name="bairro_cobranca" autocomplete="address-line2" required
+                                    enterkeyhint="next"></input>
                     
                         </div>
                         <div>
@@ -137,7 +149,7 @@
                                 enterkeyhint="next">
                         </div>
                         <div>
-                            {% with itens = estados, label = "Estado", value = form.id_estado_cobranca, name = "id_estado_cobranca" %}
+                            {% with itens = estados, label = "Estado", value = form.id_estado_cobranca, name = "estado_cobranca" %}
                             {% include "comp/select/select.html" %}
                             {% endwith %}
                         </div>

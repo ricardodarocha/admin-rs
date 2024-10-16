@@ -15,6 +15,7 @@ use crate::config::database::autorecover;
 
 pub async fn job_scheduler(pool: PgPool) {
     let mut interval = interval(Duration::from_secs(10));
+     println!("🔎 searching jobs... (10s)");
 
     loop {
         interval.tick().await;
@@ -29,8 +30,6 @@ pub async fn job_scheduler(pool: PgPool) {
         .fetch_all(&autorecover(&pool).await)
         .await
         .expect("Failed to fetch jobs");
-
-        println!("🔎 searching jobs");
 
         for job in jobs {
             println!("🔨found job: {} to execute at {:?}", job.description, job.execute_at);
@@ -64,6 +63,7 @@ pub async fn job_scheduler(pool: PgPool) {
                 .expect("Failed to update job status");
 
                 info!("✅ job completed: {:?}", job_clone.description);
+                println!("🔎 searching jobs...");
             });
         }
     }

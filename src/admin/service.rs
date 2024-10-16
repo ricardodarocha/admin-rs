@@ -23,20 +23,21 @@ pub async fn inserir_empresa(
 }
 
 pub async fn atualizar_empresa(
-        pool: &Pool<Postgres>, 
-        empresa: &PutEmpresa
-    
+    pool: &Pool<Postgres>, 
+    empresa: &PutEmpresa,
+    id_empresa: &String,
     ) -> Result<Empresa> {
-    
-    repo::atualizar_empresa(pool, empresa).await
+
+    repo::atualizar_empresa(pool, empresa, id_empresa).await
     // .map_err(|e| e.to_string() )  
 }
-pub async fn inserir_account(
-        pool: &Pool<Postgres>,
-        id_usuario: String, 
-        empresa: &PostAccount,
 
-    ) -> Result<Empresa> {
+pub async fn inserir_account(
+    pool: &Pool<Postgres>,
+    id_usuario: String, 
+    empresa: &PostAccount,
+
+    ) -> Result<Empresa> { 
 
     repo::inserir_account(
         pool, 
@@ -47,11 +48,12 @@ pub async fn inserir_account(
 
 pub async fn atualizar_account(
         pool: &Pool<Postgres>, 
-        empresa: &PutEmpresa
+        empresa: &PutEmpresa,
+        id_empresa: &String,
     
     ) -> Result<Empresa> {
     
-    repo::atualizar_empresa(pool, empresa).await
+    repo::atualizar_empresa(pool, empresa, id_empresa).await
     // .map_err(|e| e.to_string() )  
 }
 
