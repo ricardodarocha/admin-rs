@@ -1,3 +1,4 @@
+pub mod strings;
 pub mod repo;
 pub mod job;
 pub mod email;

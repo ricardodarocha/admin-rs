@@ -87,11 +87,12 @@ pub async fn autorecover(pool: &Pool<Postgres>) -> Pool<Postgres> {
             result
         }
         Err(e) => {
-            println!("{} \n A conexão foi reiniciada automaticamente", e);
+            println!("{} \n❌ recuperando conexão perdida...", e);
             pool.close().await;
             tokio::time::sleep(Duration::from_millis(2)).await;
-            let result = pool.clone(); 
-            result
+    
+            println!("{} ✅ conexão recuperada", e);
+            pool.clone()
         }
     }
 }

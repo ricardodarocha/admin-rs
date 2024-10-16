@@ -1,16 +1,16 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
-use crate::infra::result::Result;
+// use crate::infra::result::Result;
 
 //Camada Semântica da aplicação
 pub struct Aapp {
 
 }
 
-pub fn render_minijinja<T, U>(template_name: &str, ctx: U) -> Result<T> {
-    let value: T = todo!();
-    Ok(value)
-}
+// pub fn render_minijinja<T, U>(template_name: &str, ctx: U) -> Result<T> {
+//     let value: T = todo!();
+//     Ok(value)
+// }
 
 
 pub trait EmailSender {

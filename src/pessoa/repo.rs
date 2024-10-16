@@ -86,6 +86,7 @@ pub async fn inserir_pessoa(
     Ok(rec)
 }
 
+// Abre a pessoa pelo ID
 pub async fn abrir_pessoa (
   pool: &Pool<Postgres>,
   id_empresa: String,
@@ -95,6 +96,13 @@ pub async fn abrir_pessoa (
   info!("looking for pessoa where id = {id}", id = identificador.clone());  
   let result = sqlx::query_as!(
 
+    // esta query tras todos os dados da pessoa, filtra a empresa, pode ser a empresa atual ou qualquer empresa que tenha esta como a empresa de cadastro
+    // por exemplo, a empresa A é a sede, a empresa B é a filial, todos os contatos da empresa B estáo cadastradas na sede, portanto empresaB.id_empresa_pessoas = id_empresa_A 
+    // se você fizer login na empresa A, ou fizer login na empresa B, em ambos os casos você verá todos os contatos da empresa A
+    
+    // RRN (Requisito de Regra de Negócio a documentar)
+    // Os contatos da empresa A são visiveis em A e B, porém os contatos da empresa B sao visíveis apenas em B
+    // no futuro deverá ser tratado para salvar os contatos apenas na Sede (id_empresa_pessoas), evitando este problema
     Pessoa, r#"
     select p.*,
     case when trg.simbolo = 'CPF' THEN rg.descricao ELSE '' end as cpf,
@@ -111,7 +119,7 @@ pub async fn abrir_pessoa (
     .fetch_optional(pool).await;
 
   if let Ok(value) = result {
-    info!("Pessoa localizado");
+    info!("Pessoa localizada ");
     value
   }
 
@@ -187,4 +195,190 @@ pub async fn lista_grupos_pessoas (
     Ok(rec) => Ok(rec),
     Err(err) => Err(Sqlx(err))
    }
+}
+
+// Procura uma pessoa pelo nome ou documento
+pub async fn abrir_pessoa_documento (
+  pool: &Pool<Postgres>,
+  id_empresa: String,
+  numero_documento: &String, 
+
+) -> Option<Pessoa> {  
+  info!("looking for pessoa where documento = {id}", id = numero_documento.clone());  
+  let result = sqlx::query_as!(
+
+    // esta query tras todas as pessoas cadastradas com o documento, porém filtra a empresa, pode ser a empresa atual ou qualquer empresa que tenha esta como a empresa de cadastro
+    // por exemplo, a empresa A é a sede, a empresa B é a filial, todos os contatos da empresa B estáo cadastradas na sede, portanto empresaB.id_empresa_pessoas = id_empresa_A 
+    // se você fizer login na empresa A, ou fizer login na empresa B, em ambos os casos você verá todos os contatos da empresa A
+    
+    // RRN (Requisito de Regra de Negócio a documentar)
+    // Pode ocorrer duplicidade, portanto um cpf pode estar cadastrado em A e em B ao mesmo tempo, neste caso pega o primeiro.
+    // Requisitos: 
+    //    a) poderá ser pensada uma forma de conciliar os dois cadastrados, por exemplo mantendo tudo na sede
+    //    b) ou poderá ser realizada a busca em duas etapas: primeiro busca na empresa atual, se nao encontrar busca na sede
+    Pessoa, r#"
+    select p.*,
+    case when trg.simbolo = 'CPF' THEN rg.descricao ELSE '' end as cpf,
+    case when trg.simbolo = 'CNPJ' THEN rg.descricao ELSE '' end as cnpj
+     from pessoa p
+    inner join empresa e on e.id = p.id_empresa
+    left join identificacao rg on rg.id = p.id_identificacao
+    left join tipo_identificacao trg on  trg.id = rg.id_tipo_identificacao
+    where p.id <> '0' and (p.id_identificacao = $1 or rg.descricao = $1) and p.id_empresa = $2 or 
+    (e.id_empresa_pessoas = $2) limit 1
+    "#,
+    numero_documento,
+    id_empresa,
+    )
+    .fetch_optional(pool).await;
+
+  if let Ok(value) = result {
+    info!("Pessoa localizada ");
+    value
+  }
+
+  else {
+    info!("Pessoa não encontrado");
+    None
+  }
+}
+
+  // Procura uma pessoa pelo CPF, filtra apenas pessoa física
+pub async fn abrir_pessoa_fisica (
+  pool: &Pool<Postgres>,
+  id_empresa: String,
+  cpf: &String, 
+
+) -> Option<Pessoa> {  
+  info!("looking for pessoa where cpf = {id}", id = cpf.clone());  
+  let result = sqlx::query_as!(
+
+    // esta query tras todas as pessoas cadastradas com o cpf informado, porém filtra a empresa, pode ser a empresa atual ou qualquer empresa que tenha esta como a empresa de cadastro
+    // por exemplo, a empresa A é a sede, a empresa B é a filial, todos os contatos da empresa B estáo cadastradas na sede, portanto empresaB.id_empresa_pessoas = id_empresa_A 
+    // se você fizer login na empresa A, ou fizer login na empresa B, em ambos os casos você verá todos os contatos da empresa A
+    
+    // RRN (Requisito de Regra de Negócio a documentar)
+    // Pode ocorrer duplicidade, portanto um cpf pode estar cadastrado em A e em B ao mesmo tempo, neste caso pega o primeiro.
+    // Requisitos: 
+    //    a) poderá ser pensada uma forma de conciliar os dois cadastrados, por exemplo mantendo tudo na sede
+    //    b) ou poderá ser realizada a busca em duas etapas: primeiro busca na empresa atual, se nao encontrar busca na sede
+    Pessoa, r#"
+    select p.*,
+    rg.descricao as cpf,
+    '' as cnpj
+     from pessoa p
+    inner join empresa e on e.id = p.id_empresa
+    left join identificacao rg on rg.id = p.id_identificacao
+    left join tipo_identificacao trg on  trg.id = rg.id_tipo_identificacao
+    where p.id <> '0' and (p.id_identificacao = $1 or rg.descricao = $1)
+     and (p.id_empresa = $2 or e.id_empresa_pessoas = $2)
+     and (trg.simbolo = 'CPF') limit 1
+    "#,
+    cpf,
+    id_empresa,
+    )
+    .fetch_optional(pool).await;
+
+  if let Ok(value) = result {
+    info!("Pessoa física localizada ");
+    value
+  }
+
+  else {
+    info!("Pessoa física não encontrado");
+    None
+  }
+}
+
+
+// Busca uma pessoa pelo nome
+// Retorna uma lista de candidatos
+pub async fn busca_pessoa (
+  pool: &Pool<Postgres>,
+  id_empresa: String,
+  nome: &String, 
+
+) -> Vec<Pessoa> {  
+  info!("looking for pessoa where nome = {nome}", nome = nome.clone());  
+  let result = sqlx::query_as!(
+
+    // esta query tras todas as pessoas cadastradas com o documento, porém filtra a empresa, pode ser a empresa atual ou qualquer empresa que tenha esta como a empresa de cadastro
+    // por exemplo, a empresa A é a sede, a empresa B é a filial, todos os contatos da empresa B estáo cadastradas na sede, portanto empresaB.id_empresa_pessoas = id_empresa_A 
+    // se você fizer login na empresa A, ou fizer login na empresa B, em ambos os casos você verá todos os contatos da empresa A
+    
+    // RRN (Requisito de Regra de Negócio a documentar)
+    // Pode ocorrer duplicidade, portanto um cpf pode estar cadastrado em A e em B ao mesmo tempo, neste caso pega o primeiro.
+    // Requisitos: 
+    //    a) poderá ser pensada uma forma de conciliar os dois cadastrados, por exemplo mantendo tudo na sede
+    //    b) ou poderá ser realizada a busca em duas etapas: primeiro busca na empresa atual, se nao encontrar busca na sede
+    Pessoa, r#"
+    select p.*,
+    case when trg.simbolo = 'CPF' THEN rg.descricao ELSE '' end as cpf,
+    case when trg.simbolo = 'CNPJ' THEN rg.descricao ELSE '' end as cnpj
+     from pessoa p
+    inner join empresa e on e.id = p.id_empresa
+    left join identificacao rg on rg.id = p.id_identificacao
+    left join tipo_identificacao trg on  trg.id = rg.id_tipo_identificacao
+    where p.id <> '0' and p.nome = $1 and p.id_empresa = $2 or e.id_empresa_pessoas = $2 limit 1
+    "#,
+    nome,
+    id_empresa,
+    )
+    .fetch_all(pool).await;
+
+  if let Ok(value) = result {
+    info!("Pessoa localizada ");
+    value
+  }
+
+  else {
+    info!("Pessoa não encontrado");
+    vec!()
+  }
+}
+// Busca aproximada pelo nome da pessoa
+// Retorna uma lista de candidatos
+pub async fn busca_pessoa_aprox (
+  pool: &Pool<Postgres>,
+  id_empresa: String,
+  numero_documento: &String, 
+
+) -> Vec<Pessoa> {  
+  info!("looking for pessoa where documento = {id}", id = numero_documento.clone());  
+  let result = sqlx::query_as!(
+
+    // esta query tras todas as pessoas cadastradas com o documento, porém filtra a empresa, pode ser a empresa atual ou qualquer empresa que tenha esta como a empresa de cadastro
+    // por exemplo, a empresa A é a sede, a empresa B é a filial, todos os contatos da empresa B estáo cadastradas na sede, portanto empresaB.id_empresa_pessoas = id_empresa_A 
+    // se você fizer login na empresa A, ou fizer login na empresa B, em ambos os casos você verá todos os contatos da empresa A
+    
+    // RRN (Requisito de Regra de Negócio a documentar)
+    // Pode ocorrer duplicidade, portanto um cpf pode estar cadastrado em A e em B ao mesmo tempo, neste caso pega o primeiro.
+    // Requisitos: 
+    //    a) poderá ser pensada uma forma de conciliar os dois cadastrados, por exemplo mantendo tudo na sede
+    //    b) ou poderá ser realizada a busca em duas etapas: primeiro busca na empresa atual, se nao encontrar busca na sede
+    Pessoa, r#"
+    select p.*,
+    case when trg.simbolo = 'CPF' THEN rg.descricao ELSE '' end as cpf,
+    case when trg.simbolo = 'CNPJ' THEN rg.descricao ELSE '' end as cnpj
+     from pessoa p
+    inner join empresa e on e.id = p.id_empresa
+    left join identificacao rg on rg.id = p.id_identificacao
+    left join tipo_identificacao trg on  trg.id = rg.id_tipo_identificacao
+    where p.id <> '0' and p.nome like '%'||$1||'%' and p.id_empresa = $2 or e.id_empresa_pessoas = $2 limit 1
+    "#,
+    numero_documento,
+    id_empresa,
+    )
+    .fetch_all(pool).await;
+
+  if let Ok(value) = result {
+    info!("Pessoa localizada ");
+    value
+  }
+
+  else {
+    info!("Pessoa não encontrado");
+    vec!()
+  }
+
 }
