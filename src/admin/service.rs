@@ -72,8 +72,8 @@ pub async fn abrir_empresa(data: web::Data<AppState>, empresa_id: String) -> Res
     // .map_err(|e| e.to_string() )  
 }
 
-pub async fn listar_empresas(data: web::Data<AppState>) -> Result<Vec<Empresa>> {
-    repo::listar_empresas_all(&data.database.conn).await
+pub async fn listar_empresas(data: web::Data<AppState>, id_usuario: &String) -> Result<Vec<Empresa>> {
+    repo::listar_empresas_all(&data.database.conn, id_usuario).await
     // .map_err(|e| e.to_string() )  
 }
 

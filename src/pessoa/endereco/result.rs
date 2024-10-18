@@ -4,7 +4,7 @@ use crate::pessoa::endereco::model::*;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Endereco {
     pub id            : String,
-    pub logradouro    : Rua,
+    pub rua    : Rua,
     // pub numero        : Option<String>, 
     // pub complemento   : Option<String>, 
     pub bairro        : Bairro,

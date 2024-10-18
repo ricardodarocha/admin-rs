@@ -63,13 +63,13 @@ pub async fn inserir_pessoa(
 	$1, --id
 	$2, --razao_social
 	$3, --nome
-	(select id from tipo_pessoa where simbolo = $4),  --tipo
-	(select id from identificacao where descricao = $5), --identificacao
-	(select id from status_pessoa where descricao = 'CREDENCIADO'), 
+	(select id from tipo_pessoa where simbolo = $4 limit 1),  --tipo
+	(select id from identificacao where descricao = $5 limit 1), --identificacao
+	(select id from status_pessoa where descricao = 'CREDENCIADO' limit 1), 
 	(select contato.id from contato join tipo_contato ema on ema.id = contato.id_tipo_contato 
-        where contato.descricao = $6 and ema.nome = 'EMAIL'),
+        where contato.descricao = $6 and ema.nome = 'EMAIL' limit 1),
 	(select contato.id from contato join tipo_contato tel on tel.id = contato.id_tipo_contato 
-        where contato.descricao = $7 and tel.nome = 'TELEFONE')
+        where contato.descricao = $7 and tel.nome = 'TELEFONE' limit 1)
 ) returning *, '' as cpf, '' as cnpj",
         id,
         pessoa.razao_social,
@@ -285,7 +285,7 @@ pub async fn abrir_pessoa_fisica (
   }
 
   else {
-    info!("Pessoa física não encontrado");
+    info!("Pessoa física não encontrada");
     None
   }
 }

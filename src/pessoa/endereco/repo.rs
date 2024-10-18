@@ -1,3 +1,4 @@
+use log::info;
 use sqlx::{Pool, Postgres};
 
 use crate::infra::result::Result;
@@ -5,7 +6,7 @@ use crate::infra::strings::tira_acento;
 use crate::infra::uuid::{generate_uuid, UuidKind};
 use crate::pessoa::endereco::model::*;
 
-    pub async fn abrir_logradouro_by_id (
+    pub async fn abrir_rua_by_id (
         pool: &Pool<Postgres>,
         id_endereco: &String,
     ) -> Option<Rua> {
@@ -75,10 +76,19 @@ use crate::pessoa::endereco::model::*;
         let id = generate_uuid(UuidKind::V7);
 
         let query = r#"
-            INSERT INTO endereco (id, id_logradouro, id_bairro, id_cidade, id_estado, cep)
-            VALUES ($1, $2, $3, $4, $5, $6)
-            ON CONFLICT (id_logradouro, id_bairro, id_cidade, id_estado, cep) DO NOTHING
-            RETURNING id;
+                WITH inserted AS (
+    INSERT INTO endereco (id, id_rua, id_bairro, id_cidade, id_estado, cep)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    ON CONFLICT  (id_rua, id_bairro, id_cidade, id_estado, cep) DO NOTHING
+    RETURNING id
+)
+SELECT id
+FROM inserted
+UNION ALL
+SELECT id
+FROM endereco
+WHERE id_rua = $2 and id_bairro = $3 and id_cidade = $4 and id_estado = $5 and cep = $6
+LIMIT 1;
         "#;
         let id_endereco = sqlx::query_scalar(query)
             .bind(id)
@@ -96,7 +106,7 @@ use crate::pessoa::endereco::model::*;
 
 
     // Função para inserir ou buscar logradouro
-    pub async fn upsert_logradouro(
+    pub async fn upsert_rua(
         pool: &Pool<Postgres>, 
         nome: Option<String>,
         ) -> Result<String> {
@@ -106,17 +116,28 @@ use crate::pessoa::endereco::model::*;
         let id_logradouro = generate_uuid(UuidKind::V7);
 
         let query = r#"
-            INSERT INTO logradouro (id, nome, _nome)
-            VALUES ($1, $2, $3)
-            ON CONFLICT (_nome) DO IGNORE
-            RETURNING id;
+
+            WITH inserted AS (
+    INSERT INTO rua (id, nome, _nome)
+    VALUES ($1, $2, $3)
+    ON CONFLICT (_nome) DO NOTHING
+    RETURNING id
+)
+SELECT id
+FROM inserted
+UNION ALL
+SELECT id
+FROM rua
+WHERE _nome = $3
+LIMIT 1;
         "#;
-        let id = sqlx::query_scalar(query)
+        let id: String = sqlx::query_scalar(query)
             .bind(id_logradouro)
             .bind(logradouro_nome)
             .bind(logradouro_sem_acento)
             .fetch_one(pool)
             .await?;
+
         Ok(id)
     }
 
@@ -127,10 +148,19 @@ use crate::pessoa::endereco::model::*;
         let id_bairro = generate_uuid(UuidKind::V7);
 
         let query = r#"
-            INSERT INTO bairro (id, nome, _nome)
-            VALUES ($1, $2, $3)
-            ON CONFLICT (_nome) DO IGNORE
-            RETURNING id;
+         WITH inserted AS (
+    INSERT INTO bairro (id, nome, _nome)
+    VALUES ($1, $2, $3)
+    ON CONFLICT (_nome) DO NOTHING
+    RETURNING id
+)
+SELECT id
+FROM inserted
+UNION ALL
+SELECT id
+FROM bairro
+WHERE _nome = $3
+LIMIT 1;
         "#;
         let id = sqlx::query_scalar(query)
             .bind(id_bairro)
@@ -159,7 +189,7 @@ use crate::pessoa::endereco::model::*;
     //             uf,
     //             id_estado
     //         VALUES ($1, $2, $3)
-    //         ON CONFLICT (_nome) DO IGNORE
+    //         ON CONFLICT (_nome) DO NOTHING
     //         RETURNING id;
     //     "#;
     //     let id = sqlx::query_scalar(query)
@@ -232,7 +262,7 @@ use crate::pessoa::endereco::model::*;
         let estado_sem_acento = tira_acento(&estado_nome);
         
         let query = r#"
-            select id from estado where UPPER(sigla_uf) = UPPER($1) or nome = $1 or _nome = $2;
+            select id from estado where UPPER(siglauf) = UPPER($1) or nome = $1 or _nome = $2 or codigo::VARCHAR = $1 or id = $1;
         "#;
         let id = sqlx::query_scalar(query)
             .bind(estado_nome)

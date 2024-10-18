@@ -1,4 +1,5 @@
-use crate::entidade::contato::repo::{ upsert_contato, upsert_tipo_contato};
+use crate::entidade::contato::model::EntidadeContato;
+use crate::entidade::contato::repo::{upsert_contato, upsert_tipo_contato};
 use crate::entidade::identificacao::repo::upsert_identificacao;
 use crate::entidade::EntidadeId;
 use crate::infra::error::Error::{self, Sqlx};
@@ -69,20 +70,62 @@ pub async fn inserir_account(
 
     let rec = sqlx::query_as!(
         Empresa,
-        "INSERT INTO empresa (id, id_cnpj, nome, fantasia, endereco, cidade, estado, telefone, email, id_email)
-        VALUES (
-        coalesce($1, '0'), --id
-        (select id from identificacao where descricao = $2), --identificacao cnpj
-        $3, --nome
-        $3, --fantasia
-        'Não informado', --endereco
-        'Não informado', --cidade
-        'Não informado', --estado
-        $4,
-        $5,
-        $6
-        )
-        RETURNING  id, nome, fantasia, endereco, cidade, estado, telefone, email, id_cnpj, $4 as cnpj",
+        "
+        WITH inserted AS (
+            INSERT INTO empresa (id, id_cnpj, nome, fantasia, endereco, cidade, estado, telefone, email, id_email)
+            VALUES (
+            coalesce($1, '0'), --id
+            (select id from identificacao where descricao = $2), --identificacao cnpj
+            $3, --nome
+            $3, --fantasia  
+            'Não informado', --endereco
+            'Não informado', --cidade
+            'Não informado', --estado
+            $4,
+            $5,
+            $6
+            )
+            RETURNING  id)
+
+        select empresa.id, 
+    empresa.nome, 
+    empresa.fantasia,
+    rua_principal.nome as rua_principal,
+    bairro_principal.nome as bairro_principal,
+    endereco_principal.cep as cep_principal,
+    cidade_principal.nome as cidade_principal,
+    estado_principal.nome as estado_principal,
+    rua_entrega.nome as rua_entrega,
+    bairro_entrega.nome as bairro_entrega,
+    endereco_entrega.cep as cep_entrega,
+    cidade_entrega.nome as cidade_entrega,
+    estado_entrega.nome as estado_entrega,
+    rua_cobranca.nome as rua_cobranca,
+    bairro_cobranca.nome as bairro_cobranca,
+    endereco_cobranca.cep as cep_cobranca,
+    cidade_cobranca.nome as cidade_cobranca,
+    estado_cobranca.nome as estado_cobranca,
+    empresa.telefone, 
+    empresa.email, 
+    id_cnpj,   
+    $4 as cnpj
+        from empresa 
+        join endereco endereco_principal on endereco_principal.id = empresa.id_endereco_principal 
+        join endereco endereco_entrega on endereco_entrega.id = empresa.id_endereco_entrega
+        join endereco endereco_cobranca on endereco_cobranca.id = empresa.id_endereco_cobranca
+        join rua rua_principal on rua_principal.id = endereco_principal.id_rua 
+        join rua rua_entrega on rua_entrega.id = endereco_entrega.id_rua 
+        join rua rua_cobranca on rua_cobranca.id = endereco_cobranca.id_rua 
+        join bairro bairro_principal on bairro_principal.id = endereco_principal.id_bairro 
+        join bairro bairro_entrega on bairro_entrega.id = endereco_entrega.id_bairro 
+        join bairro bairro_cobranca on bairro_cobranca.id = endereco_cobranca.id_bairro
+        join cidade cidade_principal on cidade_principal.id = endereco_principal.id_cidade
+        join cidade cidade_entrega on cidade_entrega.id = endereco_entrega.id_cidade 
+        join cidade cidade_cobranca on cidade_cobranca.id = endereco_cobranca.id_cidade 
+        join estado estado_principal on estado_principal.id = endereco_principal.id_estado 
+        join estado estado_entrega on estado_entrega.id = endereco_entrega.id_estado
+        join estado estado_cobranca on estado_cobranca.id = endereco_cobranca.id_estado
+",
         id.clone(),
         empresa.cnpj,
         empresa.nome_fantasia,
@@ -185,26 +228,101 @@ pub async fn inserir_empresa(
         None => {}
     };
 
+    let tipo_email = upsert_tipo_contato(pool, &"EMAIL".to_owned())
+        .await
+        .unwrap();
+    let id_email = if let Some(email) = &empresa.email.clone() {
+        upsert_contato(pool, &email, EntidadeId::from(tipo_email))
+            .await
+            .unwrap()
+            .id
+    } else {
+        crate::entidade::contato::repo::abrir_contato(&pool.clone(), &"INDEFINIDO".to_owned())
+            .await
+            .unwrap()
+            .id
+    };
+    let tipo_telefone = upsert_tipo_contato(pool, &"TELEFONE".to_owned())
+        .await
+        .unwrap();
+    let id_telefone = if let Some(telefone) = &empresa.telefone.clone() {
+        upsert_contato(pool, &telefone, EntidadeId::from(tipo_telefone))
+            .await
+            .unwrap()
+            .id
+    } else {
+        crate::entidade::contato::repo::abrir_contato(&pool.clone(), &"INDEFINIDO".to_owned())
+            .await
+            .unwrap()
+            .id
+    };
+
     let rec = sqlx::query_as!(
         Empresa,
-        "INSERT INTO empresa (id, id_cnpj, nome, fantasia, endereco, cidade, estado, telefone, email)
-        VALUES (
-        coalesce($1, '0'), --id
-        (select id from identificacao where descricao = $2), --identificacao cnpj
-        $3, --nome
-        $3, --fantasia
-        'Não informado', --endereco
-        'Não informado', --cidade
-        'Não informado', --estado
-        $4,
-        $5
-        )
-        RETURNING  id, nome, fantasia, endereco, cidade, estado, telefone, email, id_cnpj, $4 as cnpj",
+        "WITH inserted AS (
+            INSERT INTO empresa (id, id_cnpj, nome, fantasia, endereco, cidade, estado, telefone, email, id_telefone, id_email )
+            VALUES (
+            coalesce($1, '0'), --id
+            (select id from identificacao where descricao = $2), --identificacao cnpj
+            $3, --nome
+            $3, --fantasia  
+            'Não informado', --endereco
+            'Não informado', --cidade
+            'Não informado', --estado
+            $4,
+            $5,
+            $6,
+            $7
+            )
+            RETURNING  id)
+
+        select empresa.id, 
+    empresa.nome, 
+    empresa.fantasia,
+    rua_principal.nome as rua_principal,
+    bairro_principal.nome as bairro_principal,
+    endereco_principal.cep as cep_principal,
+    cidade_principal.nome as cidade_principal,
+    estado_principal.nome as estado_principal,
+    rua_entrega.nome as rua_entrega,
+    bairro_entrega.nome as bairro_entrega,
+    endereco_entrega.cep as cep_entrega,
+    cidade_entrega.nome as cidade_entrega,
+    estado_entrega.nome as estado_entrega,
+    rua_cobranca.nome as rua_cobranca,
+    bairro_cobranca.nome as bairro_cobranca,
+    endereco_cobranca.cep as cep_cobranca,
+    cidade_cobranca.nome as cidade_cobranca,
+    estado_cobranca.nome as estado_cobranca,
+    empresa.telefone, 
+    empresa.email, 
+    id_cnpj,   
+    $4 as cnpj
+        from empresa 
+        join endereco endereco_principal on endereco_principal.id = empresa.id_endereco_principal 
+        join endereco endereco_entrega on endereco_entrega.id = empresa.id_endereco_entrega
+        join endereco endereco_cobranca on endereco_cobranca.id = empresa.id_endereco_cobranca
+        join rua rua_principal on rua_principal.id = endereco_principal.id_rua 
+        join rua rua_entrega on rua_entrega.id = endereco_entrega.id_rua 
+        join rua rua_cobranca on rua_cobranca.id = endereco_cobranca.id_rua 
+        join bairro bairro_principal on bairro_principal.id = endereco_principal.id_bairro 
+        join bairro bairro_entrega on bairro_entrega.id = endereco_entrega.id_bairro 
+        join bairro bairro_cobranca on bairro_cobranca.id = endereco_cobranca.id_bairro
+        join cidade cidade_principal on cidade_principal.id = endereco_principal.id_cidade
+        join cidade cidade_entrega on cidade_entrega.id = endereco_entrega.id_cidade 
+        join cidade cidade_cobranca on cidade_cobranca.id = endereco_cobranca.id_cidade 
+        join estado estado_principal on estado_principal.id = endereco_principal.id_estado 
+        join estado estado_entrega on estado_entrega.id = endereco_entrega.id_estado
+        join estado estado_cobranca on estado_cobranca.id = endereco_cobranca.id_estado
+        ",
         id.clone(),
         empresa.cnpj,
         empresa.nome,
         empresa.telefone,
         empresa.email,
+        id_telefone,
+        id_email
+
     )
     .fetch_one(pool)
     .await?;
@@ -250,10 +368,46 @@ pub async fn abrir_empresa_one(
         Some(id_empresa) => {
             let rec = sqlx::query_as!(
                 Empresa,
-                "select e.id, e.nome, e.id_cnpj, e.fantasia, e.endereco, e.cidade, e.estado, telefone, email, i.descricao as cnpj 
-                from empresa e
-                join identificacao i on i.id = e.id_cnpj
-                where e.id = $1 or i.descricao = $1",
+                "select empresa.id, 
+    empresa.nome, 
+    empresa.fantasia,
+    rua_principal.nome as rua_principal,
+    bairro_principal.nome as bairro_principal,
+    endereco_principal.cep as cep_principal,
+    cidade_principal.nome as cidade_principal,
+    estado_principal.nome as estado_principal,
+    rua_entrega.nome as rua_entrega,
+    bairro_entrega.nome as bairro_entrega,
+    endereco_entrega.cep as cep_entrega,
+    cidade_entrega.nome as cidade_entrega,
+    estado_entrega.nome as estado_entrega,
+    rua_cobranca.nome as rua_cobranca,
+    bairro_cobranca.nome as bairro_cobranca,
+    endereco_cobranca.cep as cep_cobranca,
+    cidade_cobranca.nome as cidade_cobranca,
+    estado_cobranca.nome as estado_cobranca,
+    empresa.telefone, 
+    empresa.email, 
+    id_cnpj,   
+    i.descricao as cnpj
+        from empresa 
+        join endereco endereco_principal on endereco_principal.id = empresa.id_endereco_principal 
+        left join endereco endereco_entrega on endereco_entrega.id = empresa.id_endereco_entrega
+        left join endereco endereco_cobranca on endereco_cobranca.id = empresa.id_endereco_cobranca
+        join rua rua_principal on rua_principal.id = endereco_principal.id_rua 
+        left join rua rua_entrega on rua_entrega.id = endereco_entrega.id_rua 
+        left join rua rua_cobranca on rua_cobranca.id = endereco_cobranca.id_rua 
+        left join bairro bairro_principal on bairro_principal.id = endereco_principal.id_bairro 
+        left join bairro bairro_entrega on bairro_entrega.id = endereco_entrega.id_bairro 
+        left join bairro bairro_cobranca on bairro_cobranca.id = endereco_cobranca.id_bairro
+        left join cidade cidade_principal on cidade_principal.id = endereco_principal.id_cidade
+        left join cidade cidade_entrega on cidade_entrega.id = endereco_entrega.id_cidade 
+        left join cidade cidade_cobranca on cidade_cobranca.id = endereco_cobranca.id_cidade 
+        left join estado estado_principal on estado_principal.id = endereco_principal.id_estado 
+        left join estado estado_entrega on estado_entrega.id = endereco_entrega.id_estado
+        left join estado estado_cobranca on estado_cobranca.id = endereco_cobranca.id_estado
+        left join identificacao i on i.id = empresa.id_cnpj
+                where empresa.id = $1 or i.descricao = $1",
                 id_empresa,
             )
             .fetch_optional(pool)
@@ -265,23 +419,56 @@ pub async fn abrir_empresa_one(
     }
 }
 
-pub async fn listar_empresas_all(pool: &Pool<Postgres>) -> Result<Vec<Empresa>> {
-
+pub async fn listar_empresas_all(
+    pool: &Pool<Postgres>,
+    id_usuario: &String,
+    ) -> Result<Vec<Empresa>> {
     let rec: Vec<Empresa> = sqlx::query_as!(
         Empresa,
-        "select e.id, 
-            e.fantasia, 
-            e.nome, 
-            e.id_cnpj,
-            e.endereco, 
-            e.cidade, 
-            e.estado, 
-            e.telefone, 
-            e.email, 
-            i.descricao as cnpj 
-        from empresa e
-        left join identificacao i on i.id = e.id_cnpj
+        "select empresa.id, 
+    empresa.nome, 
+    empresa.fantasia,
+    rua_principal.nome as rua_principal,
+    bairro_principal.nome as bairro_principal,
+    endereco_principal.cep as cep_principal,
+    cidade_principal.nome as cidade_principal,
+    estado_principal.nome as estado_principal,
+    rua_entrega.nome as rua_entrega,
+    bairro_entrega.nome as bairro_entrega,
+    endereco_entrega.cep as cep_entrega,
+    cidade_entrega.nome as cidade_entrega,
+    estado_entrega.nome as estado_entrega,
+    rua_cobranca.nome as rua_cobranca,
+    bairro_cobranca.nome as bairro_cobranca,
+    endereco_cobranca.cep as cep_cobranca,
+    cidade_cobranca.nome as cidade_cobranca,
+    estado_cobranca.nome as estado_cobranca,
+    empresa.telefone, 
+    empresa.email, 
+    id_cnpj,   
+    i.descricao as cnpj
+        from empresa 
+        join endereco endereco_principal on endereco_principal.id = empresa.id_endereco_principal 
+        join endereco endereco_entrega on endereco_entrega.id = empresa.id_endereco_entrega
+        join endereco endereco_cobranca on endereco_cobranca.id = empresa.id_endereco_cobranca
+        join rua rua_principal on rua_principal.id = endereco_principal.id_rua 
+        join rua rua_entrega on rua_entrega.id = endereco_entrega.id_rua 
+        join rua rua_cobranca on rua_cobranca.id = endereco_cobranca.id_rua 
+        join bairro bairro_principal on bairro_principal.id = endereco_principal.id_bairro 
+        join bairro bairro_entrega on bairro_entrega.id = endereco_entrega.id_bairro 
+        join bairro bairro_cobranca on bairro_cobranca.id = endereco_cobranca.id_bairro
+        join cidade cidade_principal on cidade_principal.id = endereco_principal.id_cidade
+        join cidade cidade_entrega on cidade_entrega.id = endereco_entrega.id_cidade 
+        join cidade cidade_cobranca on cidade_cobranca.id = endereco_cobranca.id_cidade 
+        join estado estado_principal on estado_principal.id = endereco_principal.id_estado 
+        join estado estado_entrega on estado_entrega.id = endereco_entrega.id_estado
+        join estado estado_cobranca on estado_cobranca.id = endereco_cobranca.id_estado
+        join identificacao i on i.id = empresa.id_cnpj
+        join empresa_usuario eu on eu.id_empresa = empresa.id
+        join users on eu.id_usuario = users.id
+        where users.id = $1
         order by nome",
+        id_usuario
     )
     .fetch_all(pool)
     .await?;
@@ -290,12 +477,12 @@ pub async fn listar_empresas_all(pool: &Pool<Postgres>) -> Result<Vec<Empresa>> 
 }
 
 pub async fn atualizar_empresa(
-    pool: &Pool<Postgres>, 
+    pool: &Pool<Postgres>,
     empresa: &PutEmpresa,
-    id_empresa: &String,    
-    ) -> Result<Empresa> {
+    id_empresa: &String,
+) -> Result<Empresa> {
     let found = abrir_empresa_one(pool, &Some(empresa.id.clone())).await?;
-    
+
     if let Some(found) = found {
         let _found_cnpj = &found.id_cnpj.unwrap_or("0".to_owned());
         info!("Atualizando a empresa {}", &id_empresa);
@@ -312,8 +499,8 @@ pub async fn atualizar_empresa(
             )
             .fetch_one(&mut *tr)
             .await;
-        
-        info!("..nome atualizado");
+
+            info!("..nome atualizado");
         };
 
         if empresa.fantasia.is_some() {
@@ -324,19 +511,20 @@ pub async fn atualizar_empresa(
             )
             .execute(&mut *tr)
             .await;
-        
-        info!("..nome fantasia atualizado");
+
+            info!("..nome fantasia atualizado");
         };
-       
+
         if empresa.cpf.is_some() {
-            
-            let pessoa_responsavel =  crate::pessoa::repo::abrir_pessoa_fisica(
-                &pool.clone(), 
+            let pessoa_responsavel = crate::pessoa::repo::abrir_pessoa_fisica(
+                &pool.clone(),
                 id_empresa.clone(),
-                &empresa.cpf.as_ref().unwrap()
-            ).await;
+                &empresa.cpf.as_ref().unwrap(),
+            )
+            .await;
+
             let id_responsavel = if let Some(pessoa_responsavel) = pessoa_responsavel {
-                pessoa_responsavel.id    
+                pessoa_responsavel.id
             } else {
                 let pessoa = PostPessoa {
                     // id: None,
@@ -347,20 +535,50 @@ pub async fn atualizar_empresa(
                     // cnpj: None,
                     email: empresa.email.as_ref().unwrap_or(&"".to_owned()).clone(),
                     telefone: empresa.telefone.as_ref().unwrap_or(&"".to_owned()).clone(),
-                    endereco: empresa.endereco_principal.as_ref().unwrap_or(&"".to_owned()).clone(),
-                    bairro: empresa.endereco_principal.as_ref().unwrap_or(&"".to_owned()).clone(),
-                    cidade: empresa.endereco_principal.as_ref().unwrap_or(&"".to_owned()).clone(),
-                    id_estado: empresa.endereco_principal.as_ref().unwrap_or(&"".to_owned()).clone(),
-                    cep: empresa.endereco_principal.as_ref().unwrap_or(&"".to_owned()).clone(),
+                    endereco: empresa
+                        .endereco_principal
+                        .as_ref()
+                        .unwrap_or(&"".to_owned())
+                        .clone(),
+                    bairro: empresa
+                        .endereco_principal
+                        .as_ref()
+                        .unwrap_or(&"".to_owned())
+                        .clone(),
+                    cidade: empresa
+                        .endereco_principal
+                        .as_ref()
+                        .unwrap_or(&"".to_owned())
+                        .clone(),
+                    id_estado: empresa
+                        .endereco_principal
+                        .as_ref()
+                        .unwrap_or(&"".to_owned())
+                        .clone(),
+                    cep: empresa
+                        .endereco_principal
+                        .as_ref()
+                        .unwrap_or(&"".to_owned())
+                        .clone(),
                     ..Default::default()
                 };
-                
-        
-                info!("..cpf não encontrado, deverá inserir pessoa");
+
+                info!("..pessoa com este cpf ainda não foi incluída, deverá inserir pessoa");
                 let pessoa_inserida = crate::pessoa::repo::inserir_pessoa(&pool, &pessoa).await;
-                
-                if pessoa_inserida.is_ok() {
-                    pessoa_inserida.unwrap().id } else {"INDEFINIDO".to_owned()}
+
+                match pessoa_inserida {
+                    Ok(pessoa) => {
+                        info!("..pessoa inserida com sucesso");
+
+                        pessoa.id
+                    }
+
+                    Err(err) => {
+                        error!("..erro ao inserir pessoa {}", err);
+
+                        "INDEFINIDO".to_owned()
+                    }
+                }
             };
 
             let _ = sqlx::query!(
@@ -371,25 +589,40 @@ pub async fn atualizar_empresa(
             .execute(&mut *tr)
             .await;
         };
-        
+
         if empresa.email.is_some() {
-            let tipo_email = upsert_tipo_contato(pool, &"EMAIL".to_owned()).await.unwrap();
-            let id_email = upsert_contato(&pool.clone(), &empresa.email.as_ref().unwrap(), tipo_email.into()).await.unwrap();
+            let tipo_email = upsert_tipo_contato(pool, &"EMAIL".to_owned())
+                .await
+                .unwrap();
+            let id_email = upsert_contato(
+                &pool.clone(),
+                &empresa.email.as_ref().unwrap(),
+                tipo_email.into(),
+            )
+            .await
+            .unwrap();
 
-                let _ = sqlx::query!(
-                    "update empresa set id_email = $1 where id = $2",
-                    &id_email.id,
-                    &empresa.id,
-                )
-                .execute(&mut *tr)
-                .await;            
+            let _ = sqlx::query!(
+                "update empresa set id_email = $1 where id = $2",
+                &id_email.id,
+                &empresa.id,
+            )
+            .execute(&mut *tr)
+            .await;
         };
-        
-        if empresa.telefone.is_some() {
-            let tipo_telefone = upsert_tipo_contato(pool, &"TELEFONE".to_owned()).await.unwrap();
-            let id_telefone = upsert_contato(&pool.clone(), &empresa.telefone.as_ref().unwrap(), tipo_telefone.into()).await;
 
-            if let Ok(id_telefone) = id_telefone {    
+        if empresa.telefone.is_some() {
+            let tipo_telefone = upsert_tipo_contato(pool, &"TELEFONE".to_owned())
+                .await
+                .unwrap();
+            let id_telefone = upsert_contato(
+                &pool.clone(),
+                &empresa.telefone.as_ref().unwrap(),
+                tipo_telefone.into(),
+            )
+            .await;
+
+            if let Ok(id_telefone) = id_telefone {
                 let _ = sqlx::query!(
                     "update empresa set telefone = $1 where id = $2",
                     &id_telefone.id,
@@ -399,7 +632,7 @@ pub async fn atualizar_empresa(
                 .await;
             };
         };
-        
+
         if empresa.segmento.is_some() {
             let _ = sqlx::query!(
                 "update empresa set segmento = $1 where id = $2",
@@ -409,10 +642,9 @@ pub async fn atualizar_empresa(
             .execute(&mut *tr)
             .await;
         };
-        
+
         if empresa.endereco_principal.is_some() && empresa.bairro_principal.is_some() {
-            
-            let form_endereco = BuscaEndereco{
+            let form_endereco = BuscaEndereco {
                 endereco: empresa.endereco_principal.clone(),
                 bairro: empresa.bairro_principal.clone(),
                 cidade: empresa.cidade_principal.clone(),
@@ -420,28 +652,30 @@ pub async fn atualizar_empresa(
                 cep: empresa.cep_principal.clone(),
             };
 
-            
             info!("Atualizando endereço {:?}", &form_endereco.clone());
             let endereco = upsert_endereco(&pool.clone(), form_endereco).await;
             match endereco {
-                Ok(endereco) => {let id_endereco = endereco.id;
+                Ok(endereco) => {
+                    let id_endereco = endereco.id;
 
-                let _ = sqlx::query!(
-                "update empresa set
+                    let _ = sqlx::query!(
+                        "update empresa set
                     id_endereco_principal = $1
                  where id = $2",
-                &id_endereco,
-                &empresa.id,
-            )
-            .execute(&mut *tr)
-            .await;
-            },
-                Err(err ) => {error!("Erro ao incluir endereço: {:?}", err)},
-        }
-    };
-        
-        if empresa.endereco_cobranca.is_some() && empresa.bairro_cobranca.is_some()  {      
-            let endereco = BuscaEndereco{
+                        &id_endereco,
+                        &empresa.id,
+                    )
+                    .execute(&mut *tr)
+                    .await;
+                }
+                Err(err) => {
+                    error!("Erro ao incluir endereço: {:?}", err)
+                }
+            }
+        };
+
+        if empresa.endereco_cobranca.is_some() && empresa.bairro_cobranca.is_some() {
+            let endereco = BuscaEndereco {
                 endereco: empresa.endereco_cobranca.clone(),
                 bairro: empresa.bairro_cobranca.clone(),
                 cidade: empresa.cidade_cobranca.clone(),
@@ -452,25 +686,26 @@ pub async fn atualizar_empresa(
             let endereco = upsert_endereco(&pool.clone(), endereco).await;
             match endereco {
                 Ok(endereco) => {
-                let id_endereco = endereco.id;
+                    let id_endereco = endereco.id;
 
-                let _ = sqlx::query!(
-                "update empresa set
+                    let _ = sqlx::query!(
+                        "update empresa set
                     id_endereco_cobranca = $1
                  where id = $2",
-                &id_endereco,
-                &empresa.id,
-            )
-            .execute(&mut *tr)
-            .await;},
-                Err(err ) => {error!("Erro ao incluir endereço: {:?}", err)},
+                        &id_endereco,
+                        &empresa.id,
+                    )
+                    .execute(&mut *tr)
+                    .await;
+                }
+                Err(err) => {
+                    error!("Erro ao incluir endereço: {:?}", err)
+                }
             }
-
         };
-        
+
         if empresa.endereco_entrega.is_some() && empresa.bairro_entrega.is_some() {
-            
-            let endereco = BuscaEndereco{
+            let endereco = BuscaEndereco {
                 endereco: empresa.endereco_entrega.clone(),
                 bairro: empresa.bairro_entrega.clone(),
                 cidade: empresa.cidade_entrega.clone(),
@@ -478,31 +713,31 @@ pub async fn atualizar_empresa(
                 cep: empresa.cep_entrega.clone(),
             };
 
-            let endereco = 
-            crate::pessoa::endereco::service::upsert_endereco(&pool.clone(), endereco).await;
-           
-           if endereco.is_ok() {
+            let endereco =
+                crate::pessoa::endereco::service::upsert_endereco(&pool.clone(), endereco).await;
+
+            if endereco.is_ok() {
                 let id_endereco = endereco.unwrap().id;
 
                 let _ = sqlx::query!(
-                "update empresa set
+                    "update empresa set
                     id_endereco_entrega = $1
                  where id = $2",
-                &id_endereco,
-                &empresa.id,
-            )
-            .execute(&mut *tr)
-            .await;
+                    &id_endereco,
+                    &empresa.id,
+                )
+                .execute(&mut *tr)
+                .await;
+            }
+        };
 
-           }
-                
-        
-        };        
-        
-        let rec = abrir_empresa_one(pool, &Some(empresa.id.clone())).await?.unwrap();
-        Ok(rec)    
-    } 
-    else {
+        let _ = tr.commit().await;
+
+        let rec = abrir_empresa_one(pool, &Some(empresa.id.clone()))
+            .await?
+            .unwrap();
+        Ok(rec)
+    } else {
         Err(Error::Str(&"Empresa não localizada"))
     }
 }
@@ -551,7 +786,7 @@ pub async fn abrir_dados_empresa_principal(
         e.id as "id_empresa!",
         u.nome as nome_usuario,
         u.nome as nome_responsavel,
-        null as cpf_responsavel,
+        cpf_responsavel.descricao as cpf_responsavel,
         u.id_email as email_usuario,
         e.nome as razao_social,
         e.fantasia as nome_fantasia,
@@ -560,36 +795,44 @@ pub async fn abrir_dados_empresa_principal(
         coalesce(tel.descricao, '') as telefone,
         coalesce(e.segmento, 'INDEFINIDO') as segmento,
         coalesce(mail.descricao, '') as email,
-        coalesce(end_p.id_rua, null) as endereco_principal,
-        coalesce(end_p.id_bairro, null) as bairro_principal,
-        coalesce(end_p.cep, '') as cep_principal,
-        coalesce(cid.nome, '') as cidade_principal,
-        coalesce(uf.nome, 'INDEFINIDO') as estado_principal,
-        end_c.id_rua as "endereco_cobranca?",
-        end_c.id_bairro as "bairro_cobranca?",
-        end_c.cep as "cep_cobranca?",
-        cid_c.nome as "cidade_cobranca?",
-        uf_c.nome as "estado_cobranca?",
-        end_e.id_rua as "endereco_entrega?",
-        end_e.id_bairro as "bairro_entrega?",
-        end_e.cep as "cep_entrega?",
-        cid_e.nome as "cidade_entrega?",
-        uf_e.nome as "estado_entrega?"
+        bairro_principal.nome as bairro_principal,
+        rua_principal.nome as endereco_principal,
+        endereco_principal.cep as cep_principal,
+        cidade_principal.nome as cidade_principal,
+        estado_principal.nome as estado_principal,
+        rua_cobranca.nome as "endereco_cobranca?",
+        bairro_cobranca.nome as "bairro_cobranca?",
+        endereco_cobranca.cep as "cep_cobranca?",
+        cidade_cobranca.nome as "cidade_cobranca?",
+        estado_cobranca.nome as "estado_cobranca?",
+        rua_entrega.nome as "endereco_entrega?",
+        bairro_entrega.nome as "bairro_entrega?",
+        endereco_entrega.cep as "cep_entrega?",
+        cidade_entrega.nome as "cidade_entrega?",
+        estado_entrega.nome as "estado_entrega?"
     from users u 
     inner join empresa e on e.id = u.id_empresa 
-    inner join identificacao cnpj on cnpj.id = e.id_cnpj 
-    inner join tipo_identificacao t_id on t_id.id = cnpj.id_tipo_identificacao 
+    left join identificacao cnpj on cnpj.id = e.id_cnpj 
+    left join tipo_identificacao t_id on t_id.id = cnpj.id_tipo_identificacao 
     left join contato tel on tel.id = e.id_telefone 
     left join contato mail on mail.id = e.id_email
-    left join endereco end_p on end_p.id = e.id_endereco_principal
-    left join endereco end_c on end_c.id = e.id_endereco_cobranca
-    left join endereco end_e on end_e.id = e.id_endereco_entrega
-    left join cidade cid on cid.id = end_p.id_cidade
-    left join cidade cid_c on cid_c.id = end_c.id_cidade
-    left join cidade cid_e on cid_e.id = end_e.id_cidade
-    left join estado uf on uf.id = end_p.id_estado
-    left join estado uf_c on uf_c.id = end_c.id_estado
-    left join estado uf_e on uf_e.id = end_e.id_estado
+         join endereco endereco_principal on endereco_principal.id = e.id_endereco_principal 
+    left join endereco endereco_entrega on endereco_entrega.id = e.id_endereco_entrega
+    left join endereco endereco_cobranca on endereco_cobranca.id = e.id_endereco_cobranca
+         join rua rua_principal on rua_principal.id = endereco_principal.id_rua 
+    left join rua rua_entrega on rua_entrega.id = endereco_entrega.id_rua 
+    left join rua rua_cobranca on rua_cobranca.id = endereco_cobranca.id_rua 
+    left join bairro bairro_principal on bairro_principal.id = endereco_principal.id_bairro 
+    left join bairro bairro_entrega on bairro_entrega.id = endereco_entrega.id_bairro 
+    left join bairro bairro_cobranca on bairro_cobranca.id = endereco_cobranca.id_bairro
+    left join cidade cidade_principal on cidade_principal.id = endereco_principal.id_cidade
+    left join cidade cidade_entrega on cidade_entrega.id = endereco_entrega.id_cidade 
+    left join cidade cidade_cobranca on cidade_cobranca.id = endereco_cobranca.id_cidade 
+    left join estado estado_principal on estado_principal.id = endereco_principal.id_estado 
+    left join estado estado_entrega on estado_entrega.id = endereco_entrega.id_estado
+    left join estado estado_cobranca on estado_cobranca.id = endereco_cobranca.id_estado
+    left join pessoa responsavel on responsavel.id = e.id_responsavel 
+    left join identificacao cpf_responsavel on cpf_responsavel.id = responsavel.id_identificacao 
     where u.id = $1
     limit 1
 "#,
@@ -600,17 +843,18 @@ pub async fn abrir_dados_empresa_principal(
 
     match result {
         Ok(value) => {
-        info!("Empresa localizada");
-        Some(value)
-    },
-    Err(err) => {
-        info!("Empresa não encontrada");
-        error!("{}", err);
-        None
-    }}
+            info!("Empresa localizada");
+            Some(value)
+        }
+        Err(err) => {
+            info!("Empresa não encontrada");
+            error!("{}", err);
+            None
+        }
+    }
     // Some(result.unwrap())
 }
-    
+
 pub async fn lista_segmentos(pool: &Pool<Postgres>) -> Result<Vec<Segmento>> {
     let rec = sqlx::query_as!(
         Segmento,

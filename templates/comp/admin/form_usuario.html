@@ -77,20 +77,22 @@
                         <div>
                             <label for="endereco_principal">Rua</label>
                             <input type="text" class="form-control" id="endereco_principal" name="endereco_principal" autocomplete="street-address" required
-                                enterkeyhint="next"></input>
+                                enterkeyhint="next" value="{{ '' if form.endereco_principal == none else form.endereco_principal }}"></input>
                             <label for="bairro_principal">Bairro</label>
                             <input type="text" class="form-control" id="bairro_principal" name="bairro_principal" autocomplete="address-line2" required
-                                enterkeyhint="next"></input>
+                                enterkeyhint="next" value="{{ '' if form.bairro_principal == none else form.bairro_principal }}"></input>
                     
                         </div>
                         <div>
+
+
                             <label for="cep_principal">CEP</label>
-                            <input class="postal-code form-control" id="cep_principal" name="cep_principal" autocomplete="postal-code" enterkeyhint="next">
+                            <input class="postal-code form-control" id="cep_principal" name="cep_principal" autocomplete="postal-code" enterkeyhint="next" value="{{ '' if form.cep_principal == none else form.cep_principal }}">
                         </div>
                         <div>
                             <label for="cidade_principal">Cidade</label>
                             <input required type="text" class="form-control" id="cidade_principal" name="cidade_principal" autocomplete="address-level2"
-                                enterkeyhint="next">
+                                enterkeyhint="next" value="{{ '' if form.cidade_principal == none else form.cidade_principal }}">
                         </div>
                         <div>
                             {% with itens = estados, label = "Estado", value = form.id_estado_principal, name = "estado_principal" %}
@@ -106,19 +108,21 @@
                         <div>
                             <label for="endereco_entrega">Rua</label>
                             <input type="text" class="form-control" id="endereco_entrega" name="endereco_entrega" autocomplete="street-address" required
-                                enterkeyhint="next"></input><label for="bairro_entrega">Bairro</label>
-                                <input type="text" class="form-control" id="bairro_entrega" name="bairro_entrega" autocomplete="address-line2"
-                                    required enterkeyhint="next"></input>
+                                enterkeyhint="next" value="{{ '' if form.endereco_entrega == none else form.endereco_entrega }}"></input>
+                                
+                            <label for="bairro_entrega" >Bairro</label>
+                            <input type="text" class="form-control" id="bairro_entrega" name="bairro_entrega" autocomplete="address-line2"
+                                    required enterkeyhint="next" value="{{ '' if form.bairro_entrega == none else form.bairro_entrega }}"></input>
                     
                         </div>
                         <div>
                             <label for="cep_entrega">CEP</label>
-                            <input class="postal-code form-control" id="cep_entrega" name="cep_entrega" autocomplete="postal-code" enterkeyhint="next">
+                            <input class="postal-code form-control" id="cep_entrega" name="cep_entrega" autocomplete="postal-code" enterkeyhint="next"value="{{ '' if form.cep_entrega == none else form.cep_entrega }}">
                         </div>
                         <div>
                             <label for="cidade_entrega">Cidade</label>
                             <input required type="text" class="form-control" id="cidade_entrega" name="cidade_entrega" autocomplete="address-level2"
-                                enterkeyhint="next">
+                                enterkeyhint="next" value="{{ '' if form.cidade_entrega == none else form.cidade_entrega }}">
                         </div>
                         <div>
                             {% with itens = estados, label = "Estado", value = form.id_estado_entrega, name = "estado_entrega" %}
@@ -134,19 +138,18 @@
                         <div>
                             <label for="endereco_cobranca">Rua</label>
                             <input type="text" class="form-control" id="endereco_cobranca" name="endereco_cobranca" autocomplete="street-address" required
-                                enterkeyhint="next"></input>
+                                enterkeyhint="next"value="{{ '' if form.endereco_cobranca == none else form.endereco_cobranca }}"></input>
                                 <input type="text" class="form-control" id="bairro_cobranca" name="bairro_cobranca" autocomplete="address-line2" required
-                                    enterkeyhint="next"></input>
-                    
+                                    enterkeyhint="next"value="{{ '' if form.bairro_cobranca == none else form.bairro_cobranca }}"></input>
                         </div>
                         <div>
                             <label for="cep_cobranca">CEP</label>
-                            <input class="postal-code form-control" id="cep_cobranca" name="cep_cobranca" autocomplete="postal-code" enterkeyhint="next">
+                            <input class="postal-code form-control" id="cep_cobranca" name="cep_cobranca" autocomplete="postal-code" enterkeyhint="next"value="{{ '' if form.cep_cobranca == none else form.cep_cobranca }}">
                         </div>
                         <div>
                             <label for="cidade_cobranca">Cidade</label>
                             <input required type="text" class="form-control" id="cidade_cobranca" name="cidade_cobranca" autocomplete="address-level2"
-                                enterkeyhint="next">
+                                enterkeyhint="next"value="{{ '' if form.cidade_cobranca == none else form.cidade_cobranca }}">
                         </div>
                         <div>
                             {% with itens = estados, label = "Estado", value = form.id_estado_cobranca, name = "estado_cobranca" %}

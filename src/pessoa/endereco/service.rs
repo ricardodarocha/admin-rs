@@ -1,3 +1,4 @@
+use log::info;
 use sqlx::PgPool;
 use crate::pessoa::endereco::model::*;
 use crate::pessoa::endereco::repo as repo;
@@ -27,16 +28,21 @@ pub async fn upsert_endereco (
          cep: 0000 }
 
     */
-        let id_logradouro = repo::upsert_logradouro(pool, endereco.endereco.clone()).await?;
+        info!("Buscando parâmetros {:?} ",  endereco.clone());
+        let id_rua = repo::upsert_rua(pool, endereco.endereco.clone()).await?;
+        info!("Rua cadastrada {}", id_rua.clone());
         let id_bairro = repo::upsert_bairro(pool, endereco.bairro.clone()).await?;
+        info!("Bairro cadastrado {}", id_bairro.clone());
         
         // o sistema ainda não tem suporte a cadastrar cidades, pois as cidades são obtidas diretamente do IBGE
         let id_cidade = repo::abrir_cidade(pool, endereco.cidade.clone()).await;
+        info!("Cidade localizada {} {:?}", id_cidade.clone(), endereco.cidade.clone());
         let id_estado = repo::abrir_estado(pool, endereco.estado.clone()).await;
+        info!("Estado localizado {} {:?}", id_estado.clone(), endereco.estado.clone());
         
         let endereco_id = repo::upsert_endereco(
             pool, 
-            id_logradouro, 
+            id_rua, 
             id_bairro, 
             id_cidade, 
             id_estado, 
@@ -45,7 +51,7 @@ pub async fn upsert_endereco (
         
         if let Some(endereco_encontrado) = endereco_id {
             let id = endereco_encontrado.id;
-            let logradouro = repo::abrir_logradouro_by_id(pool, &id).await.unwrap();
+            let rua = repo::abrir_rua_by_id(pool, &endereco_encontrado.id_rua).await.unwrap();
             let bairro = repo::abrir_bairro_by_id(pool, &endereco_encontrado.id_bairro).await.unwrap();
             let cidade = repo::abrir_cidade_by_id(pool, endereco_encontrado.id_cidade).await;
             let estado = repo::abrir_estado_by_id(pool, endereco_encontrado.id_estado).await ;
@@ -53,7 +59,7 @@ pub async fn upsert_endereco (
 
             Ok(res::Endereco {
                 id,
-                logradouro,
+                rua,
                 bairro,
                 cidade,
                 estado,

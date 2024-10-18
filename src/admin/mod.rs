@@ -100,9 +100,9 @@ pub mod controller {
             return user_has_not_permission(&"view empresa")
         };
 
-        let (_empresa_id, _usr_id) = path.into_inner();
+        let (_empresa_id, id_usuario) = path.into_inner();
 
-        match crate::admin::repo::listar_empresas_all(&app.database.conn,).await {
+        match crate::admin::repo::listar_empresas_all(&app.database.conn, &id_usuario,).await {
             Ok(lista_empresas) => Ok(HttpResponse::Ok().json(lista_empresas)),
             Err(e) => Ok(HttpResponse::BadRequest().json(e.to_string())),
         }
