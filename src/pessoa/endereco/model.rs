@@ -59,3 +59,7 @@ pub struct Endereco {
     pub id_estado     : Option<String>,
     pub id_cidade     : Option<String>,
 }  
+
+pub struct ModelEndereco {
+
+}

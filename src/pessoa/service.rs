@@ -1,3 +1,4 @@
+use crate::infra::result::Pacote;
 use crate::pessoa::repo as repo;
 use crate::pessoa::model::*;
 use crate::app::AppState;
@@ -26,8 +27,8 @@ pub async fn abrir_pessoa(data: web::Data<AppState>, id_empresa: String, pessoa_
     // .map_err(|e| e.to_string() )  
 }
 
-pub async fn listar_pessoas(data: web::Data<AppState>, id_empresa: String, args: PessoaPagination) -> Result<Vec<PessoaList>> {
-    Ok(repo::listar_pessoas_all(&data.database.conn, id_empresa, args).await.unwrap())
+pub async fn listar_pessoas(data: web::Data<AppState>, id_empresa: String, args: PessoaPagination) -> Pacote<PessoaGrade> {
+    repo::listar_pessoas_all(&data.database.conn, id_empresa, args).await
     // .map_err(|e| e.to_string() )  
 }
 

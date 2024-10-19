@@ -64,6 +64,12 @@ body {
   transition: all 0.5s;
 }
 
+a {
+    color: #155e48;
+    font-weight: bold;
+    text-decoration: none;
+}
+
 .menu a {
   color: white;
   font-size: 14px;

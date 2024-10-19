@@ -4,19 +4,17 @@ use crate::infra::job::model::Job;
 use crate::infra::result::Result;
 use crate::infra::uuid::{generate_uuid, UuidKind};
 
+/// Salva um job no banco de dados, agendando o horário para executar, os parâmetros e o nome de job
+/// O nome deve corresponder a um tipo de job predefinido que o sistema tenha a habilidade de executar
+/// Consulte a lista de jobs implementados na camada `mod concrete;`
 pub async fn incluir_job(
     pool: &Pool<Postgres>,
     id_empresa: String,
-    // id: String,
+    // id_usuario: String,
     job_name: String,
     execute_at: time::OffsetDateTime,
     content: Value,
 ) -> Result<Job> {
-    // let found = abrir_produto(pool, id_empresa.clone(), &id.clone()). await;
-    // let rec = if let Some(_prod) = found {
-    //     panic!("Tentando inserir um produto que já existe")
-    // } else
-    // {
 
     let novo_id = generate_uuid(UuidKind::V7);
 
@@ -26,7 +24,7 @@ pub async fn incluir_job(
 	values( 
     $1, 
 	$2, 
-	$3 :: jsonb,
+	$3::jsonb,
 	$4,
 	'pending',
     $5)

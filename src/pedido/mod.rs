@@ -1,3 +1,4 @@
+pub mod service;
 pub mod model;
 pub mod repo;
 
@@ -40,28 +41,84 @@ pub mod controller {
     use actix_web::http::header::LOCATION;
     use minijinja::context;
     use serde::Deserialize;
+    use crate::admin::repo::abrir_empresa_one;
     // use serde_json::Value;
     use crate::app::AppState;
-    use crate::auth::model::SessionParser;
+    use crate::auth::model::{SessionParser, UserOperation, UserPermission};
+    use crate::infra::models::Colunas;
     use crate::infra::result::Result;
+    use crate::pessoa::repo::lista_grupos_pessoas;
     use sqlx::Postgres;
 
-    use crate::auth::session::{get_user, has_logged};
+    use crate::auth::session::{get_user, has_logged, has_permission, user_has_not_permission};
     use crate::land::model::Menu;
     use crate::land::repo::get_menus;
     use crate::pedido::model::{EntidadeItemPedido, FormItem, PedidoForm};
     use crate::pedido::repo::{abrir_item_pedido_one, get_galeria};
+    use crate::pessoa::model::PessoaPagination;
 
     #[derive(Deserialize)]
     pub struct FiltroCliente {
         pessoa: String,
     }
 
-    #[get("/add")] // /add?pessoa=
-    pub async fn pedido_add(
-        // _req: HttpRequest,
+    /// Retorna uma lista de clientes, ao clicar no cliente insere um pedido para este cliente
+    #[get("/pessoa")]  // pedido/add
+    pub async fn seleciona_cliente(
+        _req: HttpRequest,
         session: Session,
-        // path: web::Path<(String, String)>,
+        data: web::Data<AppState>,
+
+        ) -> impl Responder {
+
+        dbg!("GET /pedido/add -> ");
+        let pool = &data.database.conn;
+
+        if !has_logged(pool, &session).await {
+             return Ok(HttpResponse::SeeOther()
+            .insert_header((LOCATION, "/login"))
+            .finish())
+        };
+
+        let (operation, permission) = (UserOperation::Edit, UserPermission::Pedido);
+        if !has_permission(pool, &session, operation, permission).await {
+            return user_has_not_permission(&"edit pedido")
+        };
+
+        let usuario = get_user(pool, &session).await;
+        let id_empresa = usuario.clone().unwrap().id_empresa;
+        let empresa = abrir_empresa_one(pool, &id_empresa.clone()).await.unwrap();
+        let categorias = match id_empresa.clone() {
+            Some(empresa) => { lista_grupos_pessoas(pool, empresa).await.unwrap() },
+            None => { vec!()},
+        };
+  
+        let grade = crate::pessoa::repo::listar_pessoas_all(pool, id_empresa.clone().unwrap(), PessoaPagination::default()).await;
+   
+        let colunas = Colunas::new(vec!["Lista de contatos"]);
+        let flash = session.remove("flash").unwrap_or("".to_string()); 
+        let msg_error = format!("{}", session.remove("msg_error").unwrap_or("".to_string()));  
+        
+        let menus: Vec<Menu> = 
+            match usuario.clone() {
+                Some(usuario) => get_menus(pool, usuario.id, "contato").await.unwrap(),
+                None => vec![],
+        }; 
+
+        crate::infra::render::render_minijinja("pedido/seleciona_cliente.html", context!(
+            menus, 
+            usuario, 
+            categorias,
+            empresa,
+            colunas, 
+            grade, 
+            flash, 
+            msg_error)) 
+    }
+
+    #[get("/add")] // pedido/add?pessoa={id_pessoa}
+    pub async fn pedido_add(
+        session: Session,
         data: web::Data<AppState>,
         arg: web::Query<FiltroCliente>,
     ) -> Result<HttpResponse> {
@@ -462,6 +519,7 @@ use controller::*;
 pub fn routes(cfg: &mut crate::web::ServiceConfig) {
     cfg.service(
         crate::web::scope("/pedido")
+            .service(seleciona_cliente)
             .service(pedido_add)
             .service(pedido_form)
             .service(update_item)

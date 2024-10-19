@@ -4,15 +4,15 @@ use time::{OffsetDateTime, PrimitiveDateTime};
 use crate::infra::pagination::Pagination;
 use sqlx::FromRow;
 
-#[derive(Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 pub struct PessoaPagination {
     #[serde(flatten)]
     pub pagination: Pagination,
     pub categoria: Option<String>,
 }
 
-#[derive(Deserialize, Serialize, FromRow)]
-pub struct PessoaList {  
+#[derive(Default, Deserialize, Serialize, FromRow)]
+pub struct PessoaGrade {  
     pub id: String, 
     pub id_: Option<String>,
    	pub nome: Option<String>,

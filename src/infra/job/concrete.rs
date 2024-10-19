@@ -1,6 +1,12 @@
 use log::info;
 use serde::{Deserialize, Serialize};
 
+/// Enquanto o trait Jober é uma interface abstrata para executar um Job (serviço),
+/// o `mod concrete;` representa um módulo concreto, isto é, onde é feita a implementação
+/// de cada Job, a sua rotina run é exatamente o processo que deve ser executado
+/// 
+/// Exemplos de jobs são "enviar um e-mail; processar um pedido; calcular o custo"
+
 use crate::infra::job::model::Jober;
 use crate::infra::email::send_email;
 use super::model::Job;
@@ -36,8 +42,10 @@ struct JobEmailAdapter {
 
 impl Jober for SendEmail {
     async fn run(job: Job) -> () {
-        // é muito simples, ele pega o job.content e joga dentro do SendEmail. Uma classe adapter é 
-        //intermediária para mapear os campos de forma mais explícita
+        // é muito simples, 
+        // o job contém um json com todas as variáveis por exemplo hora de execução, assunto, corpo do e-mail etc
+        // ele pega o job.content e joga dentro do SendEmail, que é uma struct com as informacoes do e-mail. 
+        // Esta classe intermediária possui um método run que aciona a crate de enviar email passando o contexto
         let mut runner = Self::default();
         let email_json: JobEmailAdapter = serde_json::from_value(job.context).unwrap();
         runner.recipient = email_json.usuario.email;

@@ -616,9 +616,9 @@ label {
   font-size: 48px;
 }
 .card-valor {
-  font-size: 2.5rem;
+  font-size: 3.5rem;
   font-weight: bold;
-  color: black;
+  color: rgb(47, 16, 97);
 }
 .card-atualizacao {
   font-size: 0.75rem;
@@ -637,5 +637,12 @@ a:link, a:visited {
 }
 
 a:hover, a:active {
-  background-color: rgb(56, 231, 152);
+  background-color: rgb(18, 207, 122);
+  text-decoration: none;
+}
+
+a {
+    color: #155e48;
+    font-weight: bold;
+    text-decoration: none;
 }

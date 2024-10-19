@@ -153,7 +153,7 @@ pub mod controller {
 //         req: HttpRequest,
 //     ) -> Result<impl Responder, Error> {
 
-    #[get("/all")]
+    #[get("/all")]  // contato/all
     pub async fn list_pessoa(
         _req: HttpRequest,
         session: Session,
@@ -187,7 +187,7 @@ pub mod controller {
             None => { vec!()},
         };
   
-        let grade = repo::listar_pessoas_all(pool, id_empresa.clone().unwrap(), args).await.unwrap();
+        let grade = repo::listar_pessoas_all(pool, id_empresa.clone().unwrap(), args).await;
    
         let colunas = Colunas::new(vec!["id", "nome", "razão social", "telefone", "email"]);
         let flash = session.remove("flash").unwrap_or("".to_string()); 

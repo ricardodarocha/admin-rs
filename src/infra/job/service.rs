@@ -15,8 +15,8 @@ pub struct JobForm {
     // pub other: HashMap<String, Value>,
 }
 
-#[post("/todo")]
-async fn create_todo(
+#[post("/job")]
+async fn create_job(
     pool: web::Data<PgPool>,
     context: web::Json<JobForm>,
 ) -> impl Responder {

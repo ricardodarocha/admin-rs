@@ -4,7 +4,7 @@ use crate::{pessoa::model::*, infra::uuid::UuidKind};
 use log::info;
 use sqlx::{Pool, Postgres};
 use crate::infra::uuid::generate_uuid;
-use crate::infra::result::Result;
+use crate::infra::result::{Pacote, Result};
 use crate::infra::error::Error::*;
 use crate::entidade::EntidadeId;
 
@@ -134,14 +134,16 @@ pub async fn listar_pessoas_all(
     pool: &Pool<Postgres>,
     id_empresa: String,
     args: PessoaPagination,
-) -> Result<Vec<PessoaList>> {
+) -> Pacote<PessoaGrade> {
+
+    dbg!("{:?}", args.clone());
     let (limit, offset) = (
         args.pagination.size, 
         args.pagination.size * (args.pagination.page - 1),
     );
-    
+   
     let rec = sqlx::query_as!(
-        PessoaList,
+        PessoaGrade,
         "select 
         pessoa.id, 
         right(pessoa.id, 6) as id_,  
@@ -170,9 +172,16 @@ pub async fn listar_pessoas_all(
     offset as i32,
     )
     .fetch_all(pool)
-    .await?;
+    .await;
 
-    Ok(rec)
+    match rec {
+        Ok(value) => value.into(),
+        Err(err) => Pacote::<PessoaGrade>::from(err),
+        }
+            .pagina(args.pagination.page)
+            .capacidade(args.pagination.size)
+            .mensagem("Pacote gerado com sucesso")
+            .status(200)
 }
 
 pub async fn lista_grupos_pessoas (

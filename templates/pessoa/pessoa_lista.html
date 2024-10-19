@@ -27,8 +27,9 @@
                     {% endfor %}
                 </tr>
             </tfoot>
+
             <tbody>
-                {% for row in grade %}
+                {% for row in grade.dados %}
                 <tr>
                     <td><a href="/contato/{{row.id}}">{{row.id_}}</a></td>
                     <td>{{row.nome}}</td>
@@ -54,6 +55,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        <p> página atual {{grade.page}} </p>
     </div>
 </div>
 {% endblock clientarea %}

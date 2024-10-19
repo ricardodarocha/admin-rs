@@ -11,6 +11,7 @@ use std::time::Duration;
 use tokio::time::interval;
 use sqlx::PgPool;
 
+// Este utiliário permite reestabelecer a conexão com o banco de dados, quando a conexão fica obsoleta o sistema automaticamente reconecta
 use crate::config::database::autorecover;
 
 pub async fn job_scheduler(pool: PgPool) {
