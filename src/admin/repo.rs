@@ -360,55 +360,59 @@ pub async fn inserir_empresa(
     Ok(rec)
 }
 
+
 pub async fn abrir_empresa_one(
     pool: &Pool<Postgres>,
     id_empresa: &Option<String>,
-) -> Result<Option<Empresa>> {
+) -> Result<Option<Empresa>, sqlx::Error> {
     match id_empresa {
         Some(id_empresa) => {
             let rec = sqlx::query_as!(
                 Empresa,
-                "select empresa.id, 
-    empresa.nome, 
-    empresa.fantasia,
-    rua_principal.nome as rua_principal,
-    bairro_principal.nome as bairro_principal,
-    endereco_principal.cep as cep_principal,
-    cidade_principal.nome as cidade_principal,
-    estado_principal.nome as estado_principal,
-    rua_entrega.nome as rua_entrega,
-    bairro_entrega.nome as bairro_entrega,
-    endereco_entrega.cep as cep_entrega,
-    cidade_entrega.nome as cidade_entrega,
-    estado_entrega.nome as estado_entrega,
-    rua_cobranca.nome as rua_cobranca,
-    bairro_cobranca.nome as bairro_cobranca,
-    endereco_cobranca.cep as cep_cobranca,
-    cidade_cobranca.nome as cidade_cobranca,
-    estado_cobranca.nome as estado_cobranca,
-    empresa.telefone, 
-    empresa.email, 
-    id_cnpj,   
-    i.descricao as cnpj
-        from empresa 
-        join endereco endereco_principal on endereco_principal.id = empresa.id_endereco_principal 
-        left join endereco endereco_entrega on endereco_entrega.id = empresa.id_endereco_entrega
-        left join endereco endereco_cobranca on endereco_cobranca.id = empresa.id_endereco_cobranca
-        join rua rua_principal on rua_principal.id = endereco_principal.id_rua 
-        left join rua rua_entrega on rua_entrega.id = endereco_entrega.id_rua 
-        left join rua rua_cobranca on rua_cobranca.id = endereco_cobranca.id_rua 
-        left join bairro bairro_principal on bairro_principal.id = endereco_principal.id_bairro 
-        left join bairro bairro_entrega on bairro_entrega.id = endereco_entrega.id_bairro 
-        left join bairro bairro_cobranca on bairro_cobranca.id = endereco_cobranca.id_bairro
-        left join cidade cidade_principal on cidade_principal.id = endereco_principal.id_cidade
-        left join cidade cidade_entrega on cidade_entrega.id = endereco_entrega.id_cidade 
-        left join cidade cidade_cobranca on cidade_cobranca.id = endereco_cobranca.id_cidade 
-        left join estado estado_principal on estado_principal.id = endereco_principal.id_estado 
-        left join estado estado_entrega on estado_entrega.id = endereco_entrega.id_estado
-        left join estado estado_cobranca on estado_cobranca.id = endereco_cobranca.id_estado
-        left join identificacao i on i.id = empresa.id_cnpj
-                where empresa.id = $1 or i.descricao = $1",
-                id_empresa,
+                r#"
+                SELECT 
+                    empresa.id, 
+                    empresa.nome, 
+                    empresa.fantasia,
+                    rua_principal.nome as rua_principal,
+                    bairro_principal.nome as bairro_principal,
+                    endereco_principal.cep as "cep_principal?", -- ? permite NULL
+                    cidade_principal.nome as "cidade_principal?",
+                    estado_principal.nome as "estado_principal?",
+                    rua_entrega.nome as "rua_entrega?",
+                    bairro_entrega.nome as "bairro_entrega?",
+                    endereco_entrega.cep as "cep_entrega?",
+                    cidade_entrega.nome as "cidade_entrega?",
+                    estado_entrega.nome as "estado_entrega?",
+                    rua_cobranca.nome as "rua_cobranca?",
+                    bairro_cobranca.nome as "bairro_cobranca?",
+                    endereco_cobranca.cep as "cep_cobranca?",
+                    cidade_cobranca.nome as "cidade_cobranca?",
+                    estado_cobranca.nome as "estado_cobranca?",
+                    empresa.telefone as "telefone?",
+                    empresa.email as "email?",
+                    empresa.id_cnpj as "id_cnpj?",
+                    i.descricao as "cnpj?"
+                FROM empresa
+                JOIN endereco endereco_principal ON endereco_principal.id = empresa.id_endereco_principal 
+                LEFT JOIN endereco endereco_entrega ON endereco_entrega.id = empresa.id_endereco_entrega
+                LEFT JOIN endereco endereco_cobranca ON endereco_cobranca.id = empresa.id_endereco_cobranca
+                JOIN rua rua_principal ON rua_principal.id = endereco_principal.id_rua 
+                LEFT JOIN rua rua_entrega ON rua_entrega.id = endereco_entrega.id_rua 
+                LEFT JOIN rua rua_cobranca ON rua_cobranca.id = endereco_cobranca.id_rua 
+                LEFT JOIN bairro bairro_principal ON bairro_principal.id = endereco_principal.id_bairro 
+                LEFT JOIN bairro bairro_entrega ON bairro_entrega.id = endereco_entrega.id_bairro 
+                LEFT JOIN bairro bairro_cobranca ON bairro_cobranca.id = endereco_cobranca.id_bairro
+                LEFT JOIN cidade cidade_principal ON cidade_principal.id = endereco_principal.id_cidade
+                LEFT JOIN cidade cidade_entrega ON cidade_entrega.id = endereco_entrega.id_cidade 
+                LEFT JOIN cidade cidade_cobranca ON cidade_cobranca.id = endereco_cobranca.id_cidade 
+                LEFT JOIN estado estado_principal ON estado_principal.id = endereco_principal.id_estado 
+                LEFT JOIN estado estado_entrega ON estado_entrega.id = endereco_entrega.id_estado
+                LEFT JOIN estado estado_cobranca ON estado_cobranca.id = endereco_cobranca.id_estado
+                LEFT JOIN identificacao i ON i.id = empresa.id_cnpj
+                WHERE empresa.id = $1 OR i.descricao = $1
+                "#,
+                id_empresa
             )
             .fetch_optional(pool)
             .await?;
