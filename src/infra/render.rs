@@ -90,7 +90,7 @@ pub fn render_to_string(template_name: &str, ctx: Value) -> String {
             let msg_error = format!("error: {:#?}", e);
             let error_context = context!(msg_error);
   
-           (TEMPLATE.get_template("error/error.html").unwrap(), error_context)
+           (TEMPLATE.get_template("web/layout.html").unwrap(), error_context)
         }
     };
 
@@ -226,7 +226,7 @@ static TEMPLATE: Lazy<minijinja::Environment<'static>> = Lazy::new(|| {
     env.add_filter("fmt3", fmt3);
 
     minijinja_contrib::add_to_environment(&mut env);
-    env.set_loader(minijinja::path_loader("templates"));
+    env.set_loader(minijinja::path_loader("themes"));
     // env.add_function("url_for", url_for);
     
     println!("Templates: ");

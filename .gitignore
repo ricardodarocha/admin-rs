@@ -22,3 +22,8 @@ Cargo.lock
 /target/
 meu_banco.db-*
 cert/
+
+.idea/
+/node_modules
+package-lock.json
+.env

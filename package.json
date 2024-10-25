@@ -1,0 +1,24 @@
+{
+  "name": "framework-base-rust",
+  "version": "1.0.0",
+  "description": "Framework base para projetos em Rust com JQuery e TailWind CSS",
+  "main": "index.php",
+  "scripts": {
+    "build:css": "tailwindcss -i shared/css/tailwind.css -o shared/css/style.css",
+    "watch:css": "tailwindcss -i shared/css/tailwind.css -o shared/css/style.css --watch"
+  },
+  "dependencies": {
+    "bootstrap-icons": "^1.11.3",
+    "chart.js": "^4.4.5",
+    "jquery": "^3.7.1",
+    "jquery-form": "^4.3.0",
+    "jquery-mask-plugin": "^1.14.16",
+    "jquery-ui": "^1.14.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "daisyui": "^4.12.13",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14"
+  }
+}

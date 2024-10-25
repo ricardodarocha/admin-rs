@@ -49,18 +49,18 @@ async fn main() -> std::io::Result<()> {
 
     let _ = sqlx::migrate!().run(&database.conn.clone()).await.map_err(|e| format!("Erro na migração do banco de dados {e}"));
     let app_data = web::Data::new(app::AppState {
-                    client: reqwest::Client::new(),
-                    database,
-                });
+        client: reqwest::Client::new(),
+        database,
+    });
 
-                
+
     // minijinja_embed::load_templates!(&mut env);
 
     let _secret =
         std::env::var("SECRET").unwrap_or_else(|_| "935b43f5-4313-5f8b-8cfe-5e05692226dd".to_string());
-    let _database_url = std::env::var("DATABASE_URL").unwrap();   
-   
-    let secret_key = Key::generate(); 
+    let _database_url = std::env::var("DATABASE_URL").unwrap();
+
+    let secret_key = Key::generate();
 
     #[derive(OpenApi)]
     #[openapi(
@@ -102,7 +102,7 @@ async fn main() -> std::io::Result<()> {
     // let host1 = host.clone();
     let host2 = host.clone();
     HttpServer::new(move || {
-            let cors = actix_cors::Cors::default()
+        let cors = actix_cors::Cors::default()
             // .allowed_origin(format!("http://{}:{port}", host1 ).as_str())
             // .allowed_origin(format!("http://localhost:{port}" ).as_str())
             // .allowed_origin(format!("http://27.0.0.1:{port}" ).as_str())
@@ -123,22 +123,26 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::new(
                 "%{r}a %r %s %b %{Referer}i %{User-Agent}i %T",
             )) // enable logger
-            
+
             .service(
                 SwaggerUi::new("/swagger-ui/{_:.*}")
                     .url("/api-docs/openapi.json", ApiDoc::openapi()),
             )
-            
+
             // .service(web::resource("/api/ping").route(web::get().to(ping)))
-            .service(actix_files::Files::new("/static","./static")
+            .service(actix_files::Files::new("/shared", "./shared")
+                         .show_files_listing()
+                         .use_last_modified(true)
+                     // .index_file("index.html")
+            )
+            .service(actix_files::Files::new("/node_modules", "./node_modules")
                 .show_files_listing()
                 .use_last_modified(true)
-                // .index_file("index.html")
-            )            
+            )
             .route("/index", web::get().to(index))
             .service(ping)
             // .service(index)
-            .service(actix_files::Files::new("/images", "./static/img"))
+            .service(actix_files::Files::new("/images", "./shared/images"))
             .configure(auth::routes)
             .configure(produto::routes)
             .configure(pessoa::routes)
@@ -146,29 +150,29 @@ async fn main() -> std::io::Result<()> {
             .configure(pedido::routes)
             .configure(admin::routes)
             .configure(land::routes)
-            // .configure(controller::vitrine::routes)
-            // .configure(controller::compras::routes)
-            // .configure(controller::estoque::routes)
-            // .configure(controller::crm::routes)
-            // .configure(controller::pedido::routes)
-            // .configure(controller::vendas::routes)
-            // .configure(controller::financeiro::routes)
-            // .configure(controller::recursos_humanos::routes)
-            // .configure(controller::projetos::routes)
-            // .configure(controller::custos::routes)
-            // .route("/", web::get().to(index))
-            // .route("/login", web::post().to(login))
-            // .route("/logout", web::post().to(logout))
+        // .configure(controller::vitrine::routes)
+        // .configure(controller::compras::routes)
+        // .configure(controller::estoque::routes)
+        // .configure(controller::crm::routes)
+        // .configure(controller::pedido::routes)
+        // .configure(controller::vendas::routes)
+        // .configure(controller::financeiro::routes)
+        // .configure(controller::recursos_humanos::routes)
+        // .configure(controller::projetos::routes)
+        // .configure(controller::custos::routes)
+        // .route("/", web::get().to(index))
+        // .route("/login", web::post().to(login))
+        // .route("/logout", web::post().to(logout))
     })
-    .bind(format!("{}:{}", host2, port))?
-    .run()
-    .await
+        .bind(format!("{}:{}", host2, port))?
+        .run()
+        .await
 }
 
 //Serving the Registration and sign-in page
-async fn index(data:  web::Data<AppState>, session: Session, _req: HttpRequest) -> impl Responder {
+async fn index(data: web::Data<AppState>, session: Session, _req: HttpRequest) -> impl Responder {
     // let path: PathBuf = "./static/index.html".parse().unwrap();
     // Ok(NamedFile::open(path).unwrap())
     let usuario = auth::session::get_user(&data.database.conn, &session).await;
-    infra::render::render_minijinja("index.html", context!(usuario) )
+    infra::render::render_minijinja("index.html", context!(usuario))
 }
