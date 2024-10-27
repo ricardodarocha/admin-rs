@@ -2,13 +2,11 @@
 module.exports = {
   content: [
       "./shared/js/*.js",
-      "./themes/**/**/*.{js,html}"
+      "./themes/**/**/*.{html,js}"
   ],
   theme: {
     extend: {},
   },
-  plugins: [
-    require('daisyui'),
-  ],
+  plugins: [],
 }
 
