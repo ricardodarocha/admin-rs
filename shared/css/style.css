@@ -680,6 +680,11 @@ video {
   border-radius: 0.5rem;
 }
 
+.border-x {
+  border-left-width: 1px;
+  border-right-width: 1px;
+}
+
 .border-l {
   border-left-width: 1px;
 }
