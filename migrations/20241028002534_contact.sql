@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS
+contact(
+    id  VARCHAR NOT NULL PRIMARY KEY, 
+    name VARCHAR NOT NULL, 
+    city VARCHAR NOT NULL
+);
+
+INSERT INTO contact VALUES ('00008756486', 'John Doe', 'London');
