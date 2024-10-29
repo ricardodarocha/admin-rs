@@ -1,8 +1,54 @@
 {% extends "web/layout.html" %}
 {% block content %}
-<article>
-    <header>
-        <h2>Contato</h2>
+<article class="w-8/12 mx-auto py-8">
+    <header class="text-center pb-8 border-b border-orange-700">
+        <h2 class="text-4xl text-orange-700 font-black">Contato</h2>
     </header>
+    <div class="w-8/12 mx-auto pt-8">
+        <p class="pt text-base font-bold text-orange-700">Entre em contanto conosco pelos nossos canais de
+            atendimento:</p>
+        <div class="w-full pt-4 pl-4">
+            <a href="mailto:contato@empresa.com.br" class="w-fit block hover:underline">
+                <i class="bi bi-envelope mr-1"></i>contato@empresa.com.br</a>
+            <a href="tel:+5588777778888" class="w-fit inline-block mt-2 hover:underline">
+                <i class="bi bi-telephone mr-1"></i>(99) 99999-9999</a> |
+            <a href="tel:+5588999998888" class="w-fit inline-block mt-2 hover:underline">
+                <i class="bi bi-whatsapp mr-1"></i>(99) 99999-9999</a>
+        </div>
+        <p class="pt-8 text-base font-bold text-orange-700">Ou nos envie uma mensagem:</p>
+        <form method="post" action="" autocomplete="off" class="w-9/12 mx-auto pt-4">
+            <div class="w-full">
+                <label for="name">* Nome:</label>
+                <input type="text" value="" id="name" class="w-full block p-3 rounded border border-gray-700"
+                       autofocus required>
+            </div>
+            <div class="w-full mt-4">
+                <label for="email">* E-mail:</label>
+                <input type="email" value="" id="email" class="w-full block p-3 rounded border border-gray-700"
+                       required>
+            </div>
+            <div class="w-full mt-4">
+                <label for="subject">* Assunto:</label>
+                <select name="subject" id="subject" class="w-full block p-3 rounded border border-gray-700 bg-white"
+                        required>
+                    <option value="" selected disabled>Selecionar</option>
+                    <option value="Elogio">Quero fazer um elogio</option>
+                    <option value="Sugestão">Quero enviar uma sugestão</option>
+                    <option value="Dúvida">Quero fazer uma pergunta</option>
+                    <option value="Reclamação">Quero fazer uma reclamação</option>
+                </select>
+            </div>
+            <div class="w-full mt-4">
+                <label for="message">* Mensagem:</label>
+                <textarea name="message" id="message" required rows="7" class="w-full block p-3 rounded border
+                border-gray-700 resize-none"></textarea>
+            </div>
+            <div class="w-full flex justify-end mt-4">
+                <button type="submit" class="w-52 h-12 flex items-center justify-center font-semibold bg-green-600
+                text-white hover:opacity-80 rounded-lg">Enviar
+                </button>
+            </div>
+        </form>
+    </div>
 </article>
 {% endblock %}

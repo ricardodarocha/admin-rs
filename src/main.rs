@@ -42,7 +42,17 @@ async fn web_contact(env: web::Data<Arc<Environment<'static>>>) -> impl Responde
 #[get("/termos")]
 async fn web_terms(env: web::Data<Arc<Environment<'static>>>) -> impl Responder {
     let tmpl = env.get_template("web/terms.html").unwrap();
-    let rendered = tmpl.render(context! {title => "Termos"}).unwrap();
+    let rendered = tmpl.render(context! {title => "Termos e Condições de Uso"}).unwrap();
+
+    HttpResponse::Ok()
+        .content_type("text/html")
+        .body(rendered)
+}
+
+#[get("/politica-de-privacidade")]
+async fn web_policy(env: web::Data<Arc<Environment<'static>>>) -> impl Responder {
+    let tmpl = env.get_template("web/policy.html").unwrap();
+    let rendered = tmpl.render(context! {title => "Política de Privacidade"}).unwrap();
 
     HttpResponse::Ok()
         .content_type("text/html")
@@ -78,6 +88,7 @@ async fn main() -> std::io::Result<()> {
             .service(web_about)
             .service(web_contact)
             .service(web_terms)
+            .service(web_policy)
             .service(web_ops)
             .default_service(web::to(not_found))
     })
