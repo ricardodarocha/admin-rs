@@ -10,9 +10,9 @@
     <link rel="stylesheet" type="text/css" href="../../shared/css/style.css"/>
     <link rel="stylesheet" type="text/css" href="../../node_modules/bootstrap-icons/font/bootstrap-icons.min.css"/>
 </head>
-<body class="text-neutral-800">
+<body class="min-h-screen flex flex-col text-neutral-800">
     {% include "web/partials/header.html" %}
-<main>{% block content %}{% endblock %}</main>
+<main class="flex-grow flex items-center">{% block content %}{% endblock %}</main>
     {% include "web/partials/footer.html" %}
 </body>
 <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
