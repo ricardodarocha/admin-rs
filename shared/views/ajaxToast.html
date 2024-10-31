@@ -1,0 +1,9 @@
+<div class="relative flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow overflow-hidden j_toast">
+    <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 {{ toast_class }} rounded-lg">
+        <i class="bi {{ toast_icon }} no-text text-lg"></i>
+    </div>
+    <div class="ms-3 min-w-20 text-sm font-normal">{{ toast_text }}</div>
+    <button type="button" class="ms-2 text-gray-500 j_toast_close"><i class="bi bi-x text-lg no-text"></i></button>
+    <div class="absolute left-0 bottom-0 h-[3px] w-0 bg-black/50 rounded-[3px] j_progress_bar"></div>
+</div>
+

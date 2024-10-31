@@ -1,0 +1,13 @@
+<div class="relative flex items-center justify-between w-full p-4 text-gray-500 bg-white rounded-lg shadow
+    overflow-hidden {{ messageType }} j_message">
+    <div class="flex items-center">
+        <div class="inline-flex items-center justify-center flex-shrink-0 w-fit rounded-lg">
+            <i class="bi bi-<?= $icon; ?> text-2xl no-text"></i>
+        </div>
+        <div class="ms-3 min-w-20 text-sm font-normal">{{ messageText }}</div>
+    </div>
+    <button type="button" class="ms-3 w-fit flex flex-wrap content-center justify-center j_message_close">
+        <i class="bi bi-x text-2xl no-text"></i>
+    </button>
+    <div class="absolute left-0 bottom-0 h-[3px] w-0 bg-black/50 rounded-[3px] j_progress_bar"></div>
+</div>

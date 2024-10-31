@@ -1,7 +1,9 @@
 use std::sync::Arc;
 use actix_files::Files;
-use actix_web::{get, web, App, HttpServer, HttpResponse, Responder};
+use actix_web::{get, post, web, App, HttpServer, HttpResponse, Responder};
 use minijinja::{Environment, context};
+use serde_json::json;
+use std::collections::HashMap;
 
 async fn configure_minijinja() -> Arc<Environment<'static>> {
     let mut env = Environment::new();
@@ -39,6 +41,27 @@ async fn web_contact(env: web::Data<Arc<Environment<'static>>>) -> impl Responde
         .body(rendered)
 }
 
+#[post("/contato")]
+async fn web_contact_submit(
+    form: web::Form<HashMap<String, String>>,
+    env: web::Data<Arc<Environment<'static>>>,
+) -> impl Responder {
+    println!("Recebido POST com dados: {:?}", form);
+
+    let tmpl = env.get_template("shared/views/ajaxToast.html").unwrap();
+    let rendered = tmpl.render(context! {
+        toast_icon => "bi-check-circle",
+        toast_class => "toast-success",
+        toast_text => "Mensagem enviada com sucesso!",
+    }).unwrap();
+
+    HttpResponse::Ok()
+        .content_type("application/json")
+        .json(json!({
+            "toast": "teste"
+        }))
+}
+
 #[get("/termos")]
 async fn web_terms(env: web::Data<Arc<Environment<'static>>>) -> impl Responder {
     let tmpl = env.get_template("web/terms.html").unwrap();
@@ -69,9 +92,9 @@ async fn web_ops(env: web::Data<Arc<Environment<'static>>>) -> impl Responder {
         .body(rendered)
 }
 
-async fn not_found() -> impl Responder{
+async fn not_found() -> impl Responder {
     HttpResponse::Found()
-        .append_header(("Location","/ops"))
+        .append_header(("Location", "/ops"))
         .finish()
 }
 
@@ -87,6 +110,7 @@ async fn main() -> std::io::Result<()> {
             .service(web_home)
             .service(web_about)
             .service(web_contact)
+            .service(web_contact_submit)
             .service(web_terms)
             .service(web_policy)
             .service(web_ops)
