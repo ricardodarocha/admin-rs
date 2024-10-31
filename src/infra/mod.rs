@@ -2,7 +2,6 @@ pub mod strings;
 pub mod repo;
 pub mod email;
 pub mod pagination;
-pub mod arredonda;
 pub mod psw;
 pub mod render;
 pub mod result;
