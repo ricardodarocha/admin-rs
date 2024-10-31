@@ -4,9 +4,19 @@ use actix_web::{get, post, web, App, HttpServer, HttpResponse, Responder};
 use minijinja::{Environment, context};
 use serde_json::json;
 use std::collections::HashMap;
+use crate::infra::minijinja_utils;
 
 async fn configure_minijinja() -> Arc<Environment<'static>> {
     let mut env = Environment::new();
+
+    env.add_filter("fmtdate", minijinja_utils::fmtdate);    
+    env.add_filter("fmtdateopt", minijinja_utils::fmtdateopt);    
+    env.add_filter("fmttime", minijinja_utils::fmttime);    
+    env.add_filter("fmttimeopt", minijinja_utils::fmttimeopt);    
+    env.add_filter("fmt", minijinja_utils::fmt);
+    env.add_filter("fmt3", minijinja_utils::fmt3);
+    env.add_filter("format", minijinja_utils::format_filter);
+
     env.set_loader(minijinja::path_loader("themes"));
     Arc::new(env)
 }
