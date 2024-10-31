@@ -1,1 +1,0 @@
-select id from tenant where email = $1;

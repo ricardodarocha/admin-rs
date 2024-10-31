@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <title>Login - {{ title | default("") }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" href="../../shared/images/favicon.svg">
+    <link rel="stylesheet" type="text/css" href="../../shared/fonts/poppins/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../shared/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../../node_modules/bootstrap-icons/font/bootstrap-icons.min.css"/>
+</head>
+<body class="min-h-screen flex flex-col text-neutral-800">
+    
+<main class="flex-grow flex items-center">{% block content %}{% endblock %}</main>
+    {% include "web/partials/footer.html" %}
+</body>
+<script src="../../node_modules/jquery/dist/jquery.min.js"></script>
+<script src="../../node_modules/jquery-ui/dist/jquery-ui.min.js"></script>
+<script src="../../node_modules/jquery-form/dist/jquery.form.min.js"></script>
+<script src="../../node_modules/jquery-mask-plugin/dist/jquery.mask.js"></script>
+<script src="../../node_modules/chart.js/dist/chart.umd.js"></script>
+<script src="../../shared/js/ajaxToast.js"></script>
+<script src="../../shared/js/form.js"></script>
+</html>

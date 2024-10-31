@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS
+cliente(
+    id  VARCHAR NOT NULL PRIMARY KEY, 
+    nome VARCHAR NOT NULL, 
+    cidade VARCHAR NOT NULL
+);
+
+INSERT INTO cliente VALUES ('00008756486', 'John Doe', 'London');

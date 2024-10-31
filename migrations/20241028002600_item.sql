@@ -1,28 +1,28 @@
 CREATE TABLE IF NOT EXISTS
 item (
-    num_order INTEGER NOT NULL REFERENCES orders(NUM),
-    product VARCHAR NOT NULL REFERENCES product(ID),
+    num_pedido INTEGER NOT NULL REFERENCES pedido(NUM),
+    produto VARCHAR NOT NULL REFERENCES produto(ID),
     quant Float NOT NULL DEFAULT 1.0
 );
 
-INSERT OR IGNORE INTO item (num_order, product, quant) VALUES (
-    (SELECT num from orders limit 1), 
-    (SELECT id FROM product WHERE description = 'COOKIE'), 8.0 );
-INSERT OR IGNORE INTO item (num_order, product, quant) VALUES (
-    (SELECT num from orders limit 1), 
-    (SELECT id FROM product WHERE description = 'MILK'), 3.0 );
-INSERT OR IGNORE INTO item (num_order, product, quant) VALUES (
-    (SELECT num from orders limit 1), 
-    (SELECT id FROM product WHERE description = 'JUICE'), 6.0 );
-INSERT OR IGNORE INTO item (num_order, product, quant) VALUES (
-    (SELECT num from orders limit 1), 
-    (SELECT id FROM product WHERE description = 'COFFE'), 5.0 );
+INSERT OR IGNORE INTO item (num_pedido, produto, quant) VALUES (
+    (SELECT num from pedido limit 1), 
+    (SELECT id FROM produto WHERE descricao = 'BISCOITO'), 8.0 );
+INSERT OR IGNORE INTO item (num_pedido, produto, quant) VALUES (
+    (SELECT num from pedido limit 1), 
+    (SELECT id FROM produto WHERE descricao = 'LEITE'), 3.0 );
+INSERT OR IGNORE INTO item (num_pedido, produto, quant) VALUES (
+    (SELECT num from pedido limit 1), 
+    (SELECT id FROM produto WHERE descricao = 'REFRESCO'), 6.0 );
+INSERT OR IGNORE INTO item (num_pedido, produto, quant) VALUES (
+    (SELECT num from pedido limit 1), 
+    (SELECT id FROM produto WHERE descricao = 'CAFÉ'), 5.0 );
 
--- Update amount
-UPDATE orders
-SET amount = (
-    SELECT SUM(i.quant * p.price)
+-- Atualiza o valor
+UPDATE pedido
+SET valor = (
+    SELECT SUM(i.quant * p.preco)
     FROM item i
-    JOIN product p ON i.product = p.id
-    WHERE i.num_order = orders.num
+    JOIN produto p ON i.produto = p.id
+    WHERE i.num_pedido = pedido.num
 );
