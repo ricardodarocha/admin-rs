@@ -1,3 +1,6 @@
+pub mod services;
+pub mod models;
+pub mod repository;
 pub mod product;
 pub mod infra;
 pub mod app;

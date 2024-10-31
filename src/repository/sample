@@ -1,0 +1,6 @@
+select id,
+    descricao,
+    preco as "preco: f32",
+    avatar
+from produto
+where id = $1
