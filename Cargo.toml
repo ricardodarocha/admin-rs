@@ -9,7 +9,7 @@ edition = "2021"
 
 # members = [
 #  "api",
-#   "web"
+#   "site"
 # ]
 
 

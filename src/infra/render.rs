@@ -90,7 +90,7 @@ pub fn render_to_string(template_name: &str, ctx: Value) -> String {
             let msg_error = format!("error: {:#?}", e);
             let error_context = context!(msg_error);
   
-           (TEMPLATE.get_template("web/layout.html").unwrap(), error_context)
+           (TEMPLATE.get_template("site/layout.html").unwrap(), error_context)
         }
     };
 

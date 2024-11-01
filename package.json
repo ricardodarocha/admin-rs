@@ -4,8 +4,8 @@
   "description": "Framework base para projetos em Rust com JQuery e TailWind CSS",
   "main": "index.php",
   "scripts": {
-    "build:css": "tailwindcss -i shared/css/tailwind.css -o shared/css/style.css",
-    "watch:css": "tailwindcss -i shared/css/tailwind.css -o shared/css/style.css --watch"
+    "build:css": "tailwindcss -i resources/css/tailwind.css -o resources/css/style.css",
+    "watch:css": "tailwindcss -i resources/css/tailwind.css -o resources/css/style.css --watch"
   },
   "dependencies": {
     "bootstrap-icons": "^1.11.3",
