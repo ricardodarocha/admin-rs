@@ -70,7 +70,7 @@ pub async fn atualizar_produto(
 pub async fn atualizar_cliente(
     pool: &Pool<Sqlite>, 
     id: &String,
-    form: web::Form<FormCliente>,
+    form: FormCliente,
 
     ) -> Result<Cliente> {
     
@@ -121,7 +121,7 @@ pub async fn inserir_produto(
 
 pub async fn inserir_cliente(
     pool: &Pool<Sqlite>, 
-    form: web::Form<FormCliente>
+    form: FormCliente
 
     ) -> Result<Cliente> {
     

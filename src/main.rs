@@ -13,7 +13,7 @@ use env_logger::Env;
 use log::info;
 use minijinja::{Environment, context};
 use reqwest;
-use services::{cliente::{web_cliente, web_cliente_submit}, produto::{web_produto, web_produto_submit}};
+use services::{cliente::{json_all_cliente, json_cliente, web_cliente, web_cliente_submit}, pedido::{json_all_pedido, json_pedido}, produto::{json_all_produto, json_produto, web_produto, web_produto_submit}};
 use crate::app::AppState;
 use crate::login::*;
 
@@ -196,6 +196,12 @@ async fn main() -> std::io::Result<()> {
             .service(web_produto_submit)
             .service(web_cliente)
             .service(web_cliente_submit)
+            .service(json_cliente)
+            .service(json_produto)
+            .service(json_pedido)
+            .service(json_all_cliente)
+            .service(json_all_produto)
+            .service(json_all_pedido)
             .service(web_login)
             .service(web_register)
             .service(web_login_submit)

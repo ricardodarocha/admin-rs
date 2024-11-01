@@ -53,3 +53,15 @@ use crate::models::produto::*;
             self
         }
     }
+
+    #[derive(Clone, Serialize, Deserialize)]
+    pub struct FormPedido {
+        pub cliente: String,
+    }
+
+    #[derive(Clone, Serialize, Deserialize)]
+    pub struct FormItem {
+        pub num_pedido: i64,
+        pub produto: Produto,
+        pub quant: f32,
+    }
