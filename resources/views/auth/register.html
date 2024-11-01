@@ -12,7 +12,7 @@
     <form method="post" action="/registrar" autocomplete="off" class="">
       <div class="w-full">
         <label for="name" class="block w-full text-base">* Nome:</label>
-        <input id="name" type="text" name="nome" value="" required
+        <input id="name" type="text" name="nome" value="" autofocus required
                class="block w-full p-3 border-2 rounded-lg border-gray-300">
       </div>
       <div class="w-full mt-6">
@@ -22,9 +22,9 @@
       </div>
       <div class="w-full mt-6">
         <label for="password" class="block w-full text-base">* Senha:</label>
-        <div class="w-full flex border-2 rounded-lg border-gray-300 hover:border-gray-800">
+        <div class="w-full flex border-2 rounded-lg border-gray-300 hover:border-gray-800 j_outline_container">
           <input id="password" type="password" name="senha" value="" required
-                 class="w-full basis-full p-3 rounded-lg outline-none">
+                 class="w-full basis-full p-3 rounded-lg outline-none j_outline_field">
           <button type="button" class="w-fit flex items-center px-2" tabindex="-1">
             <i class="bi bi-eye text-xl text-neutral-800 j_toggle_password" data-id="password"></i>
           </button>
@@ -32,9 +32,9 @@
       </div>
       <div class="w-full mt-6">
         <label for="password_repeat" class="block w-full text-base">* Repetir Senha:</label>
-        <div class="w-full flex border-2 rounded-lg border-gray-300 hover:border-gray-800">
+        <div class="w-full flex border-2 rounded-lg border-gray-300 hover:border-gray-800 j_outline_container">
           <input id="password_repeat" type="password" name="repetir_senha" value="" required
-                 class="w-full basis-full p-3 rounded-lg outline-none">
+                 class="w-full basis-full p-3 rounded-lg outline-none j_outline_field">
           <button type="button" class="w-fit flex items-center px-2" tabindex="-1">
             <i class="bi bi-eye text-xl text-neutral-800 j_toggle_password" data-id="password_repeat"></i>
           </button>
