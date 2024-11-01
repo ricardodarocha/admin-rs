@@ -27,7 +27,7 @@ pub mod controller {
         data: web::Data<AppState>,
             session: Session,
             _req: HttpRequest,
-        // path: web::Path<(String, String)>,
+        // path: site::Path<(String, String)>,
     ) ->impl Responder {
 
         dbg!("/dashboard/index -> ");
@@ -73,7 +73,7 @@ pub mod controller {
         data: web::Data<AppState>,
             session: Session,
             _req: HttpRequest,
-        // path: web::Path<(String, String)>,
+        // path: site::Path<(String, String)>,
     ) ->impl Responder {
 
 
@@ -108,7 +108,7 @@ pub mod controller {
         data: web::Data<AppState>,
             session: Session,
             _req: HttpRequest,
-        // path: web::Path<(String, String)>,
+        // path: site::Path<(String, String)>,
     ) ->impl Responder {
 
 
