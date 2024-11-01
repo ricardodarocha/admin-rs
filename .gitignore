@@ -30,3 +30,4 @@ cert/
 /node_modules
 package-lock.json
 .env
+/instalador
