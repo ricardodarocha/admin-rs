@@ -8,3 +8,10 @@ pub struct Produto {
     pub avatar: String,
     
 }
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FormProduto {
+    pub id: String,
+    pub descricao: String,
+    pub preco: f32,
+    
+}

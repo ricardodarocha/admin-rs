@@ -3,10 +3,11 @@ pub mod pedido;
 pub mod produto;
 
 use crate::infra::result::Result;
-use crate::models::produto::Produto;
-use crate::models::cliente::Cliente;
-use crate::models::pedido::{PedidoModel, ItemModel};
+use crate::infra::uuid::{generate_uuid, UuidKind};
+use crate::models::produto::{Produto, FormProduto};
+use crate::models::cliente::{Cliente, FormCliente};
 use sqlx::{self, Pool, Sqlite};
+use actix_web::web;
 // use crate::infra::error::Error;
 
 pub async fn abrir_produto(pool: &Pool<Sqlite>, id: &String) -> Result<Produto> {
@@ -43,59 +44,105 @@ pub async fn abrir_cliente(pool: &Pool<Sqlite>, id: &String) -> Result<Cliente> 
     .map_err(Into::into)
 }
 
-pub async fn abrir_pedido(pool: &Pool<Sqlite>, numero: i64) -> Result<PedidoModel> {
-    let query = sqlx::query!(
-        r#" SELECT 
-            p.num AS "num",
-            --p.data AS "data",
-            json_object(
-                    'id', cli.id,
-                    'nome', cli.nome, 
-                    'cidade', cli.cidade,
-                    'avatar', cli.avatar
-                ) AS "cliente: String",
-            p.valor AS "valor",
-            p.status AS "status: String",
-            json_group_array(
-                json_object(
-                    'num_pedido', i.num_pedido,
-                    'produto', 
-                         json_object(
-                             'id', pro.id,
-                             'descricao', pro.descricao,
-                             'preco', pro.preco,
-                             'avatar', pro.avatar
-                             ),
-                    'quant', i.quant
-                )
-            ) AS "itens: String"
-        FROM pedido p
-        INNER JOIN item i ON p.num = i.num_pedido
-        INNER JOIN cliente cli ON p.cliente = cli.id
-        INNER JOIN produto pro ON pro.id = i.produto
-        WHERE p.num = $1
-        GROUP BY p.num"#,
-        numero,
+pub async fn atualizar_produto(
+    pool: &Pool<Sqlite>, 
+        id: &String,
+        form: web::Form<FormProduto>,
+            
+    ) -> Result<Produto> {
+    let _ = sqlx::query_as!(
+        Produto,
+        r#" update Produto set 
+                 id = $1,
+                 descricao = $2 ,
+                 preco  = $3 
+           where id = $1"#,
+        id,
+        form.descricao,
+        form.preco,
     )
-    .fetch_one(pool)
+    .execute(pool)
     .await;
 
-    match query {
-        Ok(pedido) => { 
-            let itens: Vec<ItemModel> = serde_json::from_str(&pedido.itens.unwrap_or("[]".to_string())).unwrap(); 
-            let cliente: Cliente = serde_json::from_str(&pedido.cliente.unwrap_or("{}".to_string())).unwrap(); 
-            let pedido = PedidoModel {
-            num: pedido.num,
-            // data: pedido.data,
-            cliente,
-            valor: pedido.valor,
-            status: pedido.status,
-            itens,
-        };
+    abrir_produto(pool, id).await
+}
 
-        Ok(pedido)
-        },
+pub async fn atualizar_cliente(
+    pool: &Pool<Sqlite>, 
+    id: &String,
+    form: web::Form<FormCliente>,
 
-        Err(err) => Err(err.into()),
-    }
+    ) -> Result<Cliente> {
+    
+    let _ = sqlx::query_as!(
+        Cliente,
+        r#" update Cliente set 
+                 id = $1,
+                 nome = $2,
+                 cidade = $3
+           where id = $1"#,
+        id,
+        form.nome,
+        form.cidade
+    )
+    .execute(pool)
+    .await;
+
+    abrir_cliente(pool, id).await
+}
+pub async fn inserir_produto(
+    pool: &Pool<Sqlite>, 
+    form: web::Form<FormProduto>
+
+    ) -> Result<Produto> {
+
+    let id = generate_uuid(UuidKind::V7);
+    let _ = sqlx::query_as!(
+        Produto,
+        r#" insert into produto
+                 (id,
+                 descricao,
+                 preco) values
+                 ($1,
+                 $2,
+                 $3)
+                "#,
+        id,
+        form.descricao,
+        form.preco
+    )
+    .execute(pool)
+    .await;
+    // .map_err(Into::into)
+
+   abrir_produto(pool, &id).await 
+
+}
+
+pub async fn inserir_cliente(
+    pool: &Pool<Sqlite>, 
+    form: web::Form<FormCliente>
+
+    ) -> Result<Cliente> {
+    
+    let id = generate_uuid(UuidKind::V7);
+    let _ = sqlx::query_as!(
+        Cliente,
+        r#" insert into cliente
+                 (id,
+                 nome,
+                 cidade) values
+                 ($1,
+                 $2,
+                 $3)
+                "#,
+        id,
+        form.nome,
+        form.cidade,
+    )
+    .execute(pool)
+    .await;
+    // .map_err(Into::into)
+    abrir_cliente(pool, &id).await
+
 }

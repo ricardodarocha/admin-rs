@@ -1,0 +1,34 @@
+{% extends "web/layout.html" %}
+{% block content %}
+<article class="w-8/12 mx-auto py-8">
+    <header class="text-center pb-8 border-b border-orange-700">
+        <h2 class="text-4xl text-orange-700 font-black">Cliente</h2>
+    </header>
+    <div class="w-8/12 mx-auto pt-8">
+        <p class="text-base font-bold text-orange-700">Dados do cliente:</p>
+        <form method="post" action="cliente/edit?id={{ cliente.id }}" autocomplete="off" class="w-9/12 mx-auto pt-4">
+            <div class="w-full">
+                <label for="nome">* Nome:</label>
+                <input type="text" name="nome" value="{{ cliente.nome }}" id="nome"
+                       class="w-full block p-3 rounded border border-gray-700"
+                       autofocus required>
+            </div>
+            <div class="w-full mt-4">
+                <label for="cidade">Cidade:</label>
+                <input type="text" name="cidade" value="{{ cliente.cidade }}" id="cidade"
+                       class="w-full block p-3 rounded border border-gray-700"
+                       required>
+            </div>
+            
+            <div class="w-full flex justify-end mt-4">
+                <button type="submit" class="w-52 h-12 flex items-center justify-center font-semibold bg-green-600
+                text-white hover:opacity-80 rounded-lg"><span class="basis-auto">Enviar</span>
+                    <img src="../../shared/images/load-white.gif" class="hidden w-7 ml-4 j_load basis-auto"
+                         alt="load">
+                </button>
+            </div>
+        </form>
+        
+    </div>
+</article>
+{% endblock %}

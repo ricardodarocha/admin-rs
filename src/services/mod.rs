@@ -1,3 +1,7 @@
+pub mod cliente;
+pub mod produto;
+pub mod pedido;
+
 use log::{error, info};
 use sqlx::SqlitePool;
 
