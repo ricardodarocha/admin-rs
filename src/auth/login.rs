@@ -59,21 +59,21 @@ async fn login_submit(
         } else {
             info!("🙇‍♂️ Acesso negado ❌ ");
 
-            let tmpl = data.render.get_template("components/ajaxMessage.html").unwrap();
+            let tmpl = data.render.get_template("components/ajaxToast.html").unwrap();
             let rendered = tmpl.render(context! {
-                messageType => "message-error",
-                messageIcon => "bi-exclamation-circle-fill",
-                messageText =>"Mensagem no formulário"
+                toast_type => "toast-error",
+                toast_icon => "bi-exclamation-circle-fill",
+                toast_text =>"Usuário ou senha inválidos"
             }).unwrap();
 
             HttpResponse::Unauthorized()
                 .content_type("application/json")
                 .json(json!({
                     "form":{
-                        "email":"Mensagem no campo e-mail",
-                        "password":"Mensagem no campo senha"
+                        "email":"",
+                        "password":""
                     },
-                    "message":rendered
+                    "toast":rendered
                 }))
             /*
             Error::Detailed {
