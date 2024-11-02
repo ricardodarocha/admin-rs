@@ -1,0 +1,106 @@
+{% extends "site/layout.html" %}
+{% block content %}
+<article class="w-8/12 mx-auto py-8">
+    <header class="text-center pb-8 border-b border-orange-700">
+        <h2 class="text-4xl text-orange-700 font-black">Algumas rotas de teste</h2>
+    </header>
+    <div class="w-9/12 mx-auto mt-8">
+        
+        <div class=" absolute bg-white text-black mt-1 rounded shadow-lg w-60 group-hover:block" id="menu-dropdown">
+            <ul class="divide-y divide-gray-200">
+           
+  
+                
+                {% with menus = [
+                {
+                "caminho": "/",
+                "classe": "fas fa-home",
+                "titulo": "Home"
+                },
+                {
+                "caminho": "/entrar",
+                "classe": "fas fa-home",
+                "titulo": "Login"
+                },
+                {
+                "caminho": "/registrar",
+                "classe": "fas fa-person",
+                "titulo": "Criar conta"
+                },
+                {
+                "caminho": "/cliente/edit/00008756486",
+                "classe": "fas fa-info-circle",
+                "titulo": "Editar cliente"
+                },
+                {
+                "caminho": "/clientes/lista?cidade=London",
+                "classe": "fas fa-box",
+                "titulo": "Listar clientes"
+                },
+                {
+                "caminho": "/produto/json/2f596c",
+                "classe": "fas fa-wine-bottle",
+                "titulo": "Produto em JSON"
+                },
+                {
+                "caminho": "/produtos/json",
+                "classe": "fas fa-boxes-packing",
+                "titulo": "Produto em JSON"
+                },
+                {
+                "caminho": "/produto/edit/2f596c",
+                "classe": "fas fa-box",
+                "titulo": "Editar Produto"
+                },
+                {
+                "caminho": "/clientes/json",
+                "classe": "fas fa-user",
+                "titulo": "Todos os Clientes"
+                },
+                {
+                "caminho": "/cliente/json/00008756486",
+                "classe": "fas fa-user",
+                "titulo": "Cliente em JSON"
+                },
+                {
+                "caminho": "/cliente/edit/00008756486",
+                "classe": "fas fa-user",
+                "titulo": "Editar Cliente"
+                },
+                {
+                "caminho": "/pedido/all",
+                "classe": "fas fa-file-alt",
+                "titulo": "Todos os Pedidos"
+                },
+                {
+                "caminho": "/pedido/json",
+                "classe": "fas fa-file-alt",
+                "titulo": "Pedido em JSON"
+                },
+                {
+                "caminho": "/pedido/edit/1",
+                "classe": "fas fa-file-alt",
+                "titulo": "Editar Pedido"
+                }
+                ] %}
+
+
+                {% for menu in menus %}<li>
+
+                 <li>   <a href="{{ menu.caminho }}" class="block px-4 py-2 hover:bg-gray-200">
+                        <i class="{{ menu.classe }}"></i>
+                        <span>{{ menu.titulo }}</span>
+                    </a>
+                </li>
+        
+                {% endfor %}
+                {% endwith %}
+                   
+                
+        
+            </div>
+        </div>
+
+    </div>
+</article>
+{% endblock %}

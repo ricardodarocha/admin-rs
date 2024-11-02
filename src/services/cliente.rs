@@ -1,3 +1,4 @@
+use actix_session::Session;
 use actix_web::web::Path;
 use actix_web::{get, post, web, HttpResponse, Responder};
 use log::{error, info};
@@ -10,11 +11,42 @@ use crate::models::QueryFiltroCliente;
 use crate::repository as repo;
 use crate::services::abrir_cliente;
 
+// #[get("/clientes/lista")]
+// pub async fn web_listar_clientes(
+//     data: web::Data<AppState>,
+//     query: web::Query<QueryFiltroCliente>,
+// ) -> impl Responder {
+//     let pool = &data.database;
+//     let tmpl = data.render.get_template("web/listaClientes.html").unwrap();
+
+//     // Obtenção dos clientes filtrados
+//     let clientes = listar_clientes(pool, query).await;
+
+//     if let Some(clientes) = clientes {
+//         let rendered = tmpl.render(context! { title => "Lista de Clientes", clientes }).unwrap();
+        
+//         HttpResponse::Ok()
+//             .content_type("text/html")
+//             .body(rendered)
+//     } else {
+//         let error_tmpl = data.render.get_template("shared/views/ajaxToast.html").unwrap();
+//         let rendered = error_tmpl.render(context! {
+//             toast_icon => "bi-exclamation-circle",
+//             toast_class => "toast-error",
+//             toast_text => "Nenhum cliente encontrado!",
+//         }).unwrap();
+
+//         HttpResponse::Ok()
+//             .content_type("text/html")
+//             .body(rendered)
+//     }
+// }
 
 #[get("/cliente/edit/{id}")]
-async fn web_cliente(
+pub async fn web_cliente(
         data: web::Data<AppState>,
         path: Path<String>,
+        _session: Session,
 
     ) -> impl Responder {
         
@@ -48,7 +80,7 @@ async fn web_cliente(
 }
 
 #[post("/cliente/edit/{id}")]
-async fn web_cliente_submit(
+pub async fn web_cliente_submit(
     data: web::Data<AppState>,
     form: web::Form<FormCliente>,
     path: Path<String>,

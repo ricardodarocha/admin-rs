@@ -3,14 +3,17 @@ use actix_web::{get, post, web, HttpResponse, Responder};
 use log::info;
 use minijinja::context;
 use reqwest::StatusCode;
-use serde_json::json;
 use crate::app::AppState;
 use crate::auth::model::Registrar;
 use crate::infra::error::Error;
 use crate::services as service;
 
 #[get("/registrar")]
-async fn register(data: web::Data<AppState>) -> impl Responder {
+async fn register(
+    // session: Session, 
+    data: web::Data<AppState>,
+    
+    ) -> impl Responder {
     let tmpl = data.render.get_template("auth/register.html").unwrap();
     let rendered = tmpl.render(context! {title => "Register"}).unwrap();
 
@@ -31,11 +34,7 @@ async fn register_submit(
     let usuario_registrado = service::registrar_usuario(pool, &register_form, "USER").await;
 
     if let Some(_usuario) = usuario_registrado {
-        HttpResponse::Ok()
-        .content_type("application/json")
-        .json(json!({
-             "redirect": "/entrar"
-         }))
+        service::redireciona_login()
     } else {
         Error::Detailed { code: StatusCode::INTERNAL_SERVER_ERROR, 
             msg: "Erro interno do servidor".to_owned(), 

@@ -1,25 +1,48 @@
+use actix_session::Session;
 use actix_web::web::Path;
 use actix_web::{get, post, web, HttpResponse, Responder};
 use log::info;
 use minijinja::context;
+use crate::infra::sessao_usuario;
 use crate::models::produto::FormProduto;
 use crate::models::{self as model, QueryFiltro};
 use crate::app::AppState;
 use crate::repository as repo;
-use crate::services::abrir_produto;
+use crate::services as service;
+use crate::infra::jwt::jwt_secret;
+
+
 
 
 #[get("/produto/edit")]
 async fn web_produto(
         data: web::Data<AppState>,
         query: web::Query<model::QueryId>, 
+        session: Session,
 
     ) -> impl Responder {
+
+    let sessao_usuario = sessao_usuario::Sessao::from_session(&session, &jwt_secret()).unwrap();
+    
+    // aqui voce faz todo tipo de verificação 
+    if let Some(_usuario_logado) = sessao_usuario.clone() {
+        
+        // Usuário admin
+        // if usuario_logado.is_admin {
+
+        // }   
+
+
+    } else {
+
+        // Como esta rota requer login, então redireciona
+        return service::redireciona_login();
+    };
         
     let pool = &data.database;
     let tmpl = data.render.get_template("web/produto.html").unwrap();
     let web::Query(entidade_produto) = query;
-    let produto = abrir_produto(pool, entidade_produto.id).await;
+    let produto = service::abrir_produto(pool, entidade_produto.id).await;
 
     if let Some(produto) = produto {
         let rendered = tmpl.render(context! {title => "produto", produto}).unwrap();
@@ -82,7 +105,7 @@ async fn json_produto(
     let id = path.into_inner();
     let pool = &data.database;
     
-    let produto = abrir_produto(pool, id).await;
+    let produto = service::abrir_produto(pool, id).await;
 
     if let Some(produto) = produto {
 

@@ -1,3 +1,4 @@
+pub mod testes;
 pub mod services;
 pub mod models;
 pub mod repository;
@@ -12,6 +13,7 @@ use std::sync::Arc;
 use actix_files::Files;
 use actix_web::{web, App, HttpServer, HttpResponse, Responder};
 use env_logger::Env;
+// use infra::sessao_usuario::auth_middleware;
 use minijinja::Environment;
 use reqwest;
 use services::{
@@ -76,14 +78,15 @@ async fn main() -> std::io::Result<()> {
             client: client.clone(),
             render: render.clone(),
         });
-        let secret_key = Key::generate();
+        let cookies_secret_key = Key::generate();
 
         App::new()
             .app_data(state.clone())
+            // .wrap_fn(auth_middleware)
             .wrap(cors)
             .wrap(SessionMiddleware::new(
                 CookieSessionStore::default(),
-                secret_key.clone(),
+                cookies_secret_key.clone(),
             ))
             .service(Files::new("/node_modules", "node_modules").show_files_listing())
             .service(Files::new("/resources", "resources").show_files_listing())
@@ -102,6 +105,14 @@ async fn main() -> std::io::Result<()> {
             // .use_last_modified(true)
             // .index_file("index.html")
             // )              
+
+            // Rotas que não precisam de login
+
+            .configure(site::routes)
+            .configure(auth::routes)
+            .configure(admin::routes)
+            .configure(testes::routes)
+            // rotas que exigem login
             .service(web_produto)
             .service(web_produto_submit)
             .service(web_cliente)
@@ -112,9 +123,6 @@ async fn main() -> std::io::Result<()> {
             .service(json_all_cliente)
             .service(json_all_produto)
             .service(json_all_pedido)
-            .configure(auth::routes)
-            .configure(site::routes)
-            .configure(admin::routes)
             .default_service(web::to(not_found))
     })
         .bind(("localhost", 8080))?

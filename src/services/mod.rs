@@ -1,8 +1,11 @@
 pub mod cliente;
 pub mod produto;
 pub mod pedido;
+pub mod login;
 
+use actix_web::HttpResponse;
 use log::{error, info};
+use serde_json::json;
 use sqlx::{Pool, Sqlite, SqlitePool};
 
 use crate::auth::model::{Registrar, Usuario};
@@ -69,4 +72,27 @@ pub async fn login(pool: &Pool<Sqlite>, email: &String, senha: &String, ) -> Opt
             None
         }
     }
+}
+
+pub async fn abrir_usuario(pool: &SqlitePool, email: String) -> Option<Usuario> {
+    let usuario = repo::abrir_usuario(pool, &email.as_ref()).await;
+
+    match usuario {
+        Ok(value) => {
+            info!("🧑 Usuário localizado {}", anonimizar(&email));
+            Some(value)
+        }
+        Err(err) => {
+            error!("👩‍🚒 {}", err);
+            None
+        }
+    }
+}
+
+pub fn redireciona_login() -> HttpResponse {
+    HttpResponse::Ok()
+        .content_type("application/json")
+        .json(json!({
+             "redirect": "/entrar"
+         }))
 }

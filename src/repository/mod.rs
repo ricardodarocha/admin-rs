@@ -193,7 +193,7 @@ pub async fn registrar_usuario(
     let _ = sqlx::query!(
         r#" insert into usuarios
                  (login, email, nome, senha, nivel) values
-                 ($1,
+                 (LOWER($1),
                   $1,
                   $2,
                   $3, 
@@ -211,10 +211,10 @@ pub async fn registrar_usuario(
     
 }
 
-async fn abrir_usuario(pool: &Pool<Sqlite>, email: &str) -> Result<Usuario> {
+pub async fn abrir_usuario(pool: &Pool<Sqlite>, email: &str) -> Result<Usuario> {
     sqlx::query_as!(
         Usuario,
-        r#" select login, nome, nivel from usuarios where email = $1
+        r#" select login, nome, nivel from usuarios where LOWER(email) = LOWER($1)
                 "#,
         email,
     )
@@ -225,7 +225,7 @@ async fn abrir_usuario(pool: &Pool<Sqlite>, email: &str) -> Result<Usuario> {
 
 async fn verifica_email_usado(pool: &Pool<Sqlite>, email: &str) -> Result<bool> {
     let result: Result<u32, sqlx::Error> = sqlx::query_scalar(
-        "select count() from usuarios where login = $1")
+        "select count() from usuarios where UPPER(login) = UPPER($1)")
         .bind(email)
         .fetch_one(pool)
         .await;
@@ -250,7 +250,7 @@ pub async fn login(
         let password_hash = format!("{:x}", md5::compute(&chave));
             
         let result: Result<u32, sqlx::Error> = sqlx::query_scalar(
-        "select count() from usuarios where login = $1 and senha = $2")
+        "select count() from usuarios where lower(login) = lower($1) and senha = $2")
         .bind(email)
         .bind(password_hash)
         .fetch_one(pool)

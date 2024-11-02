@@ -1,6 +1,10 @@
+use std::time::Duration;
+
 use crate::infra::error::Error;
-use crate::services as service;
+use crate::services::login::token;
+use crate::services::{self as service, abrir_usuario};
 use crate::{app::AppState, auth::model::LoginForm, infra::strings::anonimizar};
+use actix_session::Session;
 use actix_web::{get, http::StatusCode, post, web, HttpResponse, Responder};
 use log::info;
 use minijinja::context;
@@ -15,7 +19,17 @@ async fn login(data: web::Data<AppState>) -> impl Responder {
 }
 
 #[post("/entrar")]
-async fn login_submit(form: web::Form<LoginForm>, data: web::Data<AppState>) -> impl Responder {
+async fn login_submit(
+    session: Session,
+    form: web::Form<LoginForm>, 
+    data: web::Data<AppState>,
+    
+) -> impl Responder {
+
+    const HORAS_DIA: u64 = 24;
+    const  MINUTOS_HORA: u64 = 60;
+    const  SEGUNDOS_MINUTO: u64 = 60;
+    
     info!("Tentativa de LOGIN: {:?}", anonimizar(form.email.as_ref()));
     let web::Form(form) = form;
     let pool = &data.database;
@@ -24,6 +38,21 @@ async fn login_submit(form: web::Form<LoginForm>, data: web::Data<AppState>) -> 
     if let Some(valid_login) = login_inspect {
         if valid_login {
             info!("🙎‍♂️ Acesso concedido ✔ ");
+            let token = token(&form.email, Duration::from_secs(15 * HORAS_DIA * MINUTOS_HORA * SEGUNDOS_MINUTO) )
+            .expect("Erro ao desempactoar o token");
+
+            session.insert("token", token.clone()).unwrap();
+            session.insert("user_id", form.email.clone()).unwrap();
+
+            //Vamos tentar pegar outros dados do usuario para incorporar na sessao
+            let abrir_usuario = abrir_usuario(pool, form.email).await;
+            if let Some(usuario) = abrir_usuario {
+                session.insert("user_name", usuario.nome).unwrap();
+                session.insert("user_level", usuario.nivel.clone()).unwrap();
+                let is_admin = if usuario.nivel == "ADMIN".to_owned() { &"true"} else { &"false" };
+                session.insert("is_admin", is_admin).unwrap();
+
+            }
 
             HttpResponse::Ok()
                 .content_type("application/json")
