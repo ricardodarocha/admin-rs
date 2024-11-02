@@ -14,18 +14,18 @@ $(document).on('click', '.j_toggle_password', function () {
 
 /** EFEITO OUTLINE */
 const outlineField = $('.j_outline_field');
-const outlineContainer = $('.j_outline_container');
+const outlineContainerClass = '.j_outline_container';
 
-outlineField.each(fn => {
+outlineField.each(function () {
     if ($(this).is(':focus')) {
-        $(this).closest(outlineContainer).removeClass('border-gray-300').addClass('border-gray-800');
+        $(this).closest(outlineContainerClass).removeClass('border-gray-300').addClass('border-gray-800');
     }
 });
 
 outlineField.on('focus', function () {
-    $(this).closest(outlineContainer).removeClass('border-gray-300').addClass('border-gray-800');
+    $(this).closest(outlineContainerClass).removeClass('border-gray-300').addClass('border-gray-800');
 });
 
 outlineField.on('blur', function () {
-    $(this).closest(outlineContainer).removeClass('border-gray-800').addClass('border-gray-300');
+    $(this).closest(outlineContainerClass).removeClass('border-gray-800').addClass('border-gray-300');
 });

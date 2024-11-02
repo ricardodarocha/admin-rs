@@ -6,6 +6,7 @@ pub mod infra;
 pub mod app;
 mod auth;
 mod site;
+mod admin;
 
 use std::sync::Arc;
 use actix_files::Files;
@@ -13,7 +14,11 @@ use actix_web::{web, App, HttpServer, HttpResponse, Responder};
 use env_logger::Env;
 use minijinja::Environment;
 use reqwest;
-use services::{cliente::{json_all_cliente, json_cliente, web_cliente, web_cliente_submit}, pedido::{json_all_pedido, json_pedido}, produto::{json_all_produto, json_produto, web_produto, web_produto_submit}};
+use services::{
+    cliente::{json_all_cliente, json_cliente, web_cliente, web_cliente_submit},
+    pedido::{json_all_pedido, json_pedido},
+    produto::{json_all_produto, json_produto, web_produto, web_produto_submit},
+};
 use crate::app::AppState;
 
 use crate::infra::minijinja_utils;
@@ -24,10 +29,10 @@ use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 async fn configure_minijinja() -> Arc<Environment<'static>> {
     let mut env = Environment::new();
 
-    env.add_filter("fmtdate", minijinja_utils::fmtdate);    
-    env.add_filter("fmtdateopt", minijinja_utils::fmtdateopt);    
-    env.add_filter("fmttime", minijinja_utils::fmttime);    
-    env.add_filter("fmttimeopt", minijinja_utils::fmttimeopt);    
+    env.add_filter("fmtdate", minijinja_utils::fmtdate);
+    env.add_filter("fmtdateopt", minijinja_utils::fmtdateopt);
+    env.add_filter("fmttime", minijinja_utils::fmttime);
+    env.add_filter("fmttimeopt", minijinja_utils::fmttimeopt);
     env.add_filter("fmt", minijinja_utils::fmt);
     env.add_filter("fmt3", minijinja_utils::fmt3);
     env.add_filter("format", minijinja_utils::format_filter);
@@ -45,7 +50,6 @@ async fn not_found() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-
     env_logger::init_from_env(Env::default().default_filter_or("info"));
     // dotenv::dotenv().ok();
 
@@ -67,12 +71,12 @@ async fn main() -> std::io::Result<()> {
             .expose_any_header()
             .supports_credentials();
 
-        let state = web::Data::new(AppState{
-        database: database.clone(),
-        client: client.clone(),
-        render: render.clone(),
-    });
-        let secret_key = Key::generate(); 
+        let state = web::Data::new(AppState {
+            database: database.clone(),
+            client: client.clone(),
+            render: render.clone(),
+        });
+        let secret_key = Key::generate();
 
         App::new()
             .app_data(state.clone())
@@ -91,12 +95,12 @@ async fn main() -> std::io::Result<()> {
             //     SwaggerUi::new("/swagger-ui/{_:.*}")
             //         .url("/api-docs/openapi.json", ApiDoc::openapi()),
             // )
-            
+
             // .service(web::resource("/api/ping").route(web::get().to(ping)))
             // .service(actix_files::Files::new("/static","./static")
-                // .show_files_listing()
-                // .use_last_modified(true)
-                // .index_file("index.html")
+            // .show_files_listing()
+            // .use_last_modified(true)
+            // .index_file("index.html")
             // )              
             .service(web_produto)
             .service(web_produto_submit)
@@ -110,6 +114,7 @@ async fn main() -> std::io::Result<()> {
             .service(json_all_pedido)
             .configure(auth::routes)
             .configure(site::routes)
+            .configure(admin::routes)
             .default_service(web::to(not_found))
     })
         .bind(("localhost", 8080))?

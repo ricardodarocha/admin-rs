@@ -1,0 +1,25 @@
+{% extends "auth/layout.html" %}
+{% block content %}
+<article class="w-3/12">
+    <header class="block p-2 text-center">
+        <h1 class="w-fit mx-auto">
+            <a href="/" class="w-fit flex items-center" title="Página inicial">
+                <i class="bi bi-cloud-check-fill mr-2 text-6xl"></i>
+                <span class="text-3xl font-bold">Nuvem Delivery</span></a>
+        </h1>
+    </header>
+    <div class="mt-6 px-8 py-8 rounded-lg shadow-lg bg-white">
+        <p class="w-full text-center text-sm">Insira o código que foi enviado para este e-mail</p>
+        <p class="w-full mt-3 text-center text-lg font-bold">exemplo@email.com</p>
+        <form method="post" action="/recuperar" autocomplete="off" class="mt-6">
+            <input type="text" name="token" value="" class="w-full p-3 border-2 border-gray-300 rounded-lg" autofocus required/>
+            <div class="flex flex-wrap justify-center w-full mt-6">
+                <p class="w-full text-center">Não recebeu nenhum código?</p>
+                <button type="button" class="py-2 w-6/12 mt-3 text-sm rounded-lg bg-gray-100 font-bold text-neutral-500
+                    cursor-default">Reenviar código
+                </button>
+            </div>
+        </form>
+    </div>
+</article>
+{% endblock %}
