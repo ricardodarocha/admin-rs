@@ -29,7 +29,7 @@ O motor de banco de dados é sqlx
 Para rodar o migrations, isntale o sqlx-cli
 
 `cargo install sqlx-cli`
-`sqx migrate run`
+`sqlx migrate run`
 
 Para criar novas migrations é possível rodar sqlx migrate add <nome-tabela>, configurar o script `CREATE TABLE` e rodar novamente `migrate run`
 

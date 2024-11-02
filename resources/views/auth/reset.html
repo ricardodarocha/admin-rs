@@ -1,0 +1,49 @@
+{% extends "auth/layout.html" %}
+{% block content %}
+<article class="w-3/12">
+    <header class="block p-2 text-center">
+        <h1 class="w-fit mx-auto">
+            <a href="/" class="w-fit flex items-center" title="Página inicial">
+                <i class="bi bi-cloud-check-fill mr-2 text-6xl"></i>
+                <span class="text-3xl font-bold">Nuvem Delivery</span></a>
+        </h1>
+    </header>
+    <div class="mt-6 px-8 py-8 rounded-lg shadow-lg bg-white">
+        <p class="text-center">Por favor, crie uma nova senha com pelo menos 8 caracteres e confirme-a nos campos
+            abaixo</p>
+        <form method="post" action="/reset" autocomplete="off" class="">
+            <div class="w-full mt-6">
+                <label for="password" class="block w-full text-base">* Senha:</label>
+                <div class="w-full flex border-2 rounded-lg border-gray-300 hover:border-gray-800 j_outline_container">
+                    <input id="password" type="password" name="senha" value="" autofocus required
+                           class="w-full basis-full p-3 rounded-lg outline-none j_outline_field">
+                    <button type="button" class="w-fit flex items-center px-2" tabindex="-1">
+                        <i class="bi bi-eye text-xl text-neutral-800 j_toggle_password" data-id="password"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="w-full mt-6">
+                <label for="password_repeat" class="block w-full text-base">* Repetir Senha:</label>
+                <div class="w-full flex border-2 rounded-lg border-gray-300 hover:border-gray-800 j_outline_container">
+                    <input id="password_repeat" type="password" name="repetir_senha" value=""
+                           class="w-full basis-full p-3 rounded-lg outline-none j_outline_field">
+                    <button type="button" class="w-fit flex items-center px-2" tabindex="-1">
+                        <i class="bi bi-eye text-xl text-neutral-800 j_toggle_password"
+                           data-id="password_repeat"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="w-full mt-6">
+                <button type="submit" class="w-full py-4 flex justify-center text-sm rounded-lg bg-gray-900 font-bold
+                        text-white hover:bg-gray-700">
+                    <span class="basis-auto">GRAVAR</span>
+                    <img src="resources/images/load-white.gif" class="hidden w-7 ml-4 j_load basis-auto" alt="load">
+                </button>
+            </div>
+        </form>
+    </div>
+</article>
+{% endblock %}
+{% block scripts %}
+<script src="resources/js/tooglePassword.js"></script>
+{% endblock %}

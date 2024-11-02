@@ -1,0 +1,31 @@
+{% extends "auth/layout.html" %}
+{% block content %}
+<article class="w-3/12">
+    <header class="block p-2 text-center">
+        <h1 class="w-fit mx-auto">
+            <a href="/" class="w-fit flex items-center" title="Página inicial">
+                <i class="bi bi-cloud-check-fill mr-2 text-6xl"></i>
+                <span class="text-3xl font-bold">Nuvem Delivery</span></a>
+        </h1>
+    </header>
+    <div class="mt-6 px-8 py-8 rounded-lg shadow-lg bg-white">
+        <p>Esqueceu sua senha? Informe seu e-mail, enviaremos um token para redefini-la.</p>
+        <form method="post" action="/esquecer" autocomplete="off" class="mt-6">
+            <div class="w-full">
+                <label for="email" class="block w-full text-base">* E-mail</label>
+                <input id="email" type="email" name="email" value="" placeholder="exemplo@email.com" autofocus required
+                       class="block w-full p-3 border-2 rounded-lg border-gray-300">
+            </div>
+            <div class="flex justify-between items-end w-full mt-6">
+                <a href="/entrar" class="underline text-sm">Lembrei a senha</a>
+                <button type="submit" class="w-36 py-3 flex justify-center text-sm rounded-lg bg-gray-900 font-bold
+                    text-white hover:bg-gray-700">
+                    <span class="basis-auto">ENVIAR</span>
+                    <img src="resources/images/load-white.gif" class="hidden w-7 ml-4 j_load basis-auto"
+                         alt="load">
+                </button>
+            </div>
+        </form>
+    </div>
+</article>
+{% endblock %}

@@ -5,21 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="shortcut icon" href="resources/images/favicon.svg">
-    <link rel="stylesheet" type="text/css" href="resources/fonts/poppins/style.css"/>
-    <link rel="stylesheet" type="text/css" href="resources/css/style.css"/>
-    <link rel="stylesheet" type="text/css" href="node_modules/bootstrap-icons/font/bootstrap-icons.min.css"/>
+    <link rel="shortcut icon" href="../resources/images/favicon.svg">
+    <link rel="stylesheet" type="text/css" href="../resources/fonts/poppins/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../resources/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../node_modules/bootstrap-icons/font/bootstrap-icons.min.css"/>
 </head>
-<body class="min-h-screen flex flex-col text-neutral-800">
-{% include "app/partials/header.html" %}
-<main class="flex-grow flex items-center">{% block content %}{% endblock %}</main>
-{% include "app/partials/footer.html" %}
-<script src="node_modules/jquery/dist/jquery.min.js"></script>
-<script src="node_modules/jquery-ui/dist/jquery-ui.min.js"></script>
-<script src="node_modules/jquery-form/dist/jquery.form.min.js"></script>
-<script src="node_modules/jquery-mask-plugin/dist/jquery.mask.js"></script>
-<script src="node_modules/chart.js/dist/chart.umd.js"></script>
-<script src="resources/js/ajaxToast.js"></script>
-<script src="resources/js/form.js"></script>
+<body class="bg-gray-100 text-neutral-800">
+{% include "admin/partials/header.html" %}
+<main>{% block content %}{% endblock %}</main>
+{% include "admin/partials/footer.html" %}
+<script src="../node_modules/jquery/dist/jquery.min.js"></script>
+<script src="../node_modules/jquery-ui/dist/jquery-ui.min.js"></script>
+<script src="../node_modules/jquery-form/dist/jquery.form.min.js"></script>
+<script src="../node_modules/jquery-mask-plugin/dist/jquery.mask.js"></script>
+<script src="../node_modules/chart.js/dist/chart.umd.js"></script>
+<script src="../resources/js/ajaxToast.js"></script>
+<script src="../resources/js/form.js"></script>
 </body>
 </html>
