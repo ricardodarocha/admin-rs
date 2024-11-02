@@ -5,12 +5,15 @@
   - [x] Api pedidos
   - [x] Api produtos
   - [x] Api clientes
-  - [ ] Autenticar
+  - [x] Autenticar
+  - [ ] Salvar usuário logado na Session
+  - [ ] Gerar token JWT expirável
   - [ ] Middleware Guest Aut
   - [x] Criar usuário
   - [ ] Usuário convidado
 - [] Frontend
   - [x] Layout básico
+  - [ ] Renderizar menu do usuário logado
   - [ ] Formulário de cadastro de clientes
   - [ ] Formulário de cadastro de produto
   - [ ] Formulário de cadastro de pedido

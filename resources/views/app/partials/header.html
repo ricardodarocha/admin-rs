@@ -1,3 +1,47 @@
-<header>
-    <h1>Pedido na Nuvem</h1>
+<header class="w-full">
+    <div class="w-full bg-white">
+        <div class="w-8/12 mx-auto text-right text-sm py-3">
+            <a href="/perfil" class="hover:underline"><i class="bi bi-person mr-1"></i>{{ usuario.nome }}</a>
+            {% if usuario.is_admin %}
+            <a href="/admin" class="hover:underline"><i class="bi bi-activity mr-1"></i></a>
+            {% endif %}
+            <a href="/notificacoes" class="ml-4 hover:underline">
+                
+                {% if notificacoes %}
+                    <i class="bi bi-bell-fill mr-1">
+                {% else %}
+                    <i class="bi bi-bell mr-1">
+                {% endif %}
+                </i>Sair</a>
+
+            <a href="/sair" class="ml-4 hover:underline"><i class="bi bi-arrow-down-right-square mr-1"></i>Sair</a>
+        </div>
+    </div>
+    <div class="w-full bg-gradient-to-r from-orange-400 to-orange-800">
+        <div class="w-8/12 mx-auto h-16 flex items-center justify-between">
+            <h1>
+                <a href="/" class="w-fit flex items-center text-white" title="Página inicial">
+                    <i class="bi bi-cloud-check-fill mr-2 text-4xl"></i>
+                    <span class="block p-2 text-lg font-medium text-center">Nuvem Delivery</span></a>
+            </h1>
+            <nav class="text-sm text-white">
+                <a href="/" class="hover:underline">Início</a>
+                <a href="/galeria" class="hover:underline ml-2">Galeria</a>
+                <a href="/pedido" class="hover:underline ml-2">Pedido</a>
+
+                <!-- Menu Dropdown -->
+                <div class="relative inline-block ml-2">
+                    <button class="hover:underline">Mais</button>
+                    <div class="absolute hidden bg-white text-black mt-1 rounded shadow-lg w-40 group-hover:block">
+                        <!-- Menus personalizados por usuário -->
+                        {% for menu in menus %}
+                        <li><a href="{{menu.caminho}}" class="block px-4 py-2 hover:bg-gray-200"><i class="{{menu.classe}}"></i><span>{{menu.titulo}}</span></a></li>
+                        {% endfor %}
+
+                    </div>
+                </div>
+
+            </nav>
+        </div>
+    </div>
 </header>

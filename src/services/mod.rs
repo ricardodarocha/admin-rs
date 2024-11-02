@@ -56,3 +56,17 @@ pub async fn registrar_usuario(pool: &Pool<Sqlite>, register_form: &Registrar, l
         }
     }
 }
+
+pub async fn login(pool: &Pool<Sqlite>, email: &String, senha: &String, ) -> Option<bool> {
+    
+    let result = repo::login(pool, email, senha).await;  
+    match result {
+        Ok(value) => {
+            Some(value)
+        }
+        Err(err) => {
+            error!("👩‍🚒 Erro na tentativa de login {}", err);
+            None
+        }
+    }
+}

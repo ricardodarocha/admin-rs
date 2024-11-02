@@ -186,6 +186,10 @@ pub async fn registrar_usuario(
         })
     };
     
+    // Ver funcao de login
+    let chave = format!("{email}-{senha}", email = email.to_lowercase());
+    let password_hash = format!("{:x}", md5::compute(&chave));
+    
     let _ = sqlx::query!(
         r#" insert into usuarios
                  (login, email, nome, senha, nivel) values
@@ -197,7 +201,7 @@ pub async fn registrar_usuario(
                 "#,
         email,
         register_form.nome,
-        register_form.senha,
+        password_hash,
         level,
     )
     .execute(pool)
@@ -233,5 +237,32 @@ async fn verifica_email_usado(pool: &Pool<Sqlite>, email: &str) -> Result<bool> 
 
         // Verifica se o email ja foi usado pelo menos uma vez
         Ok(value)  =>  Ok (value > 0),
+    }
+}
+
+pub async fn login(
+    pool: &Pool<Sqlite>, 
+    email: &str, 
+    senha: &str)
+ -> Result<bool> {
+        //Esta chave deve ser compativel com a funcao registrar usuario
+        let chave = format!("{email}-{senha}", email = email.to_lowercase());
+        let password_hash = format!("{:x}", md5::compute(&chave));
+            
+        let result: Result<u32, sqlx::Error> = sqlx::query_scalar(
+        "select count() from usuarios where login = $1 and senha = $2")
+        .bind(email)
+        .bind(password_hash)
+        .fetch_one(pool)
+        .await;
+    
+    match result {
+
+        // Erro de SQL
+        Err(err) => return Err(Error::Database(err.into())),
+
+        // Verifica se retornou algum registro
+        Ok(value)  =>  Ok (value > 0),
+    
     }
 }
