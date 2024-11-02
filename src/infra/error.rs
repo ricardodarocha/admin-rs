@@ -1,4 +1,4 @@
-use actix_web::{HttpResponse, ResponseError};
+use actix_web::{HttpResponse, ResponseError, http::StatusCode};
 use serde_json::json;
 // use std::fmt;
 use std::error::Error as StdError;
@@ -14,17 +14,17 @@ pub struct Detailed {
 pub enum Error {
     
     #[error("Erro do servidor `{0}`")]
-    ActixWeb(actix_web::Error),
+    Servidor(actix_web::Error),
     
     #[error("Erro do banco de dados `{0}`")]
-    Sqlx(sqlx::Error),
+    Database(sqlx::Error),
     
     #[error("Procedimento inválido `{0}`")]
     Other(Box<dyn StdError>),
     
     #[error("code={code:?};msg={msg:?};description={description:?};solution={how_to_solve:?}")]
     Detailed {
-        code: String,
+        code: StatusCode,
         msg: String,
         description: String,
         how_to_solve: String,
@@ -63,13 +63,13 @@ pub enum Error {
 
 impl From<actix_web::Error> for Error {
     fn from(err: actix_web::Error) -> Self {
-        Error::ActixWeb(err)
+        Error::Servidor(err)
     }
 }
 
 impl From<sqlx::Error> for Error {
     fn from(err: sqlx::Error) -> Self {
-        Error::Sqlx(err)
+        Error::Database(err)
     }
 }
 
@@ -82,8 +82,8 @@ impl From<Box<dyn StdError>> for Error {
 impl ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
         match self {
-            Error::ActixWeb(err) => HttpResponse::InternalServerError().body(format!("Internal server error {}", err)),
-            Error::Sqlx(err) => HttpResponse::InternalServerError().body(format!("Internal server error {}", err)),
+            Error::Servidor(err) => HttpResponse::InternalServerError().body(format!("Internal server error {}", err)),
+            Error::Database(err) => HttpResponse::InternalServerError().body(format!("Internal server error {}", err)),
             Error::Other(err) => HttpResponse::InternalServerError().body(format!("Internal server error {}", err)),
             Error::Simple(err) => HttpResponse::InternalServerError().body(format!("Internal server error {}", err)),
             Error::Str(str) => HttpResponse::InternalServerError().body(format!("Internal server error {}", str)),
@@ -94,12 +94,12 @@ impl ResponseError for Error {
                 how_to_solve,
             } => {
                 let body = json!({
-                    "code": code,
+                    "code": code.as_u16(),
                     "msg": msg,
                     "description": description,
                     "how_to_solve": how_to_solve,
                 });
-                HttpResponse::InternalServerError().json(body)}
+                HttpResponse::build(*code).json(body)}
                 ,
         }
     }

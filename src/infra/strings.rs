@@ -18,3 +18,26 @@ pub fn tira_acento(input: &str) -> String {
 
     normalized_spaces
 }
+
+pub fn anonimizar(texto: &str) -> String {
+    let comprimento = texto.len();
+
+    //percentual de anonimizacao
+    const CFATOR: f64 = 0.65;
+
+    let visivel = (comprimento as f64 * (1.0 - CFATOR)).round() as usize;
+    let inicio_visivel = visivel / 2;
+    let fim_visivel = visivel - inicio_visivel;
+
+    // Se o texto for muito curto, anonimiza-o totalmente
+    if comprimento <= inicio_visivel + fim_visivel {
+        return "*".repeat(comprimento);
+    }
+
+    // Pega o início e o fim visíveis, e anonimiza o meio
+    let inicio = &texto[..inicio_visivel];
+    let fim = &texto[comprimento - fim_visivel..];
+    let anonimizado = "*".repeat(comprimento - inicio_visivel - fim_visivel);
+
+    format!("{}{}{}", inicio, anonimizado, fim)
+}

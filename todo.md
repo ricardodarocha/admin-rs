@@ -1,34 +1,21 @@
 # Todo List
 
-- [x] Executar um job simples
-- [ ] Enviar um email
+- [x] Enviar mensagem
+- [x] Backend
+  - [x] Api pedidos
+  - [x] Api produtos
+  - [x] Api clientes
+  - [ ] Autenticar
+  - [ ] Middleware Guest Aut
+  - [x] Criar usuário
+  - [ ] Usuário convidado
+- [] Frontend
+  - [x] Layout básico
+  - [ ] Formulário de cadastro de clientes
+  - [ ] Formulário de cadastro de produto
+  - [ ] Formulário de cadastro de pedido
 - [x] Cadastrar um usuário
-- [x] remover campos none
-- [x] trasnformar o job runner em uma async
-- [] Cadastro de empresa dentro do perfil do usuário
-  - [x] Model
-  - [x] form
-  - [x] post api
-  - [ ] testar o cadastro de empresas dentro do menu do usuário
-- [ ] cadastro de usuários
-  - [x] incluir usuário na url login/register
-  - [ ] incluir usuário na url login/primeiro_acesso
-  - [ ] incluir permissões do usuário automaticamente
-  - [ ] permitir ao usuário admin gerenciar permissões
-  - [ ] permitir ao usuário admin gerenciar outros usuários
-  - [ ] permitir ao usuário superisor gerenciar outros usuários da mesma empresa
-- [ ] cadastro de produtos
-- [ ] cadastro de pedidos
-  - [ ] botão inserir pedido
-  - [ ] botão adicionar produto ao pedido
-  - [ ] botão finalizar pedido
-- [ ] cadastro de contatos
-  - [ ] Cadastro de endereços
-- [ ] Utoipa
-- [ ] IntoParams utoipa::ItonParams em todos os query Params
-- [] Menu perfil do usuário
-- [] implementar filtro por categorias
-- [] LGPD - Dados do usuário; excluir minha conta
-- [] Alguns campos como telefone e email podem ter redundancia em tabelas de pessoas e empresa, alem do campo id_telefone e id_contato que referencial à tabela contato.id
-- [] Organizar as migrations
-- [] RM DRI 001 - Criar formulário para requisitos de manutenção
+- [x] Mostrar uma notificação
+- [ ] Lista de mensagens do usuário
+- [ ] Menu personalizado
+- [ ] Tema personalizado

@@ -32,7 +32,7 @@ async fn web_produto(
         
         let tmpl = data.render.get_template("shared/views/ajaxToast.html").unwrap();
         let rendered = tmpl.render(context! {
-            toast_icon => "bi-check-circle",
+            toast_icon => "bi-x-circle-fill",
             toast_class => "toast-error",
             toast_text => "Produto não encontrado!",
     }).unwrap();

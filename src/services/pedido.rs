@@ -78,6 +78,7 @@ async fn json_all_pedido(
         data: web::Data<AppState>,
         // path: Path<String>,
         query: web::Query<QueryFiltroPedido>
+        // session: Session
 
     ) -> impl Responder {
         
