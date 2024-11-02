@@ -21,15 +21,13 @@ async fn login(data: web::Data<AppState>) -> impl Responder {
 #[post("/entrar")]
 async fn login_submit(
     session: Session,
-    form: web::Form<LoginForm>, 
+    form: web::Form<LoginForm>,
     data: web::Data<AppState>,
-    
 ) -> impl Responder {
-
     const HORAS_DIA: u64 = 24;
-    const  MINUTOS_HORA: u64 = 60;
-    const  SEGUNDOS_MINUTO: u64 = 60;
-    
+    const MINUTOS_HORA: u64 = 60;
+    const SEGUNDOS_MINUTO: u64 = 60;
+
     info!("Tentativa de LOGIN: {:?}", anonimizar(form.email.as_ref()));
     let web::Form(form) = form;
     let pool = &data.database;
@@ -38,8 +36,8 @@ async fn login_submit(
     if let Some(valid_login) = login_inspect {
         if valid_login {
             info!("🙎‍♂️ Acesso concedido ✔ ");
-            let token = token(&form.email, Duration::from_secs(15 * HORAS_DIA * MINUTOS_HORA * SEGUNDOS_MINUTO) )
-            .expect("Erro ao desempactoar o token");
+            let token = token(&form.email, Duration::from_secs(15 * HORAS_DIA * MINUTOS_HORA * SEGUNDOS_MINUTO))
+                .expect("Erro ao desempactoar o token");
 
             session.insert("token", token.clone()).unwrap();
             session.insert("user_id", form.email.clone()).unwrap();
@@ -49,9 +47,8 @@ async fn login_submit(
             if let Some(usuario) = abrir_usuario {
                 session.insert("user_name", usuario.nome).unwrap();
                 session.insert("user_level", usuario.nivel.clone()).unwrap();
-                let is_admin = if usuario.nivel == "ADMIN".to_owned() { &"true"} else { &"false" };
+                let is_admin = if usuario.nivel == "ADMIN".to_owned() { &"true" } else { &"false" };
                 session.insert("is_admin", is_admin).unwrap();
-
             }
 
             HttpResponse::Ok()
@@ -61,6 +58,24 @@ async fn login_submit(
                 }))
         } else {
             info!("🙇‍♂️ Acesso negado ❌ ");
+
+            let tmpl = data.render.get_template("components/ajaxMessage.html").unwrap();
+            let rendered = tmpl.render(context! {
+                messageType => "message-error",
+                messageIcon => "bi-exclamation-circle-fill",
+                messageText =>"Mensagem no formulário"
+            }).unwrap();
+
+            HttpResponse::Unauthorized()
+                .content_type("application/json")
+                .json(json!({
+                    "form":{
+                        "email":"Mensagem no campo e-mail",
+                        "password":"Mensagem no campo senha"
+                    },
+                    "message":rendered
+                }))
+            /*
             Error::Detailed {
                 code: StatusCode::UNAUTHORIZED,
                 msg: "Usuário ou senha inválidos".to_owned(),
@@ -68,6 +83,7 @@ async fn login_submit(
                 how_to_solve: "Confira o usuário e a senha".into(),
             }
             .into()
+             */
         }
     } else {
         info!("🙇‍♂️ Acesso negado ❌ ");
@@ -80,7 +96,7 @@ async fn login_submit(
                 form.email
             ),
         }
-        .into()
+            .into()
     }
 }
 

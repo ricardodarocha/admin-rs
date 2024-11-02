@@ -8,23 +8,26 @@
                 <span class="text-3xl font-bold">Nuvem Delivery</span></a>
         </h1>
     </header>
-    <div class="mt-6 px-8 py-8 rounded-lg shadow-lg bg-white">
+    <div class="my-6 px-8 py-8 rounded-lg shadow-lg bg-white">
         <form method="post" action="/entrar" autocomplete="off">
             <div class="w-full">
                 <label for="email" class="block w-full text-base">* E-mail:</label>
                 <input id="email" type="email" name="email" value=""
                        placeholder="exemplo@email.com" autofocus required
-                       class="block w-full p-3 border-2 rounded-lg border-gray-300">
+                       class="block w-full p-3 border-2 rounded-lg border-gray-300 j_input">
+                <p class="j_input_message j_email_message text-xs text-red-500"></p>
             </div>
             <div class="w-full mt-6">
                 <label for="password" class="block w-full text-base">* Senha:</label>
-                <div class="w-full flex border-2 rounded-lg border-gray-300 hover:border-gray-800 j_outline_container">
+                <div class="w-full flex border-2 rounded-lg border-gray-300 hover:border-gray-800 j_outline_container
+                    j_group j_group_password">
                     <input id="password" type="password" name="senha" value="" required
                            class="w-full basis-full p-3 rounded-lg outline-none j_outline_field">
                     <button type="button" class="w-fit flex items-center px-2" tabindex="-1">
                         <i class="bi bi-eye text-xl text-neutral-800 j_toggle_password" data-id="password"></i>
                     </button>
                 </div>
+                <p class="j_input_message j_password_message text-xs text-red-500"></p>
             </div>
             <div class="w-full mt-6">
                 <input id="remenber" type="checkbox" name="manter_conectado" value="1" class="mr-1">
@@ -44,6 +47,7 @@
             </div>
         </form>
     </div>
+    <div id="message" class="j_message_container"></div>
 </article>
 {% endblock %}
 {% block scripts %}
