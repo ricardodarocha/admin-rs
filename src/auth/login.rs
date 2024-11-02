@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 use actix_web::{get, post, web, HttpResponse, Responder};
 use log::info;
-use minijinja::context;
+use minijinja::{context};
+use serde_json::json;
 use crate::app::AppState;
 
 #[get("/entrar")]
@@ -22,6 +23,7 @@ async fn login_submit(
     info!("Recebido POST com dados: {:?}", form);
 
     let tmpl = data.render.get_template("components/ajaxToast.html").unwrap();
+    /*
     let rendered = tmpl.render(context! {
         toast_icon => "bi-check-circle",
         toast_class => "toast-success",
@@ -31,12 +33,12 @@ async fn login_submit(
     HttpResponse::Ok()
         .content_type("text/html")
         .body(rendered)
-
-    // HttpResponse::Ok()
-    //     .content_type("application/json")
-    //     .json(json!({
-    //         "toast": "teste"
-    //     }))
+*/
+    HttpResponse::Ok()
+        .content_type("application/json")
+        .json(json!({
+            "redirect": "admin/painel"
+        }))
 }
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
