@@ -2,8 +2,11 @@
 use actix_web::{get, post, web, HttpResponse, Responder};
 use log::info;
 use minijinja::context;
+use reqwest::StatusCode;
+use serde_json::json;
 use crate::app::AppState;
 use crate::auth::model::Registrar;
+use crate::infra::error::Error;
 use crate::services as service;
 
 #[get("/registrar")]
@@ -25,30 +28,19 @@ async fn register_submit(
     info!("Recebido POST /registrar com dados: {:?}", form);
     let web::Form(register_form) = form;
     let pool = &data.database;
-    let usuario_registrado = service::registrar_usuario(pool, register_form, "USER").await;
+    let usuario_registrado = service::registrar_usuario(pool, &register_form, "USER").await;
 
     if let Some(_usuario) = usuario_registrado {
-        let tmpl = data.render.get_template("components/ajaxToast.html").unwrap();
-            let rendered = tmpl.render(context! {
-                toast_icon => "bi-check-circle",
-                toast_class => "toast-success",
-                toast_text => "Mensagem enviada com sucesso!",
-            }).unwrap();
-
-            HttpResponse::Ok()
-                .content_type("text/html")
-                .body(rendered)
+        HttpResponse::Ok()
+        .content_type("application/json")
+        .json(json!({
+             "redirect": "/entrar"
+         }))
     } else {
-        let tmpl = data.render.get_template("components/ajaxToast.html").unwrap();
-            let rendered = tmpl.render(context! {
-                toast_icon => "bi-x-circle-fill",
-                toast_class => "toast-error",
-                toast_text => "Erro ao registrar o usuário!",
-            }).unwrap();
-
-            HttpResponse::Ok()
-                .content_type("text/html")
-                .body(rendered)
+        Error::Detailed { code: StatusCode::INTERNAL_SERVER_ERROR, 
+            msg: "Erro interno do servidor".to_owned(), 
+            description: "Houve uma falha ao criar o usuário".to_owned(), 
+            how_to_solve: format!(r#"Envie este relatório para o suporte \n {:?}"#, register_form)}.into()
     }
 
     

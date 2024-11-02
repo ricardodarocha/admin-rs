@@ -188,11 +188,12 @@ pub async fn registrar_usuario(
     
     let _ = sqlx::query!(
         r#" insert into usuarios
-                 (login, nome, senha, nivel) values
+                 (login, email, nome, senha, nivel) values
                  ($1,
-                 $2,
-                 $3, 
-                 $4)
+                  $1,
+                  $2,
+                  $3, 
+                  $4)
                 "#,
         email,
         register_form.nome,
@@ -209,7 +210,7 @@ pub async fn registrar_usuario(
 async fn abrir_usuario(pool: &Pool<Sqlite>, email: &str) -> Result<Usuario> {
     sqlx::query_as!(
         Usuario,
-        r#" select login, nome, nivel from usuarios where login = $1
+        r#" select login, nome, nivel from usuarios where email = $1
                 "#,
         email,
     )

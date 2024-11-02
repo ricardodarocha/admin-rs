@@ -23,7 +23,7 @@ pub fn anonimizar(texto: &str) -> String {
     let comprimento = texto.len();
 
     //percentual de anonimizacao
-    const CFATOR: f64 = 0.65;
+    const CFATOR: f64 = 0.35;
 
     let visivel = (comprimento as f64 * (1.0 - CFATOR)).round() as usize;
     let inicio_visivel = visivel / 2;

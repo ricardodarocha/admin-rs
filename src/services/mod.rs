@@ -43,8 +43,8 @@ pub async fn abrir_cliente(pool: &SqlitePool, id: String) -> Option<Cliente> {
     }
 }
 
-pub async fn registrar_usuario(pool: &Pool<Sqlite>, register_form: Registrar, level: &str) -> Option<Usuario> {
-    let usuario = repo::registrar_usuario(pool, register_form, level).await;  
+pub async fn registrar_usuario(pool: &Pool<Sqlite>, register_form: &Registrar, level: &str) -> Option<Usuario> {
+    let usuario = repo::registrar_usuario(pool, register_form.clone(), level).await;  
     match usuario {
         Ok(value) => {
             info!("🧑 Usuário inserido {}", anonimizar(value.login.as_ref()) );

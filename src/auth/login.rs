@@ -22,7 +22,7 @@ async fn login_submit(
 ) -> impl Responder {
     info!("Recebido POST com dados: {:?}", form);
 
-    let tmpl = data.render.get_template("components/ajaxToast.html").unwrap();
+    let _tmpl = data.render.get_template("components/ajaxToast.html").unwrap();
     /*
     let rendered = tmpl.render(context! {
         toast_icon => "bi-check-circle",

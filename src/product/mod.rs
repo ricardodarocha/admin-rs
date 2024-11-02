@@ -1,7 +1,5 @@
-use std::collections::HashMap;
-
-use actix_web::{get, post, web, HttpResponse, Responder};
-use log::info;
+use actix_web::{get, web, HttpResponse, Responder};
+// use log::info;
 use minijinja::context;
 
 use crate::app::AppState;
@@ -38,24 +36,4 @@ async fn web_product(
             ))
     }
     
-}
-
-#[post("/registrar")]
-async fn web_register_submit(
-    form: web::Form<HashMap<String, String>>,
-    data: web::Data<AppState>,
-) -> impl Responder {
-    info!("Recebido POST com dados: {:?}", form);
-
-    let tmpl = data.render.get_template("shared/views/ajaxToast.html").unwrap();
-    let rendered = tmpl.render(context! {
-        toast_icon => "bi-check-circle",
-        toast_class => "toast-success",
-        toast_text => "Mensagem enviada com sucesso!",
-    }).unwrap();
-
-    HttpResponse::Ok()
-        .content_type("text/html")
-        .body(rendered)
-
 }

@@ -105,3 +105,9 @@ impl ResponseError for Error {
     }
 }
 
+impl From<Error> for HttpResponse {
+    fn from(error: Error) -> Self {
+        error.error_response()
+    }
+}
+
