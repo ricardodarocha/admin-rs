@@ -10,16 +10,19 @@
     <link rel="stylesheet" type="text/css" href="../resources/css/style.css"/>
     <link rel="stylesheet" type="text/css" href="../node_modules/bootstrap-icons/font/bootstrap-icons.min.css"/>
 </head>
-<body class="bg-gray-100 text-neutral-800">
+<body class="text-neutral-800">
+{% include "admin/partials/menu.html" %}
 {% include "admin/partials/header.html" %}
-<main>{% block content %}{% endblock %}</main>
-{% include "admin/partials/footer.html" %}
+<main class="fixed top-20 left-72 right-0 bottom-0 overflow-auto bg-gray-100">{% block content %}{% endblock %}</main>
+<aside id="toast" class="fixed z-50 bottom-0 right-0 max-w-md p-4 pt-0 space-y-2"></aside>
 <script src="../node_modules/jquery/dist/jquery.min.js"></script>
 <script src="../node_modules/jquery-ui/dist/jquery-ui.min.js"></script>
 <script src="../node_modules/jquery-form/dist/jquery.form.min.js"></script>
 <script src="../node_modules/jquery-mask-plugin/dist/jquery.mask.js"></script>
 <script src="../node_modules/chart.js/dist/chart.umd.js"></script>
 <script src="../resources/js/ajaxToast.js"></script>
+<script src="../resources/js/ajaxMessage.js"></script>
 <script src="../resources/js/form.js"></script>
+{% block scripts %}{% endblock %}
 </body>
 </html>

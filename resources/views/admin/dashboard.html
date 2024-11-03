@@ -1,8 +1,183 @@
 {% extends "admin/layout.html" %}
 {% block content %}
-<article>
-  <header>
-    <h2>Painel</h2>
-  </header>
-</article>
+<div class="p-10 max-w-screen-2xl mx-auto">
+    <section class="w-full grid grid-cols-4 auto-cols-fr gap-8">
+        <article class="p-6 drop-shadow bg-white">
+            <div class="h-10 w-10 flex justify-center items-center bg-gray-100 rounded-full">
+                <i class="bi bi-eye no-text text-lg text-indigo-600"></i>
+            </div>
+            <header class="mt-4">
+                <h2 class="text-2xl font-semibold">3.456</h2>
+            </header>
+            <div class="flex justify-between text-sm font-light">
+                <p class="text-gray-600">Visualizações do cardápio</p>
+                <p class="text-green-600">0.43%<i class="bi bi-arrow-up"></i></p>
+            </div>
+        </article>
+        <article class="p-6 drop-shadow bg-white">
+            <div class="h-10 w-10 flex justify-center items-center bg-gray-100 rounded-full">
+                <i class="bi bi-cart2 no-text text-lg text-indigo-600"></i>
+            </div>
+            <header class="mt-4">
+                <h2 class="text-2xl font-semibold">$ 4.520,00</h2>
+            </header>
+            <div class="flex justify-between text-sm font-light">
+                <p class="text-gray-600">Vendido</p>
+                <p class="text-green-600">4.35%<i class="bi bi-arrow-up"></i></p>
+            </div>
+        </article>
+        <article class="p-6 drop-shadow bg-white">
+            <div class="h-10 w-10 flex justify-center items-center bg-gray-100 rounded-full">
+                <i class="bi bi-bag no-text text-lg text-indigo-600"></i>
+            </div>
+            <header class="mt-4">
+                <h2 class="text-2xl font-semibold">450</h2>
+            </header>
+            <div class="flex justify-between text-sm font-light">
+                <p class="text-gray-600">Pedidos</p>
+                <p class="text-green-600">2.59%<i class="bi bi-arrow-up"></i></p>
+            </div>
+        </article>
+        <article class="p-6 drop-shadow bg-white">
+            <div class="h-10 w-10 flex justify-center items-center bg-gray-100 rounded-full">
+                <i class="bi bi-people no-text text-lg text-indigo-600"></i>
+            </div>
+            <header class="mt-4">
+                <h2 class="text-2xl font-semibold">45</h2>
+            </header>
+            <div class="flex justify-between text-sm font-light">
+                <p class="text-gray-600">Novos clientes</p>
+                <p class="text-blue-600">0.95%<i class="bi bi-arrow-down"></i></p>
+            </div>
+        </article>
+    </section>
+    <section class="w-full mt-8 flex">
+        <article class="flex-grow mr-8 p-6 bg-white drop-shadow">
+            <header class="flex justify-between">
+                <h2 class="font-semibold">Vendas</h2>
+                <p class="text-xs">10/2024 até 12/2024</p>
+            </header>
+            <div class="h-64 mt-6">
+                <canvas id="myChart"></canvas>
+            </div>
+        </article>
+        <article class="w-4/12 p-6 bg-white drop-shadow">
+            <header class="flex justify-between">
+                <h2 class="font-semibold">Compras</h2>
+                <p class="text-xs">Uítmios 90 dias</p>
+            </header>
+            <div class="h-64 mt-6">
+                <canvas id="myChart02"></canvas>
+            </div>
+        </article>
+    </section>
+    <section class="w-full mt-8 flex">
+        <article class="flex-grow mr-8 p-6 bg-white drop-shadow">
+            <header>
+                <h2 class="font-semibold">Mais vendidos</h2>
+            </header>
+            <div class="w-full mt-6">
+                <ul class="p-2 grid grid-cols-12 auto-cols-auto bg-gray-100 border border-gray-200 text-xs font-semibold">
+                    <li class="col-span-6">Item</li>
+                    <li class="col-span-2">Última Venda</li>
+                    <li class="col-span-2">Total Vendido</li>
+                    <li class="col-span-2">Valor Médio</li>
+                </ul>
+                <ul class="p-2 grid grid-cols-12 auto-cols-auto text-xs">
+                    <li class="col-span-6">#001 X-Burger</li>
+                    <li class="col-span-2">01/11/2024</li>
+                    <li class="col-span-2">300</li>
+                    <li class="col-span-2">R$ 15,00</li>
+                </ul>
+                <ul class="p-2 grid grid-cols-12 auto-cols-auto text-xs bg-gray-50">
+                    <li class="col-span-6">#002 Batata Frita</li>
+                    <li class="col-span-2">02/11/2024</li>
+                    <li class="col-span-2">245</li>
+                    <li class="col-span-2">R$ 8,00</li>
+                </ul>
+                <ul class="p-2 grid grid-cols-12 auto-cols-auto text-xs">
+                    <li class="col-span-6">#003 Milkshake de Morango</li>
+                    <li class="col-span-2">01/11/2024</li>
+                    <li class="col-span-2">180</li>
+                    <li class="col-span-2">R$ 12,50</li>
+                </ul>
+                <ul class="p-2 grid grid-cols-12 auto-cols-auto text-xs bg-gray-50">
+                    <li class="col-span-6">#004 Cheeseburger</li>
+                    <li class="col-span-2">03/112024</li>
+                    <li class="col-span-2">173</li>
+                    <li class="col-span-2">R$ 18,00</li>
+                </ul>
+                <ul class="p-2 grid grid-cols-12 auto-cols-auto text-xs">
+                    <li class="col-span-6">#005 Nuggets</li>
+                    <li class="col-span-2">03/11/2024</li>
+                    <li class="col-span-2">169</li>
+                    <li class="col-span-2">R$ 10,00</li>
+                </ul>
+                <ul class="p-2 grid grid-cols-12 auto-cols-auto text-xs">
+                    <li class="col-span-6">#006 Nuggets com catupiry</li>
+                    <li class="col-span-2">03/11/2024</li>
+                    <li class="col-span-2">147</li>
+                    <li class="col-span-2">R$ 20,00</li>
+                </ul>
+                <ul class="p-2 grid grid-cols-12 auto-cols-auto text-xs">
+                    <li class="col-span-6">#007 Nuggets de bacon</li>
+                    <li class="col-span-2">03/11/2024</li>
+                    <li class="col-span-2">139</li>
+                    <li class="col-span-2">R$ 15,00</li>
+                </ul>
+                <ul class="p-2 grid grid-cols-12 auto-cols-auto text-xs">
+                    <li class="col-span-6">#008 Nuggets com cheddar</li>
+                    <li class="col-span-2">03/11/2024</li>
+                    <li class="col-span-2">85</li>
+                    <li class="col-span-2">R$ 12,00</li>
+                </ul>
+            </div>
+        </article>
+        <article class="w-4/12 p-6 bg-white drop-shadow">
+            <header>
+                <h2 class="font-semibold">Clientes Recentes</h2>
+            </header>
+            <div class="w-full mt-6">
+                <div class="pb-2 flex items-center border-b border-gray-200">
+                    <img class="w-12 h-12" src="../resources/images/user-01.png">
+                    <div class="ml-4 text-xs">
+                        <p><i class="bi bi-patch-check-fill text-green-500 mr-1"></i>Lorem ipsum dolor.</p>
+                        <p><i class="bi bi-whatsapp mr-1"></i>(00) 9 9999-9999</p>
+                    </div>
+                </div>
+                <div class="py-2 flex items-center border-b border-gray-200">
+                    <img class="w-12 h-12" src="../resources/images/user-02.png">
+                    <div class="ml-4 text-xs">
+                        <p><i class="bi bi-exclamation-circle-fill text-orange-500 mr-1"></i>Lorem ipsum dolor.</p>
+                        <p><i class="bi bi-whatsapp mr-1"></i>(00) 9 9999-9999</p>
+                    </div>
+                </div>
+                <div class="py-2 flex items-center border-b border-gray-200">
+                    <img class="w-12 h-12" src="../resources/images/user-03.png">
+                    <div class="ml-4 text-xs">
+                        <p><i class="bi bi-patch-check-fill text-green-500 mr-1"></i>Lorem ipsum dolor.</p>
+                        <p><i class="bi bi-whatsapp mr-1"></i>(00) 9 9999-9999</p>
+                    </div>
+                </div>
+                <div class="py-2 flex items-center border-b border-gray-200">
+                    <img class="w-12 h-12" src="../resources/images/user-04.png">
+                    <div class="ml-4 text-xs">
+                        <p><i class="bi bi-exclamation-circle-fill text-orange-500 mr-1"></i>Lorem ipsum dolor.</p>
+                        <p><i class="bi bi-whatsapp mr-1"></i>(00) 9 9999-9999</p>
+                    </div>
+                </div>
+                <div class="pt-2 flex items-center">
+                    <img class="w-12 h-12" src="../resources/images/user-05.png">
+                    <div class="ml-4 text-xs">
+                        <p><i class="bi bi-patch-check-fill text-green-500 mr-1"></i>Lorem ipsum dolor.</p>
+                        <p><i class="bi bi-whatsapp mr-1"></i>(00) 9 9999-9999</p>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="../resources/js/chartExample.js"></script>
 {% endblock %}
