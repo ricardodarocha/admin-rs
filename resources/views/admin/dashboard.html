@@ -2,55 +2,57 @@
 {% block content %}
 <div class="p-10 max-w-screen-2xl mx-auto">
     <section class="w-full grid grid-cols-4 auto-cols-fr gap-8">
+        {% with kpis = [
+            {
+            "valor": "3.456",
+            "icone": "bi bi-eye",
+            "titulo": "Visualizações do cardápio",
+            "variacao": "0.43%",
+            "decorator": "bi bi-arrow-up"
+            },
+            {
+            "valor": "R$ 4.520,00",
+            "icone": "bi bi-cart2",
+            "titulo": "Vendido",
+            "variacao": "0.43%",
+            "decorator": "bi bi-arrow-up"
+            },
+            {
+            "valor": "450",
+            "icone": "bi bi-bag",
+            "titulo": "Pedidos",
+            "variacao": "2.59%",
+            "decorator": "bi bi-arrow-up"
+            },
+            {
+            "valor": "450",
+            "icone": "bi bi-people",
+            "titulo": "Novos clientes",
+            "variacao": "0.95%",
+            "decorator": "bi bi-arrow-down"
+            }
+        ]
+         %}
+
+        {% for card in kpis %}
         <article class="p-6 drop-shadow bg-white">
             <div class="h-10 w-10 flex justify-center items-center bg-gray-100 rounded-full">
-                <i class="bi bi-eye no-text text-lg text-indigo-600"></i>
+                <i class="{{ card.icone }} no-text text-lg text-indigo-600"></i>
             </div>
             <header class="mt-4">
-                <h2 class="text-2xl font-semibold">3.456</h2>
+                <h2 class="text-2xl font-semibold"> {{ card.valor}} </h2>
             </header>
             <div class="flex justify-between text-sm font-light">
-                <p class="text-gray-600">Visualizações do cardápio</p>
-                <p class="text-green-600">0.43%<i class="bi bi-arrow-up"></i></p>
+                <p class="text-gray-600">{{ card.titulo }}</p>
+                <p class="text-green-600">{{ card.variacao }}<i class="{{ card.decorator }}"></i></p>
             </div>
         </article>
-        <article class="p-6 drop-shadow bg-white">
-            <div class="h-10 w-10 flex justify-center items-center bg-gray-100 rounded-full">
-                <i class="bi bi-cart2 no-text text-lg text-indigo-600"></i>
-            </div>
-            <header class="mt-4">
-                <h2 class="text-2xl font-semibold">$ 4.520,00</h2>
-            </header>
-            <div class="flex justify-between text-sm font-light">
-                <p class="text-gray-600">Vendido</p>
-                <p class="text-green-600">4.35%<i class="bi bi-arrow-up"></i></p>
-            </div>
-        </article>
-        <article class="p-6 drop-shadow bg-white">
-            <div class="h-10 w-10 flex justify-center items-center bg-gray-100 rounded-full">
-                <i class="bi bi-bag no-text text-lg text-indigo-600"></i>
-            </div>
-            <header class="mt-4">
-                <h2 class="text-2xl font-semibold">450</h2>
-            </header>
-            <div class="flex justify-between text-sm font-light">
-                <p class="text-gray-600">Pedidos</p>
-                <p class="text-green-600">2.59%<i class="bi bi-arrow-up"></i></p>
-            </div>
-        </article>
-        <article class="p-6 drop-shadow bg-white">
-            <div class="h-10 w-10 flex justify-center items-center bg-gray-100 rounded-full">
-                <i class="bi bi-people no-text text-lg text-indigo-600"></i>
-            </div>
-            <header class="mt-4">
-                <h2 class="text-2xl font-semibold">45</h2>
-            </header>
-            <div class="flex justify-between text-sm font-light">
-                <p class="text-gray-600">Novos clientes</p>
-                <p class="text-blue-600">0.95%<i class="bi bi-arrow-down"></i></p>
-            </div>
-        </article>
+        {% endfor %}
+        {% endwith %}
+        
+       
     </section>
+
     <section class="w-full mt-8 flex">
         <article class="flex-grow mr-8 p-6 bg-white drop-shadow">
             <header class="flex justify-between">
