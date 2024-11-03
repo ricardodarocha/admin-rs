@@ -17,9 +17,7 @@ use env_logger::Env;
 use minijinja::Environment;
 use reqwest;
 use services::{
-    cliente::{json_all_cliente, json_cliente, web_cliente, web_cliente_submit},
-    pedido::{json_all_pedido, json_pedido},
-    produto::{json_all_produto, json_produto, web_produto, web_produto_submit},
+    cliente::{json_all_cliente, json_cliente, web_cliente, web_cliente_submit}, grafico::{json_all_grafico, json_grafico}, pedido::{json_all_pedido, json_pedido}, produto::{json_all_produto, json_produto, web_produto, web_produto_submit}, relatorio::vendas_por_mes
 };
 use crate::app::AppState;
 
@@ -110,6 +108,8 @@ async fn main() -> std::io::Result<()> {
 
             .configure(site::routes)
             .configure(auth::routes)
+            
+            .service(vendas_por_mes)
             .configure(admin::routes)
             .configure(testes::routes)
             // rotas que exigem login
@@ -120,9 +120,11 @@ async fn main() -> std::io::Result<()> {
             .service(json_cliente)
             .service(json_produto)
             .service(json_pedido)
+            .service(json_grafico)
             .service(json_all_cliente)
             .service(json_all_produto)
             .service(json_all_pedido)
+            .service(json_all_grafico)
             .default_service(web::to(not_found))
     })
         .bind(("localhost", 8080))?

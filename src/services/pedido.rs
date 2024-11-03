@@ -3,7 +3,7 @@ use actix_web::{get, web, HttpResponse, Responder};
 use log::{error, info};
 // use minijinja::context;
 use sqlx::{Pool, Sqlite};
-use crate::models::pedido::{PedidoModel};
+use crate::models::pedido::PedidoModel;
 
 use crate::app::AppState;
 use crate::models::QueryFiltroPedido;

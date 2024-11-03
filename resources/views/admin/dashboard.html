@@ -8,28 +8,31 @@
             "icone": "bi bi-eye",
             "titulo": "Visualizações do cardápio",
             "variacao": "0.43%",
-            "decorator": "bi bi-arrow-up"
+            "decorator": "bi bi-arrow-up",
             },
             {
             "valor": "R$ 4.520,00",
             "icone": "bi bi-cart2",
             "titulo": "Vendido",
             "variacao": "0.43%",
-            "decorator": "bi bi-arrow-up"
+            "decorator": "bi bi-arrow-up",
+            "color": "text-green-600"
             },
             {
             "valor": "450",
             "icone": "bi bi-bag",
             "titulo": "Pedidos",
             "variacao": "2.59%",
-            "decorator": "bi bi-arrow-up"
+            "decorator": "bi bi-arrow-up",
+            "color": "text-green-600"
             },
             {
             "valor": "450",
             "icone": "bi bi-people",
             "titulo": "Novos clientes",
             "variacao": "0.95%",
-            "decorator": "bi bi-arrow-down"
+            "decorator": "bi bi-arrow-down",
+            "color": "text-red-500"
             }
         ]
          %}
@@ -44,7 +47,7 @@
             </header>
             <div class="flex justify-between text-sm font-light">
                 <p class="text-gray-600">{{ card.titulo }}</p>
-                <p class="text-green-600">{{ card.variacao }}<i class="{{ card.decorator }}"></i></p>
+                <p class=" {{ card.color }}">{{ card.variacao }}<i class="{{ card.decorator }}"></i></p>
             </div>
         </article>
         {% endfor %}

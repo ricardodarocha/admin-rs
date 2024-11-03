@@ -1,3 +1,5 @@
+pub mod relatorio;
+pub mod grafico;
 pub mod cliente;
 pub mod pedido;
 pub mod produto;
@@ -192,9 +194,8 @@ pub async fn registrar_usuario(
     
     let _ = sqlx::query!(
         r#" insert into usuarios
-                 (login, email, nome, senha, nivel) values
+                 (login, nome, senha, nivel) values
                  (LOWER($1),
-                  $1,
                   $2,
                   $3, 
                   $4)
@@ -214,7 +215,7 @@ pub async fn registrar_usuario(
 pub async fn abrir_usuario(pool: &Pool<Sqlite>, email: &str) -> Result<Usuario> {
     sqlx::query_as!(
         Usuario,
-        r#" select login, nome, nivel from usuarios where LOWER(email) = LOWER($1)
+        r#" select login, nome, nivel from usuarios where LOWER(login) = LOWER($1)
                 "#,
         email,
     )

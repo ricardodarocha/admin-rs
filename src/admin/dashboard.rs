@@ -1,5 +1,5 @@
 use actix_web::{get, web, HttpResponse, Responder};
-use minijinja::{context};
+use minijinja::context;
 use crate::app::AppState;
 
 #[get("/painel")]

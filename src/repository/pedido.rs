@@ -49,7 +49,7 @@ pub async fn abrir_pedido(pool: &Pool<Sqlite>, numero: i64) -> Result<PedidoMode
             num: pedido.num,
             // data: pedido.data,
             cliente,
-            valor: pedido.valor,
+            valor: pedido.valor.unwrap_or_default(),
             status: pedido.status,
             itens,
         };
@@ -125,7 +125,7 @@ pub async fn abrir_lista_pedidos(
                     PedidoModel {
                         num: pedido.num,
                         cliente,
-                        valor: pedido.valor,
+                        valor: pedido.valor.unwrap_or_default(),
                         status: pedido.status,
                         itens,
                     }

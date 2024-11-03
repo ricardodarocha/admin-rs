@@ -1,3 +1,5 @@
+pub mod relatorio;
+pub mod grafico;
 pub mod produto;
 pub mod cliente;
 pub mod pedido;
