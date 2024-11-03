@@ -3,7 +3,8 @@
 CREATE TABLE charts (
     id INTEGER PRIMARY KEY,
     title TEXT,
-    labels TEXT
+    labels TEXT,
+    valores TEXT
 );
 -- Criação da tabela series
 CREATE TABLE series (
@@ -18,10 +19,10 @@ CREATE TABLE series (
     FOREIGN KEY (chart_id) REFERENCES charts (id)
 );
 -- Inserção de dados de exemplo na tabela charts
-INSERT INTO charts (id, title, labels)
-VALUES (1, 'Vendas', 'Janeiro,Fevereiro,Março');
-INSERT INTO charts (id, title, labels)
-VALUES (2, 'Compras', 'Janeiro,Fevereiro,Março');
+INSERT INTO charts (id, title, labels, valores)
+VALUES (1, 'Vendas', 'Janeiro,Fevereiro,Março', '899,799,988');
+INSERT INTO charts (id, title, labels, valores)
+VALUES (2, 'Compras', 'Janeiro,Fevereiro,Março','899,799,988' );
 -- Inserção de dados de exemplo na tabela series
 INSERT INTO series (
         chart_id,

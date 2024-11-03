@@ -13,20 +13,23 @@ pub async fn atualizar_charts(pool: &Pool<Sqlite>) -> Result<()> {
         .await?; 
 
     //Insere grafico de vendas
-    sqlx::query!("insert into charts (title, labels) values ('Vendas', 
-    (SELECT group_concat(mes)   FROM (SELECT mes FROM vendas_mensais GROUP BY mes ORDER BY ano DESC, mes_numero)) 
+    sqlx::query!("insert into charts (title, labels, valores) values ('Vendas', 
+    (SELECT group_concat(mes)   FROM (SELECT mes FROM vendas_mensais GROUP BY mes ORDER BY ano DESC, mes_numero)),
+    (SELECT group_concat(total_vendas) FROM (SELECT mes, SUM(total_vendas) AS total_vendas FROM vendas_mensais
+     GROUP BY mes ORDER BY ano DESC, mes_numero)) 
     ) ")
         .execute(pool)
         .await?; 
 
     //Insere todas as séries do gráfico de vendas
-    sqlx::query!(" INSERT INTO series (chart_id, valores, tipo)
+    sqlx::query!(" INSERT INTO series (chart_id, valores, tipo, nome)
 SELECT 
     id,
     --(SELECT group_concat(mes)   FROM (SELECT mes FROM vendas_mensais GROUP BY mes ORDER BY ano DESC, mes_numero)) AS labels,
     (SELECT group_concat(total_vendas) FROM (SELECT mes, SUM(total_vendas) AS total_vendas FROM vendas_mensais
      GROUP BY mes ORDER BY ano DESC, mes_numero)) AS valores,
-    'bar' AS tipo
+    'bar' AS tipo,
+    'Vendas'
 FROM charts
 WHERE title = 'Vendas'
 LIMIT 1 ")
@@ -38,7 +41,7 @@ LIMIT 1 ")
 
 pub async fn get_charts_from_db(pool: &Pool<Sqlite>) -> Result<Vec<Chart>> {
     // Query para buscar todos os gráficos
-    let charts_data = sqlx::query!("SELECT id, title, labels FROM charts")
+    let charts_data = sqlx::query!("SELECT id, title, labels, valores FROM charts")
         .fetch_all(pool)
         .await?;
 
@@ -59,11 +62,19 @@ pub async fn get_charts_from_db(pool: &Pool<Sqlite>) -> Result<Vec<Chart>> {
         .fetch_all(pool)
         .await?;
 
+        let valores_chart: Vec<f32> = if let Some(valores) = chart_row.valores {
+            valores.split(',')
+                .filter_map(|v| v.trim().parse().ok())
+                .collect()
+        } else {
+            Vec::new()
+        };
+
         let mut series_list = Vec::new();
 
        for series_row in series_data {
     // Divide os valores e cores em vetores, ou utiliza um vetor vazio se o campo for None
-    let valores: Vec<i32> = if let Some(valores) = series_row.valores {
+    let valores: Vec<f32> = if let Some(valores) = series_row.valores {
         valores.split(',')
             .filter_map(|v| v.trim().parse().ok())
             .collect()
@@ -102,6 +113,7 @@ pub async fn get_charts_from_db(pool: &Pool<Sqlite>) -> Result<Vec<Chart>> {
             title: chart_row.title.unwrap_or_default(),
             labels,
             series: series_list,
+            valores: valores_chart,
         });
     }
 
