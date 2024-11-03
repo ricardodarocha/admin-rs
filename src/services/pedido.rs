@@ -73,7 +73,7 @@ async fn abrir_lista_pedidos(pool: &Pool<Sqlite>, cliente: &String, filtro: &Que
 }
 
 /// exemplo http://localhost:8080/pedidos/json?cliente=00008756486
-#[get("/pedidos/json")]
+#[get("/pedido/json")]
 async fn json_all_pedido(
         data: web::Data<AppState>,
         // path: Path<String>,
