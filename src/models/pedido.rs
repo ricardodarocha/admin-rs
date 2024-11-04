@@ -20,7 +20,10 @@ pub mod dto {
 }
 
 
+use std::collections::HashMap;
+
 use serde::{Serialize, Deserialize};
+use serde_json::Value;
 use crate::models::cliente::*;
 use crate::models::produto::*;
 
@@ -31,10 +34,45 @@ use crate::models::produto::*;
         pub quant: f32,
     }
 
+
+#[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
+pub struct ProdutoExiste {
+    pub id: String,
+    pub nome: Option<String>,
+    pub avatar: Option<String>,
+} 
+
+#[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
+pub struct ProdutoId(
+    String
+);
+#[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
+pub struct ProdutoNovo {
+    pub nome: String,
+    pub descicao: Option<String>,
+    pub eancode: Option<String>,
+    // Dados minimos para inserir o produto
+    // ...
+    pub grupo: Option<String>,
+    // Dados opcionais
+    pub avatar: Option<String>,
+
+    #[serde(flatten)]
+    outros_campos: HashMap<String, Value>,
+
+} 
+
+#[derive(Clone, Serialize, Deserialize)]
+pub enum PostProduto {
+    IdProduto(ProdutoId),
+    NovoProduto(ProdutoNovo),
+    ProdutoJaExiste(ProdutoExiste),
+}    
+
 #[derive(Clone, Serialize, Deserialize)]
     pub struct PostItem {
         pub num_pedido: i64, 
-        pub produto: String,
+        pub produto: PostProduto,
         pub quant: f32,
     }
     
@@ -66,7 +104,7 @@ use crate::models::produto::*;
     }
 
 ///Reflect Business Model Logic
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
     pub struct PedidoModel {
         pub num: i64,
         // pub data

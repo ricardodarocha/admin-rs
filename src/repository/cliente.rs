@@ -1,7 +1,28 @@
-use sqlx::{Pool, Sqlite};
+
+use crate::infra::result::Result;
+
+use sqlx::{self, Pool, Sqlite};
 use crate::models as query;
 use crate::models::cliente as model;
-use crate::infra::result::Result;
+use crate::infra::uuid::{generate_uuid, UuidKind};
+
+pub async fn abrir_cliente(pool: &Pool<Sqlite>, id: &String) -> Result<model::Cliente> {
+    sqlx::query_as!(
+        model::Cliente,
+        r#" select
+                 id,
+                 nome,
+                 cidade,
+                 avatar
+            from cliente
+           where id = $1"#,
+        id,
+    )
+    .fetch_one(pool)
+    .await
+    .map_err(Into::into)
+}
+
 pub async fn abrir_lista_clientes(pool: &Pool<Sqlite>, filtro: &query::QueryFiltroCliente) -> Result<Vec<model::Cliente>> {
 
     let (limit, offset) = (
@@ -47,4 +68,64 @@ pub async fn abrir_lista_clientes(pool: &Pool<Sqlite>, filtro: &query::QueryFilt
     }
 
     
+}
+
+pub async fn inserir_cliente(
+    pool: &Pool<Sqlite>, 
+    form: model::FormCliente
+
+    ) -> Result< String> {
+    
+    let id = generate_uuid(UuidKind::V7);
+    let _ = sqlx::query!(
+        r#" insert into cliente
+                 (id,
+                 nome,
+                 cidade) values
+                 ($1,
+                 $2,
+                 $3)
+                "#,
+        id,
+        form.nome,
+        form.cidade,
+    )
+    .execute(pool)
+    .await;
+    // .map_err(Into::into)
+    Ok(id)
+
+}
+
+pub async fn inserir_cliente_json(
+    _pool: &Pool<Sqlite>, 
+    _form:  model::ClienteNovo,
+
+) -> Result< String > {
+    
+    Ok("0".to_string())    
+}
+
+pub async fn atualizar_cliente(
+    pool: &Pool<Sqlite>, 
+    id: &String,
+    form:  model::FormCliente,
+
+    ) -> Result< String > {
+    
+    let _ = sqlx::query_as!(
+         model::Cliente,
+        r#" update Cliente set 
+                 id = $1,
+                 nome = $2,
+                 cidade = $3
+           where id = $1"#,
+        id,
+        form.nome,
+        form.cidade
+    )
+    .execute(pool)
+    .await;
+
+    Ok(id.clone())
 }

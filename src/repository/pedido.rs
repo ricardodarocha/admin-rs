@@ -1,9 +1,11 @@
+
+use crate::infra::strings::anonimizar;
+
 use log::info;
 use sqlx::{Pool, Sqlite};
-use crate::infra::strings::anonimizar;
 use crate::models::cliente::Cliente;
 use crate::models::pedido::{ItemModel, PedidoModel, PostPedido};
-use crate::models as query;
+use crate::{models as query, services};
 use crate::infra::result::Result;
 
 pub async fn inserir_pedido(pool: &Pool<Sqlite>, cliente: &String) -> Result<i64> {
@@ -32,8 +34,23 @@ pub async fn inserir_pedido_from_json(pool: &Pool<Sqlite>, pedido: &PostPedido) 
     let id_pedido = if let Some(id_pedido) = pedido.clone().num {
         id_pedido
     } else  {
-        inserir_pedido(pool, &pedido.clone().cliente.id.as_ref().unwrap()).await?
-    };
+        //Vamos inserir o pedido.
+        //Para isso precisa verificar o ID do cliente
+        let id_cliente = match pedido.clone().cliente {
+            query::cliente::PostCliente::IdCliente(cliente_id) => cliente_id.0,
+            query::cliente::PostCliente::ClienteJaExiste(cliente) => cliente.id,
+            query::cliente::PostCliente::NovoCliente(post_cliente) => {
+                let id = services::cliente::inserir_cliente_json(&pool, post_cliente.clone()).await.unwrap().id;
+                id
+            },
+        };
+
+
+        inserir_pedido(pool, &id_cliente).await.unwrap()
+    
+        };
+
+        let pedido = abrir_pedido(pool, id_pedido).await.unwrap();
     
     info!("Inserindo pedido via json para o cliente {}", anonimizar(pedido.clone().cliente.nome.as_ref()));
     

@@ -6,7 +6,8 @@ use reqwest::StatusCode;
 use crate::app::AppState;
 use crate::auth::model::Registrar;
 use crate::infra::error::Error;
-use crate::services as service;
+use crate::services::redireciona_login;
+use crate::services::usuario as service;
 
 #[get("/registrar")]
 async fn register(
@@ -34,7 +35,7 @@ async fn register_submit(
     let usuario_registrado = service::registrar_usuario(pool, &register_form, "USER").await;
 
     if let Some(_usuario) = usuario_registrado {
-        service::redireciona_login()
+        redireciona_login()
     } else {
         Error::Detailed { code: StatusCode::INTERNAL_SERVER_ERROR, 
             msg: "Erro interno do servidor".to_owned(), 

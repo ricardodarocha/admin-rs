@@ -4,10 +4,9 @@ use minijinja::context;
 
 use crate::app::AppState;
 use crate::models::QueryId;
-// use crate::repository as repo;
-// use crate::models as model;
-use crate::services as service;
 use serde_json::json;
+
+use crate::services::produto as service;
 
 #[get("/product/form")]
 async fn web_product(

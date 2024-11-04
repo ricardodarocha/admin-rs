@@ -19,11 +19,11 @@ use minijinja::Environment;
 use reqwest;
 
 //todo! refactory all services routes to handler/route
-use services::cliente::{json_all_cliente, json_cliente, web_cliente, web_cliente_submit};
-use services::grafico::{json_all_grafico, json_grafico};
+use handlers::cliente::{json_all_cliente, json_cliente, web_cliente, web_cliente_submit};
+use handlers::grafico::{json_all_grafico, json_grafico};
 use handlers::pedido::{json_all_pedido, json_pedido, json_post_pedido, json_post_new_pedido};
-use services::produto::{json_all_produto, json_produto, web_produto, web_produto_submit};
-use services::relatorio::vendas_por_mes;
+use handlers::produto::{json_all_produto, json_produto, web_produto, web_produto_submit};
+use handlers::relatorio::vendas_por_mes;
 use crate::app::AppState;
 
 use crate::infra::minijinja_utils;

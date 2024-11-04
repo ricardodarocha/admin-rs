@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use crate::infra::error::Error;
 use crate::services::login::token;
-use crate::services::{self as service, abrir_usuario};
+use crate::services::usuario as service;
 use crate::{app::AppState, auth::model::LoginForm, infra::strings::anonimizar};
 use actix_session::Session;
 use actix_web::{get, http::StatusCode, post, web, HttpResponse, Responder};
@@ -43,7 +43,7 @@ async fn login_submit(
             session.insert("user_id", form.email.clone()).unwrap();
 
             //Vamos tentar pegar outros dados do usuario para incorporar na sessao
-            let abrir_usuario = abrir_usuario(pool, form.email).await;
+            let abrir_usuario = service::abrir_usuario(pool, form.email).await;
             if let Some(usuario) = abrir_usuario {
                 session.insert("user_name", usuario.nome).unwrap();
                 session.insert("user_level", usuario.nivel.clone()).unwrap();
