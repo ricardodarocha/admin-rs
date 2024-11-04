@@ -105,7 +105,7 @@ pub async fn json_post_pedido(
     
     /// Move pedido para preparando
     /// Exige que o pedido esteja no status novo
-    #[post("/pedido/preparar")]
+    #[post("/pedido/preparar/{id}")]
     pub async fn preparar_pedido(
         data: web::Data<AppState>,
         path: Path<i64>,
@@ -127,7 +127,7 @@ pub async fn json_post_pedido(
     
     /// Move pedido para pronto
     /// Exige que o pedido esteja no status preparando
-    #[post("/pedido/finalizar")]
+    #[post("/pedido/finalizar/{id}")]
     pub async fn finalizar_pedido(
         data: web::Data<AppState>,
         path: Path<i64>,
