@@ -1,3 +1,4 @@
+pub mod handlers;
 pub mod testes;
 pub mod services;
 pub mod models;
@@ -16,9 +17,13 @@ use env_logger::Env;
 // use infra::sessao_usuario::auth_middleware;
 use minijinja::Environment;
 use reqwest;
-use services::{
-    cliente::{json_all_cliente, json_cliente, web_cliente, web_cliente_submit}, grafico::{json_all_grafico, json_grafico}, pedido::{json_all_pedido, json_pedido}, produto::{json_all_produto, json_produto, web_produto, web_produto_submit}, relatorio::vendas_por_mes
-};
+
+//todo! refactory all services routes to handler/route
+use services::cliente::{json_all_cliente, json_cliente, web_cliente, web_cliente_submit};
+use services::grafico::{json_all_grafico, json_grafico};
+use handlers::pedido::{json_all_pedido, json_pedido};
+use services::produto::{json_all_produto, json_produto, web_produto, web_produto_submit};
+use services::relatorio::vendas_por_mes;
 use crate::app::AppState;
 
 use crate::infra::minijinja_utils;
