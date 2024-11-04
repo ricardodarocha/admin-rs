@@ -1,8 +1,62 @@
+use log::info;
 use sqlx::{Pool, Sqlite};
+use crate::infra::strings::anonimizar;
 use crate::models::cliente::Cliente;
 use crate::models::pedido::{PedidoModel, ItemModel};
 use crate::models as query;
 use crate::infra::result::Result;
+
+pub async fn inserir_pedido(pool: &Pool<Sqlite>, cliente: &String) -> Result<i64> {
+    // certifica que o cliente existe;
+    let nome_cliente = sqlx::query_scalar!("select nome from cliente where id = $1", cliente)
+    .fetch_one(pool)
+    .await?;
+
+    info!("Inserindo pedido para o cliente {}", anonimizar(nome_cliente.as_ref()));
+
+    let _ = sqlx::query!("insert into pedido (cliente) values ($1); ", cliente)
+    .execute(pool)
+    .await?;
+
+    let id = sqlx::query_scalar!("select max(num) from pedido where cliente = $1", cliente)
+    .fetch_one(pool)
+    .await?.unwrap();
+
+    Ok(id)
+}
+pub async fn inserir_item_pedido(pool: &Pool<Sqlite>, pedido: i64, item: &ItemModel) -> Result<bool> {
+    // certifica que o pedido existe
+    let num_pedido = sqlx::query_scalar!("select num from pedido where num  = $1", pedido)
+    .fetch_one(pool)
+    .await?;
+
+    info!("Inserindo item para o pedido {}", num_pedido);
+
+    let _ = sqlx::query!("insert into item ( num_pedido,
+        produto, quant) values ($1, $2, $3)
+        ; ", 
+        pedido,
+        item.produto.id,
+        item.quant,
+    )
+    .execute(pool)
+    .await?;
+
+    //atualiza o total
+    let _ = sqlx::query!("UPDATE pedido
+            SET valor = (
+                SELECT SUM(i.quant * p.preco)
+                FROM item i
+                JOIN produto p ON i.produto = p.id and p.id = $1
+                WHERE i.num_pedido = pedido.num
+            ); ", 
+        pedido,
+    )
+    .execute(pool)
+    .await?;
+
+    Ok(true)
+}
 
 pub async fn abrir_pedido(pool: &Pool<Sqlite>, numero: i64) -> Result<PedidoModel> {
     let query = sqlx::query!(
