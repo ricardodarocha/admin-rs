@@ -31,6 +31,40 @@ use crate::models::produto::*;
         pub quant: f32,
     }
 
+#[derive(Clone, Serialize, Deserialize)]
+    pub struct PostItem {
+        pub num_pedido: i64, 
+        pub produto: String,
+        pub quant: f32,
+    }
+    
+    #[derive(Clone, Serialize, Deserialize)]
+    pub struct FormItem {
+        pub num_pedido: i64, 
+        pub produto: String,
+        pub quant: f32,
+    }
+
+    
+// Recebe dados do pedido via json
+#[derive(Clone, Serialize, Deserialize)]
+    pub struct PostPedido {
+        pub num: Option<i64>,
+        pub nosso_numero: Option<String>,
+        // pub data
+        pub cliente: PostCliente,
+        pub valor: Option<f64>,
+        pub status: Option<String>,
+        pub itens: Vec<ItemModel>,
+    }
+    
+// Recebe dados do pedido via form
+#[derive(Serialize, Deserialize)]
+    pub struct FormPedido {
+        pub num: i64,
+        pub cliente: String,
+    }
+
 ///Reflect Business Model Logic
 #[derive(Serialize, Deserialize)]
     pub struct PedidoModel {
@@ -52,16 +86,4 @@ use crate::models::produto::*;
             self.valor += total_item;
             self
         }
-    }
-
-    #[derive(Clone, Serialize, Deserialize)]
-    pub struct FormPedido {
-        pub cliente: String,
-    }
-
-    #[derive(Clone, Serialize, Deserialize)]
-    pub struct FormItem {
-        pub num_pedido: i64,
-        pub produto: Produto,
-        pub quant: f32,
     }

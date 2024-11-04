@@ -21,7 +21,7 @@ use reqwest;
 //todo! refactory all services routes to handler/route
 use services::cliente::{json_all_cliente, json_cliente, web_cliente, web_cliente_submit};
 use services::grafico::{json_all_grafico, json_grafico};
-use handlers::pedido::{json_all_pedido, json_pedido};
+use handlers::pedido::{json_all_pedido, json_pedido, json_post_pedido, json_post_new_pedido};
 use services::produto::{json_all_produto, json_produto, web_produto, web_produto_submit};
 use services::relatorio::vendas_por_mes;
 use crate::app::AppState;
@@ -130,6 +130,8 @@ async fn main() -> std::io::Result<()> {
             .service(json_all_produto)
             .service(json_all_pedido)
             .service(json_all_grafico)
+            .service(json_post_pedido)
+            .service(json_post_new_pedido)
             .default_service(web::to(not_found))
     })
         .bind(("localhost", 8080))?
