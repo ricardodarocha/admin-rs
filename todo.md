@@ -6,8 +6,8 @@
   - [x] Api produtos
   - [x] Api clientes
   - [x] Autenticar
-  - [ ] Salvar usuário logado na Session
-  - [ ] Gerar token JWT expirável
+  - [x] Salvar usuário logado na Session
+  - [x] Gerar token JWT expirável
   - [ ] Middleware Guest Aut
   - [x] Criar usuário
   - [ ] Usuário convidado
@@ -22,3 +22,14 @@
 - [ ] Lista de mensagens do usuário
 - [ ] Menu personalizado
 - [ ] Tema personalizado
+- [ ] Api
+  - [x] GET One Pedido
+  - [x] GET One Produto
+  - [x] GET One Cliente
+  - [x] GET All Pedido
+  - [x] GET All Produto
+  - [x] GET All Cliente
+  - [x] POST pedido `<Json>`
+  - [x] POST pedido `<Json>`
+  - [ ] POST pedido `<Form>`
+  - [ ] POST pedido `<Form>`
