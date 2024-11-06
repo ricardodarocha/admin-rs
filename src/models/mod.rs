@@ -1,3 +1,4 @@
+pub mod dashboard;
 pub mod relatorio;
 pub mod grafico;
 pub mod produto;

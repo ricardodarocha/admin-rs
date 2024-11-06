@@ -1,1 +1,24 @@
-<div class="fixed h-screen w-72 bg-slate-800">MENU</div>
+<div class="fixed h-screen w-72 bg-slate-800">
+    <header class="h-20 w-full flex items-center justify-center">
+        <h1 class="w-fit flex items-center">
+            <a href="{{ url('admin/painel') }}" class="w-fit">
+                <i class="bi bi-cloud-check-fill mr-1 text-2xl text-orange-600"></i>
+                <span class="text-white text-lg font-semibold">Nuvem Delivery</span>
+            </a>
+        </h1>
+    </header>
+    <div class="m-6">
+        <p class="w-full pl-4 text-sm text-slate-400">MENU</p>
+        <nav class="w-full mt-4">
+            {% if menus %}
+            {% for menu in menus %}
+            <a href="{{ url('admin/' ~ menu.link) }}"
+               class="px-4 py-2 mb-1 flex items-center text-slate-200 hover:bg-slate-600 {% if menu.link == active_menu %}bg-slate-700{% endif %}">
+                <i class="bi {{ menu.icone }} text-lg mr-1"></i>
+                {{ menu.titulo }}
+            </a>
+            {% endfor %}
+            {% endif %}
+        </nav>
+    </div>
+</div>

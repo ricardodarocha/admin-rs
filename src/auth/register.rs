@@ -3,6 +3,7 @@ use actix_web::{get, post, web, HttpResponse, Responder};
 use log::info;
 use minijinja::context;
 use reqwest::StatusCode;
+use serde_json::json;
 use crate::app::AppState;
 use crate::auth::model::Registrar;
 use crate::infra::error::Error;
@@ -13,8 +14,7 @@ use crate::services::usuario as service;
 async fn register(
     // session: Session, 
     data: web::Data<AppState>,
-    
-    ) -> impl Responder {
+) -> impl Responder {
     let tmpl = data.render.get_template("auth/register.html").unwrap();
     let rendered = tmpl.render(context! {title => "Register"}).unwrap();
 
@@ -37,13 +37,19 @@ async fn register_submit(
     if let Some(_usuario) = usuario_registrado {
         redireciona_login()
     } else {
-        Error::Detailed { code: StatusCode::INTERNAL_SERVER_ERROR, 
+        Error::Form(json!({
+            "form":{
+               "senha":"Você informou senhas diferentes"
+            },
+        })).into()
+        /*
+        Error::Detailed { code: StatusCode::BAD_REQUEST,
             msg: "Erro interno do servidor".to_owned(), 
             description: "Houve uma falha ao criar o usuário".to_owned(), 
             how_to_solve: format!(r#"Envie este relatório para o suporte \n {:?}"#, register_form)}.into()
-    }
 
-    
+         */
+    }
 }
 
 pub fn routes(cfg: &mut web::ServiceConfig) {

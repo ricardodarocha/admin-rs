@@ -9,6 +9,7 @@ pub mod app;
 mod auth;
 mod site;
 mod admin;
+mod helpers;
 
 use std::sync::Arc;
 use actix_files::Files;
@@ -33,6 +34,7 @@ use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 
 async fn configure_minijinja() -> Arc<Environment<'static>> {
     let mut env = Environment::new();
+    env.add_function("url", helpers::url::url);
 
     env.add_filter("fmtdate", minijinja_utils::fmtdate);
     env.add_filter("fmtdateopt", minijinja_utils::fmtdateopt);
@@ -113,7 +115,7 @@ async fn main() -> std::io::Result<()> {
 
             .configure(site::routes)
             .configure(auth::routes)
-            
+
             .service(vendas_por_mes)
             .configure(admin::routes)
             .configure(testes::routes)
