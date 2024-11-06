@@ -60,3 +60,4 @@ hex = "0.4.3"
 nanoid = "0.4.0"
 validator = { version = "0.16.1", features = ["derive"] }
 actix-web-validator = "6.0.0"
+numero-por-extenso = "0.3.1"

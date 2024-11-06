@@ -456,6 +456,7 @@ dependencies = [
  "minijinja",
  "minijinja-contrib",
  "nanoid",
+ "numero-por-extenso",
  "once_cell",
  "passwords",
  "reqwest",
@@ -1892,6 +1893,12 @@ checksum = "5c7398b9c8b70908f6371f47ed36737907c87c52af34c268fed0bf0ceb92ead9"
 dependencies = [
  "libc",
 ]
+
+[[package]]
+name = "numero-por-extenso"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d307469dd0ea6e2d5ae0cd8d76ec0678c68a312772fc96891f6cbfbc42802f8c"
 
 [[package]]
 name = "object"
