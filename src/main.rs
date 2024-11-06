@@ -40,15 +40,17 @@ fn get_host_port() -> (String, String) {
 async fn configure_minijinja() -> Arc<Environment<'static>> {
     let mut env = Environment::new();
     env.add_function("url", helpers::url);
+    env.add_function("macara", helpers::mascara);
+    env.add_function("anonimizar", helpers::anonimizar);
 
-    env.add_filter("fmtdate", helpers::fmtdate);    
-    env.add_filter("fmtdateopt", helpers::fmtdateopt);
-    env.add_filter("fmttime", helpers::fmttime);
-    env.add_filter("fmttimeopt", helpers::fmttimeopt);
-    env.add_filter("fmt", helpers::fmt);
-    env.add_filter("fmt3", helpers::fmt3);
+    env.add_filter("fmtdate", helpers::filter::fmtdate);    
+    env.add_filter("fmtdateopt", helpers::filter::fmtdateopt);
+    env.add_filter("fmttime", helpers::filter::fmttime);
+    env.add_filter("fmttimeopt", helpers::filter::fmttimeopt);
+    env.add_filter("fmt", helpers::filter::fmt);
+    env.add_filter("fmt3", helpers::filter::fmt3);
 
-    env.add_function("format", helpers::format_filter);
+    env.add_function("format", helpers::filter::format_filter);
     // env.add_function("url_for", |route: String| minijinja_utils::url_for(&route));
 
     env.set_loader(minijinja::path_loader("resources/views"));
