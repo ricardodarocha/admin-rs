@@ -1,3 +1,4 @@
+pub mod dashboard;
 pub mod usuario;
 pub mod relatorio;
 pub mod grafico;

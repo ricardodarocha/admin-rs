@@ -1,20 +1,14 @@
-fn get_host_port() -> (String, String) {
-    
-    let host = std::env::var("HOST").unwrap_or_else(|_| "localhost".to_string());
-    let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_string());
-    (host, port)
+pub fn url(path: &str) -> String {
+    let base_url = std::env::var("BASE_URL")
+        .unwrap_or_else(|_| "http://localhost:8080".to_string());
+    let path = if path.starts_with('/') { &path[1..] } else { path };
+    format!("{base_url}/{path}")
 }
 
     use std::fmt::Write;
     use minijinja::Value;
     use time::{format_description, OffsetDateTime};
     use crate::infra::result::Result;
-
-    
-pub fn url_for(route: &str) -> String {
-    let (host, port) = get_host_port();
-    format!("http://{}:{}/{}", host, port, route.trim_start_matches('/'))
-}
 
 pub fn fmt(value: f32, symbol: Option<&str>) -> Value {
     // Obtém o valor f32

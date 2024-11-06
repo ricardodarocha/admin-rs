@@ -3,6 +3,7 @@ use crate::infra::{result::Result, strings::anonimizar};
 use crate::auth::model::Usuario;
 use crate::infra::error::Error;
 use log::error;
+use serde_json::json;
 use sqlx::{self, Pool, Sqlite};
 use actix_web::http::StatusCode;
 
@@ -20,12 +21,11 @@ pub async fn registrar_usuario(
     if email_usado == true  {
         
         error!("E-mail já está em uso {}", anonimizar(email.as_ref()));
-        return Err(Error::Detailed { 
-                code: StatusCode::CONFLICT,
-                msg: "Este email já foi usado".to_string(),
-                description: "O email fornecido já está associado a uma conta existente.".to_string(),
-                how_to_solve: "Informe um outro email que ainda não tenha sido usado".to_string()
-        })
+        let json = json!({"form": {
+                        "email": "Este e-mail já está sendo usado"
+                    },
+                    "toast": "teste"});
+        return Err(Error::Form(json))
     };
 
     //certifica que as senhas são iguais

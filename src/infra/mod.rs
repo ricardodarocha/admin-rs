@@ -1,3 +1,4 @@
+pub mod validation;
 pub mod sessao_usuario;
 pub mod jwt;
 pub mod toast;
@@ -23,5 +24,3 @@ pub mod controller {
     }
 
 }
-
-pub mod minijinja_utils;

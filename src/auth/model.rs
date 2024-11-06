@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use time::OffsetDateTime;
 use time::serde::iso8601::option;
+use validator::{Validate, ValidationError};
 
 #[derive(Debug, Deserialize, Serialize, FromRow, Clone)]
 pub struct Usuario {
@@ -54,13 +55,24 @@ pub struct Conversa {
     
 }
 
-#[derive(Debug, Deserialize, Serialize, Default, Clone)]
+#[derive(Debug, Deserialize, Serialize, Default, Clone, Validate)]
+#[validate(schema(function = "validate_passwords", skip_on_field_errors = false))]
 pub struct Registrar {
     pub nome: String,
+    #[validate(email(message = "Email inválido"))]
     pub email: String,
     pub senha: String,
     pub repetir_senha: String,
     
+}
+
+fn validate_passwords(form: &Registrar) -> Result<(), ValidationError> {
+    if form.senha != form.repetir_senha {
+        let mut error = ValidationError::new("password");
+        error.message = Some("As senhas não correspondem".into());
+        return Err(error);
+    }
+    Ok(())
 }
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]

@@ -1,27 +1,24 @@
 use actix_web::{HttpResponse, ResponseError, http::StatusCode};
-use serde_json::json;
+use serde_json::{json, Value};
 // use std::fmt;
 use std::error::Error as StdError;
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;
 use thiserror::Error;
 
-pub struct Detailed {
-
-}
+pub struct Detailed {}
 
 #[derive(Error, Debug)]
 pub enum Error {
-    
     #[error("Erro do servidor `{0}`")]
     Servidor(actix_web::Error),
-    
+
     #[error("Erro do banco de dados `{0}`")]
     Database(sqlx::Error),
-    
+
     #[error("Procedimento inválido `{0}`")]
     Other(Box<dyn StdError>),
-    
+
     #[error("code={code:?};msg={msg:?};description={description:?};solution={how_to_solve:?}")]
     Detailed {
         code: StatusCode,
@@ -30,9 +27,12 @@ pub enum Error {
         how_to_solve: String,
     },
 
+    #[error("{0}")]
+    Form(Value),
+
     #[error("Procedimento inválido `{0}`")]
     Simple(String),
-    
+
     #[error("Procedimento inválido `{0}`")]
     Str(&'static str),
 }
@@ -87,6 +87,7 @@ impl ResponseError for Error {
             Error::Other(err) => HttpResponse::InternalServerError().body(format!("Internal server error {}", err)),
             Error::Simple(err) => HttpResponse::InternalServerError().body(format!("Internal server error {}", err)),
             Error::Str(str) => HttpResponse::InternalServerError().body(format!("Internal server error {}", str)),
+            Error::Form(value) => HttpResponse::BadRequest().json(value),
             Error::Detailed {
                 code,
                 msg,
@@ -99,8 +100,8 @@ impl ResponseError for Error {
                     "description": description,
                     "how_to_solve": how_to_solve,
                 });
-                HttpResponse::build(*code).json(body)}
-                ,
+                HttpResponse::build(*code).json(body)
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ pub mod app;
 mod auth;
 mod site;
 mod admin;
+mod helpers;
 
 use std::sync::Arc;
 use actix_files::Files;
@@ -26,8 +27,6 @@ use handlers::produto::{json_all_produto, json_produto, web_produto, web_produto
 use handlers::relatorio::vendas_por_mes;
 use crate::app::AppState;
 
-use crate::infra::minijinja_utils;
-
 use actix_web::{cookie::Key, middleware};
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 
@@ -40,16 +39,17 @@ fn get_host_port() -> (String, String) {
 
 async fn configure_minijinja() -> Arc<Environment<'static>> {
     let mut env = Environment::new();
+    env.add_function("url", helpers::url);
 
-    env.add_filter("fmtdate", minijinja_utils::fmtdate);    
-    env.add_filter("fmtdateopt", minijinja_utils::fmtdateopt);
-    env.add_filter("fmttime", minijinja_utils::fmttime);
-    env.add_filter("fmttimeopt", minijinja_utils::fmttimeopt);
-    env.add_filter("fmt", minijinja_utils::fmt);
-    env.add_filter("fmt3", minijinja_utils::fmt3);
+    env.add_filter("fmtdate", helpers::fmtdate);    
+    env.add_filter("fmtdateopt", helpers::fmtdateopt);
+    env.add_filter("fmttime", helpers::fmttime);
+    env.add_filter("fmttimeopt", helpers::fmttimeopt);
+    env.add_filter("fmt", helpers::fmt);
+    env.add_filter("fmt3", helpers::fmt3);
 
-    env.add_function("format", minijinja_utils::format_filter);
-    env.add_function("url_for", |route: String| minijinja_utils::url_for(&route));
+    env.add_function("format", helpers::format_filter);
+    // env.add_function("url_for", |route: String| minijinja_utils::url_for(&route));
 
     env.set_loader(minijinja::path_loader("resources/views"));
     Arc::new(env)
@@ -123,7 +123,7 @@ async fn main() -> std::io::Result<()> {
 
             .configure(site::routes)
             .configure(auth::routes)
-            
+
             .service(vendas_por_mes)
             .configure(admin::routes)
             .configure(testes::routes)
