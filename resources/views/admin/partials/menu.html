@@ -14,7 +14,7 @@
             {% for menu in menus %}
             <a href="{{ url('admin/' ~ menu.link) }}"
                class="px-4 py-2 mb-1 flex items-center text-slate-200 hover:bg-slate-600 {% if menu.link == active_menu %}bg-slate-700{% endif %}">
-                <i class="bi {{ menu.icone }} text-lg mr-1"></i>
+                <i class="bi {{ menu.icone }} text-lg mr-2"></i>
                 {{ menu.titulo }}
             </a>
             {% endfor %}
