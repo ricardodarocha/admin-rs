@@ -35,6 +35,7 @@ use crate::entidade::contato::repo::*;
 //     form: &RegisterData,
 // ) -> Result<Tenant> {
 //     let id = generate_uuid(UuidKind::V7);
+// let id = nanoid::nanoid!(12);
 
     
 

@@ -4,7 +4,6 @@ use crate::models::produto::{Produto, FormProduto};
 // use minijinja::value;
 use sqlx::{self, Pool, Sqlite};
 use actix_web::web;
-use crate::infra::uuid::{generate_uuid, UuidKind};
 
 use crate::models as query;
 use crate::models::produto as model;
@@ -75,9 +74,9 @@ pub async fn inserir_produto(
     pool: &Pool<Sqlite>, 
     form: web::Form<FormProduto>
 
-    ) -> Result<Produto> {
+    ) -> Result<String> {
 
-    let id = generate_uuid(UuidKind::V7);
+    let id = nanoid::nanoid!(12);
     let _ = sqlx::query_as!(
         Produto,
         r#" insert into produto
@@ -96,6 +95,35 @@ pub async fn inserir_produto(
     .await;
     // .map_err(Into::into)
 
-   abrir_produto(pool, &id).await 
+   Ok(id)
 
+}
+
+pub async fn inserir_produto_json(
+    pool: &Pool<Sqlite>, 
+    json: query::pedido::ProdutoNovo
+
+) -> Result< String > {
+    
+    
+    let id = nanoid::nanoid!(12);
+    let _ = sqlx::query_as!(
+        Produto,
+        r#" insert into produto
+                 (id,
+                 descricao,
+                 preco) values
+                 ($1,
+                 $2,
+                 $3)
+                "#,
+        id,
+        json.descricao,
+        json.preco
+    )
+    .execute(pool)
+    .await;
+    // .map_err(Into::into)
+
+    Ok(id) 
 }

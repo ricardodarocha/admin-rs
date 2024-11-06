@@ -18,10 +18,10 @@ pub struct Cliente {
 #[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct ClienteNovo {
     pub nome: String,
-    pub cidade: Option<String>,
+    pub cidade: String,
     // Dados minimos para inserir o cliente
     // ...
-    pub cpf: String,
+    pub cpf: Option<String>,
     pub email: Option<String>,
     pub telefone: Option<String>,
     pub companhia: Option<String>,
@@ -42,14 +42,11 @@ pub struct ClienteExiste {
     pub avatar: Option<String>,
 } 
 
-#[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
-pub struct ClienteId(
-    pub String
-);
-
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(untagged)]
 pub enum PostCliente {
-    IdCliente(ClienteId),
+    IdCliente(String),
+    
     NovoCliente(ClienteNovo),
     ClienteJaExiste(ClienteExiste),
 }

@@ -4,7 +4,6 @@ use crate::infra::result::Result;
 use sqlx::{self, Pool, Sqlite};
 use crate::models as query;
 use crate::models::cliente as model;
-use crate::infra::uuid::{generate_uuid, UuidKind};
 
 pub async fn abrir_cliente(pool: &Pool<Sqlite>, id: &String) -> Result<model::Cliente> {
     sqlx::query_as!(
@@ -76,7 +75,7 @@ pub async fn inserir_cliente(
 
     ) -> Result< String> {
     
-    let id = generate_uuid(UuidKind::V7);
+    let id = nanoid::nanoid!(12);
     let _ = sqlx::query!(
         r#" insert into cliente
                  (id,
@@ -98,12 +97,29 @@ pub async fn inserir_cliente(
 }
 
 pub async fn inserir_cliente_json(
-    _pool: &Pool<Sqlite>, 
-    _form:  model::ClienteNovo,
+    pool: &Pool<Sqlite>, 
+    json:  model::ClienteNovo,
 
 ) -> Result< String > {
-    
-    Ok("0".to_string())    
+   
+    let id = nanoid::nanoid!(12);
+    let _ = sqlx::query!(
+        r#" insert into cliente
+                 (id,
+                 nome,
+                 cidade) values
+                 ($1,
+                 $2,
+                 $3)
+                "#,
+        id,
+        json.nome,
+        json.cidade,
+    )
+    .execute(pool)
+    .await;
+    // .map_err(Into::into)
+    Ok(id)
 }
 
 pub async fn atualizar_cliente(

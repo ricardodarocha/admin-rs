@@ -8,7 +8,7 @@ pub async fn abrir_produto(pool: &Pool<Sqlite>, id: String) -> Option<Produto> {
 
     match produto {
         Ok(value) => {
-            info!("📦 Produto localizado {}", id);
+            info!("📦 Produto {}", id);
             Some(value)
         }
         Err(err) => {
@@ -18,3 +18,16 @@ pub async fn abrir_produto(pool: &Pool<Sqlite>, id: String) -> Option<Produto> {
     }
 }
 
+pub async fn inserir_produto_json(pool: &Pool<Sqlite>, form: crate::models::pedido::ProdutoNovo) -> Option<Produto> {
+    let id_produto = repo::inserir_produto_json(pool, form).await;
+    match id_produto {
+        Ok(id) => {
+            abrir_produto(pool, id).await
+        }
+        Err(err) => {
+            error!("❌ {}", err);
+            None
+        }
+    }
+    
+}

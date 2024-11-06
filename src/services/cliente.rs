@@ -17,11 +17,10 @@ pub async fn inserir_cliente_form(pool: &Pool<Sqlite>, form: FormCliente) -> Opt
 
     match id_cliente {
         Ok(id) => {
-            info!("Cliente inserido {}", id);
             abrir_cliente(pool, &id).await
         }
         Err(err) => {
-            error!("❌{}", err);
+            error!("❌ {}", err);
             None
         }
     }
@@ -46,9 +45,11 @@ pub async fn atualizar_cliente(pool: &Pool<Sqlite>, id: String, form: FormClient
 
 pub async fn abrir_cliente(pool: &Pool<Sqlite>, id: &str) -> Option<Cliente> {
     match repo::abrir_cliente(pool, &id.to_string()).await {
-        Ok(cliente) => Some(cliente),
+        Ok(cliente) => {
+            info!("🙋‍♂️ cliente {}", id);
+            Some(cliente)},
         Err(err) => {
-            error!("❌ Erro ao abrir cliente {}", err);
+            error!("🤷‍♂️ Erro ao abrir cliente. {}", err);
             None
         }
     }

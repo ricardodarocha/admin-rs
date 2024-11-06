@@ -31,16 +31,25 @@ use crate::infra::minijinja_utils;
 use actix_web::{cookie::Key, middleware};
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 
+fn get_host_port() -> (String, String) {
+    
+    let host = std::env::var("HOST").unwrap_or_else(|_| "localhost".to_string());
+    let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_string());
+    (host, port)
+}
+
 async fn configure_minijinja() -> Arc<Environment<'static>> {
     let mut env = Environment::new();
 
-    env.add_filter("fmtdate", minijinja_utils::fmtdate);
+    env.add_filter("fmtdate", minijinja_utils::fmtdate);    
     env.add_filter("fmtdateopt", minijinja_utils::fmtdateopt);
     env.add_filter("fmttime", minijinja_utils::fmttime);
     env.add_filter("fmttimeopt", minijinja_utils::fmttimeopt);
     env.add_filter("fmt", minijinja_utils::fmt);
     env.add_filter("fmt3", minijinja_utils::fmt3);
-    env.add_filter("format", minijinja_utils::format_filter);
+
+    env.add_function("format", minijinja_utils::format_filter);
+    env.add_function("url_for", |route: String| minijinja_utils::url_for(&route));
 
     env.set_loader(minijinja::path_loader("resources/views"));
     Arc::new(env)
@@ -56,11 +65,12 @@ async fn not_found() -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(Env::default().default_filter_or("info"));
-    // dotenv::dotenv().ok();
+    dotenv::dotenv().ok();
 
     let database = sqlx::sqlite::SqlitePool::connect("sqlite://my_database.db").await.unwrap();
     let client = reqwest::Client::new();
     let render = configure_minijinja().await;
+    let (host, port) = get_host_port();
 
     let _ = sqlx::migrate!().run(&database.clone()).await.map_err(|e| format!("Erro na migração do banco de dados {e}"));
 
@@ -134,7 +144,7 @@ async fn main() -> std::io::Result<()> {
             .service(json_post_new_pedido)
             .default_service(web::to(not_found))
     })
-        .bind(("localhost", 8080))?
+        .bind(format!("{}:{}", host, port))?
         .run()
         .await
 }

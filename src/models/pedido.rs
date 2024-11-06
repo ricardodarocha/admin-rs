@@ -39,17 +39,13 @@ use crate::models::produto::*;
 pub struct ProdutoExiste {
     pub id: String,
     pub nome: Option<String>,
-    pub avatar: Option<String>,
 } 
 
 #[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
-pub struct ProdutoId(
-    String
-);
-#[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct ProdutoNovo {
     pub nome: String,
-    pub descicao: Option<String>,
+    pub descricao: Option<String>,
+    pub preco: f32,
     pub eancode: Option<String>,
     // Dados minimos para inserir o produto
     // ...
@@ -63,15 +59,15 @@ pub struct ProdutoNovo {
 } 
 
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(untagged)]
 pub enum PostProduto {
-    IdProduto(ProdutoId),
+    IdProduto(String),
     NovoProduto(ProdutoNovo),
     ProdutoJaExiste(ProdutoExiste),
 }    
 
 #[derive(Clone, Serialize, Deserialize)]
-    pub struct PostItem {
-        pub num_pedido: i64, 
+    pub struct PostItem { 
         pub produto: PostProduto,
         pub quant: f32,
     }
@@ -87,13 +83,13 @@ pub enum PostProduto {
 // Recebe dados do pedido via json
 #[derive(Clone, Serialize, Deserialize)]
     pub struct PostPedido {
-        pub num: Option<i64>,
         pub nosso_numero: Option<String>,
         // pub data
+        
         pub cliente: PostCliente,
         pub valor: Option<f64>,
         pub status: Option<String>,
-        pub itens: Vec<ItemModel>,
+        pub itens: Vec<PostItem>,
     }
     
 // Recebe dados do pedido via form

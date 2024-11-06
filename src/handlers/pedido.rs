@@ -82,13 +82,11 @@ pub async fn json_post_pedido(
     ) -> impl Responder {
 
     let pool = &data.database;
-    let id_pedido = path.into_inner();
-    let mut pedido = pedido.into_inner();
-    if id_pedido > 0 {
-        pedido.num = Some(id_pedido);
-    }
+    let path_pedido = path.into_inner();
+    let id_pedido = if path_pedido == 0 { None } else {Some(path_pedido)};
+    let pedido = pedido.into_inner();
 
-    let pedido = repo::inserir_pedido_from_json(pool, &pedido).await;
+    let pedido = repo::inserir_pedido_from_json(pool, &pedido, &id_pedido).await;
 
     match pedido {
         Ok(value) => {
@@ -96,7 +94,7 @@ pub async fn json_post_pedido(
             HttpResponse::Ok().json(value)
         }
         Err(err) => {
-            error!("❌{}", err);
+            error!("❌ {}", err);
             HttpResponse::InternalServerError().json(err.to_string())
         }
     }

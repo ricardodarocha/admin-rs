@@ -1,7 +1,7 @@
 use log::{error, info};
 // use minijinja::context;
 use sqlx::{Pool, Sqlite};
-use crate::models::pedido::{ItemModel, PedidoModel};
+use crate::models::pedido::{PedidoModel, PostItem};
 
 use crate::models::QueryFiltroPedido;
 use crate::repository::pedido as repo;
@@ -48,7 +48,7 @@ pub async fn inserir_pedido(pool: &Pool<Sqlite>, cliente: String) -> Option<Pedi
     
 }
 
-pub async fn inserir_item(pool: &Pool<Sqlite>, pedido: i64, item: ItemModel) -> Option<PedidoModel> {
+pub async fn inserir_item(pool: &Pool<Sqlite>, pedido: i64, item: PostItem) -> Option<PedidoModel> {
     let item_inserido = repo::inserir_item_pedido(pool, pedido, &item).await;
     
     match item_inserido {
@@ -56,9 +56,15 @@ pub async fn inserir_item(pool: &Pool<Sqlite>, pedido: i64, item: ItemModel) -> 
             
             let pedido = repo::abrir_pedido(pool, pedido).await;
             match pedido {
-                Ok(value) => {
-                info!("➕ item inserido {:>30} {}", item.produto.descricao, item.quant);
-                return Some(value);
+                Ok(pedido) => {
+                info!("➕ item inserido)");
+                println!("________________________________________");
+                
+                for item in pedido.clone().itens.into_iter() {
+                    println!("{:>30} ..... {}", item.produto.descricao, item.quant)
+                }
+
+                return Some(pedido);
                 },
             Err(err) => {
                 error!("♨ Erro ao inserir pedido{}", err);

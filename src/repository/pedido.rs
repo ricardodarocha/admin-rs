@@ -1,43 +1,69 @@
 
+use crate::infra::error::Error;
 use crate::infra::strings::anonimizar;
 
 use log::info;
 use sqlx::{Pool, Sqlite};
 use crate::models::cliente::Cliente;
-use crate::models::pedido::{ItemModel, PedidoModel, PostPedido};
+use crate::models::pedido::{ItemModel, PedidoModel, PostItem, PostPedido};
 use crate::{models as query, services};
 use crate::infra::result::Result;
 
 pub async fn inserir_pedido(pool: &Pool<Sqlite>, cliente: &String) -> Result<i64> {
     // certifica que o cliente existe;
-    let nome_cliente = sqlx::query_scalar!("select nome from cliente where id = $1", cliente)
+    let nome_cliente = sqlx::query_scalar!("select nome from cliente where upper(id) = upper($1)", cliente)
     .fetch_one(pool)
     .await?;
 
     info!("Inserindo pedido para o cliente {}", anonimizar(nome_cliente.as_ref()));
 
-    let _ = sqlx::query!("insert into pedido (cliente) values ($1); ", cliente)
+    let _ = sqlx::query!("insert into pedido (cliente) select id from cliente where upper(id) = upper($1) limit 1 ; ", cliente)
     .execute(pool)
     .await?;
 
-    let id = sqlx::query_scalar!("select max(num) from pedido where cliente = $1", cliente)
+    let id = sqlx::query_scalar!("select max(num) from pedido where upper(cliente) = upper($1)", cliente)
+    .fetch_one(pool)
+    .await?.unwrap();
+
+    Ok(id)
+}
+pub async fn atualizar_pedido(pool: &Pool<Sqlite>, num_pedido: &i64, cliente: &String) -> Result<i64> {
+    // Só pode atualizar pedido com status = novo
+    let pedido_status = sqlx::query_scalar!(
+        r#"select  status  as "status: String" from pedido where num = $1"#, num_pedido)
+    .fetch_one(pool)
+    .await;
+
+    if pedido_status.is_err() {
+        return Err(Error::Str("Somente pedidos novos podem ser alterados"));
+    }
+    
+    // certifica que o cliente existe;
+    let nome_cliente = sqlx::query_scalar!("select nome from cliente where upper(id) = upper($1)", cliente)
+    .fetch_one(pool)
+    .await?;
+
+    info!("Atualizando pedido {num_pedido}  para o cliente {}", anonimizar(nome_cliente.as_ref()));
+
+    let _ = sqlx::query!("update pedido set cliente =  (select id from cliente where upper(id) = upper($1) limit 1)  where num = $2 ; ", 
+    cliente, 
+    num_pedido)
+    .execute(pool)
+    .await?;
+
+    let id = sqlx::query_scalar!("select max(num) from pedido where upper(cliente) = upper($1)", cliente)
     .fetch_one(pool)
     .await?.unwrap();
 
     Ok(id)
 }
 
-pub async fn inserir_pedido_from_json(pool: &Pool<Sqlite>, pedido: &PostPedido) -> Result<PedidoModel> {
+pub async fn inserir_pedido_from_json(pool: &Pool<Sqlite>, novo_pedido: &PostPedido, id_pedido: &Option<i64>) -> Result<PedidoModel> {
     
-    //se o id do pedido foi informado, entao edita
-    //se o id do pedido nao foi informado, entao insere
-    let id_pedido = if let Some(id_pedido) = pedido.clone().num {
-        id_pedido
-    } else  {
-        //Vamos inserir o pedido.
-        //Para isso precisa verificar o ID do cliente
-        let id_cliente = match pedido.clone().cliente {
-            query::cliente::PostCliente::IdCliente(cliente_id) => cliente_id.0,
+    //Antes de inserir o pedido, vamos verificar se o cliente ja foi cadastrado
+    //Para isso precisa verificar o ID do cliente
+        let id_cliente = match novo_pedido.clone().cliente {
+            query::cliente::PostCliente::IdCliente(id) => id,
             query::cliente::PostCliente::ClienteJaExiste(cliente) => cliente.id,
             query::cliente::PostCliente::NovoCliente(post_cliente) => {
                 let id = services::cliente::inserir_cliente_json(&pool, post_cliente.clone()).await.unwrap().id;
@@ -46,20 +72,22 @@ pub async fn inserir_pedido_from_json(pool: &Pool<Sqlite>, pedido: &PostPedido) 
         };
 
 
-        inserir_pedido(pool, &id_cliente).await.unwrap()
-    
-        };
-
-        let pedido = abrir_pedido(pool, id_pedido).await.unwrap();
-    
-    info!("Inserindo pedido via json para o cliente {}", anonimizar(pedido.clone().cliente.nome.as_ref()));
+    //se o id do pedido foi informado, entao edita
+    //se o id do pedido nao foi informado, entao insere, retornando o nome id
+    let id_pedido = if let Some(id_pedido) = id_pedido {
+        atualizar_pedido(pool, id_pedido, &id_cliente).await?
+    } else  {
+        inserir_pedido(pool, &id_cliente).await?
+    };
+    info!("⏳ Criando pedido");
     
     //limpa itens e insere novamente
     let _ = sqlx::query!("delete from item where num_pedido = $1", id_pedido).execute(pool).await;
-    for item in pedido.clone().itens.into_iter(){
+    for item in novo_pedido.clone().itens.into_iter(){
         inserir_item_pedido(pool,  id_pedido, &item).await ?;              
         
     }   
+    info!("⏳ recalculando totais...");
 
     //atualiza o total
     let _ = sqlx::query!("UPDATE pedido
@@ -76,12 +104,14 @@ pub async fn inserir_pedido_from_json(pool: &Pool<Sqlite>, pedido: &PostPedido) 
     .await?;
 
     let pedido = abrir_pedido(pool, id_pedido).await?;
+    
+    info!("✅ Pedido inserido via json para o cliente {}", anonimizar(pedido.clone().cliente.nome.as_ref()));
 
     Ok(pedido)
 }
 
 
-pub async fn inserir_item_pedido(pool: &Pool<Sqlite>, pedido: i64, item: &ItemModel) -> Result<bool> {
+pub async fn inserir_item_pedido(pool: &Pool<Sqlite>, pedido: i64, item: &PostItem) -> Result<bool> {
     // certifica que o pedido existe
     let num_pedido = sqlx::query_scalar!("select num from pedido where num  = $1", pedido)
     .fetch_one(pool)
@@ -89,11 +119,21 @@ pub async fn inserir_item_pedido(pool: &Pool<Sqlite>, pedido: i64, item: &ItemMo
 
     info!("Inserindo item para o pedido {}", num_pedido);
 
+    //Certifica que o item existe
+    let id_produto = match item.clone().produto  {
+        query::pedido::PostProduto::IdProduto(id) => id,
+        query::pedido::PostProduto::ProdutoJaExiste(produto) => produto.id,
+        query::pedido::PostProduto::NovoProduto(produto_novo) => {
+                let id = services::produto::inserir_produto_json(&pool, produto_novo.clone()).await.unwrap().id;
+                id
+            },
+        };
+
     let _ = sqlx::query!("insert into item ( num_pedido,
-        produto, quant) values ($1, $2, $3)
+        produto, quant) values ($1, (select id from produto where upper(id) = upper($2)), $3)
         ; ", 
         pedido,
-        item.produto.id,
+        id_produto,
         item.quant,
     )
     .execute(pool)

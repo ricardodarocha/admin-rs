@@ -57,3 +57,6 @@ unicode_categories = "0.1.1"
 serde_default = "0.2.0"
 sha2 = "0.10.8"
 hex = "0.4.3"
+nanoid = "0.4.0"
+validator = { version = "0.16.1", features = ["derive"] }
+actix-web-validator = "6.0.0"
