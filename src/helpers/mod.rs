@@ -232,12 +232,12 @@ pub mod por_extenso {
     use numero_por_extenso::{por_extenso, TipoExtenso};
 
     pub fn numero_por_extenso(num: u32) -> String {
-        por_extenso(123456, TipoExtenso::DECIMAL)
+        por_extenso(num, TipoExtenso::DECIMAL)
     
     }    
     
     pub fn dinheiro_por_extenso(num: u32) -> String {
-        por_extenso(123456, TipoExtenso::MONETARIO)
+        por_extenso(num, TipoExtenso::MONETARIO)
     }
 
 #[cfg(test)]
