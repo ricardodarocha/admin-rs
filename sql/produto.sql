@@ -1,7 +1,4 @@
-select id,
-    nome,
-    preco,
-    descricao,
-    avatar
-from produto
-order by nome;
+
+
+select id, nome, quant, avg(total) FROM
+item join produto on produto.id = item.produto;

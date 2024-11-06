@@ -27,6 +27,7 @@ FROM pedido
     INNER JOIN cidade on cidade.nome = cliente.cidade
 WHERE status = 'pronto'
     AND data >= DATE('now', '-12 months')
+    and valor is not null
 GROUP BY ano,
     mes_numero,
     cliente,

@@ -8,6 +8,7 @@ produto(
 );
 
 INSERT INTO produto
+(id, nome, descricao, preco, avatar) 
 VALUES (
         'P006',
         'X-Burguer',
