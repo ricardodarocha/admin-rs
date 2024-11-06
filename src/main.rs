@@ -57,7 +57,6 @@ async fn configure_minijinja() -> Arc<Environment<'static>> {
     env.add_filter("fmt", helpers::filter::fmt);
     env.add_filter("fmt3", helpers::filter::fmt3);
 
-    
     env.add_filter("mascara", helpers::mascara);
     env.add_filter("anonimizar", helpers::anonimizar);
     env.add_filter("fmt_decimal", helpers::fmt_decimal);
