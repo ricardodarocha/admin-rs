@@ -2,6 +2,7 @@
 use log::{error, info};
 use sqlx::{Pool, Sqlite};
 use crate::models::cliente::{Cliente, ClienteNovo, FormCliente};
+use crate::models::QueryFiltroCliente;
 use crate::repository::cliente as repo;
 
 pub async fn inserir_cliente_json(pool: &Pool<Sqlite>, form: ClienteNovo) -> Option<Cliente> {
@@ -60,4 +61,19 @@ pub async fn inserir_ou_alterar_cliente(pool: &Pool<Sqlite>, id: String, form: F
         "0" => inserir_cliente_form(pool, form).await,
         id => atualizar_cliente (pool, id.to_string(), form).await,
     } 
+}
+
+pub async fn abrir_lista_clientes(pool: &Pool<Sqlite>, filtro: &QueryFiltroCliente) -> Vec<Cliente> {
+     
+    let lista = repo::abrir_lista_clientes(pool, &filtro).await;
+    match lista {
+        Ok(value) => {
+            info!("👥👤 {} clientes... ", value.len());
+            value
+        },
+        Err(err) => {
+            error!("👨‍🚒 erro ao carregar lista de clientes. {}", err);
+            vec!()
+        }
+    }
 }

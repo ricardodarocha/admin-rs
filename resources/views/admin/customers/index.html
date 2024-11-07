@@ -1,0 +1,33 @@
+{% extends "admin/layout.html" %}
+{% block content %}
+<div class="p-10 max-w-screen-2xl mx-auto">
+    <article class="p-6 rounded bg-white drop-shadow">
+        <header class="border-b border-gray-300">
+            <h2 class="w-fit">
+                <i class="bi bi-box text-xl mr-1"></i>
+                <span class="text-xl">clientes</span>
+            </h2>
+            <p class="w-fit pb-1 border-b-8 border-gray-300 text-xs text-gray-500">Admin / clientes / Lista</p>
+        </header>
+        <div class="mt-6">
+            {% for cliente in clientes %}
+            <div
+                class="w-full p-2 flex items-center border-b border-gray-300 {% if loop.index is even %} bg-gray-100 {% endif %}">
+                <img src="{{ cliente.avatar }}" alt="Imagem do cliente {{ cliente.id }} - {{ cliente.nome }}"
+                    class="h-20 w-20">
+                <ul class="flex-grow ml-2 px-2 grid grid-cols-12 auto-cols-fr text-sm border-x border-gray-300">
+                    <li class="col-span-2"><span class="font-semibold mr-1">Código:</span>#{{ cliente.id }}</li>
+                    <li class="col-span-full"><span class="font-semibold mr-1">Nome:</span>{{ cliente.nome }}</li>
+                    <li class="col-span-2"><span class="font-semibold mr-1">Cidade:</span>{{ cliente.cidade }}</li>
+
+                </ul>
+                <div class="flex items-center">
+                    <a href="#" class="w-fit ml-4"><i class="bi bi-pencil no-text"></i></a>
+                    <a href="#" class="w-fit ml-4"><i class="bi bi-trash no-text"></i></a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </article>
+</div>
+{% endblock %}
