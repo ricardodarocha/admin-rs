@@ -1,6 +1,7 @@
 use log::{error, info};
 use sqlx::{Pool, Sqlite};
 use crate::models::produto::Produto;
+use crate::models::QueryFiltro;
 use crate::repository::produto as repo;
 
 pub async fn abrir_produto(pool: &Pool<Sqlite>, id: String) -> Option<Produto> {
@@ -14,6 +15,21 @@ pub async fn abrir_produto(pool: &Pool<Sqlite>, id: String) -> Option<Produto> {
         Err(err) => {
             error!("📦 {}", err);
             None
+        }
+    }
+}
+
+pub async fn abrir_lista_produtos(pool: &Pool<Sqlite>, filtro: QueryFiltro) -> Vec<Produto> {
+    
+    let lista = repo::abrir_lista_produtos(pool, &filtro).await;
+    match lista {
+        Ok(value) => {
+            info!("🛒 {} produtos... ", value.len());
+            value
+        },
+        Err(err) => {
+            error!("🔨 erro ao carregar produtos. {}", err);
+            vec!()
         }
     }
 }

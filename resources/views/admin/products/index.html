@@ -10,14 +10,14 @@
             <p class="w-fit pb-1 border-b-8 border-gray-300 text-xs text-gray-500">Admin / Produtos / Lista</p>
         </header>
         <div class="mt-6">
-            {% for i in range(1, 11) %}
-            <div class="w-full p-2 flex items-center border-b border-gray-300 {% if i % 2 == 0 %}bg-gray-100{% endif %}">
-                <img src="https://picsum.photos/150?random={{ i }}" alt="Imagem do produto {{ i }}" class="h-20 w-20">
+            {% for produto in produtos %}
+            <div class="w-full p-2 flex items-center border-b border-gray-300 {% if loop.index is even %} bg-gray-100 {% endif %}">
+                <img src="{{ produto.avatar }}" alt="Imagem do produto {{ produto.id }} - {{ produto.nome }}" class="h-20 w-20">
                 <ul class="flex-grow ml-2 px-2 grid grid-cols-12 auto-cols-fr text-sm border-x border-gray-300">
-                    <li class="col-span-2"><span class="font-semibold mr-1">Código:</span>#{{ i }}</li>
-                    <li class="col-span-2"><span class="font-semibold mr-1">Preço:</span>R$ 22,50</li>
-                    <li class="col-span-full"><span class="font-semibold mr-1">Nome:</span>X-Burguer</li>
-                    <li class="col-span-full"><span class="font-semibold mr-1">Descrição:</span>Pão, hambúrguer bovino, queijo, alface, tomate e maionese especial</li>
+                    <li class="col-span-2"><span class="font-semibold mr-1">Código:</span>#{{ produto.id }}</li>
+                    <li class="col-span-2"><span class="font-semibold mr-1">Preço:</span>{{ produto.preco }}</li>
+                    <li class="col-span-full"><span class="font-semibold mr-1">Nome:</span>{{ produto.nome }}</li>
+                    <li class="col-span-full"><span class="font-semibold mr-1">Descrição:</span>{{ produto.descricao }}</li>
                 </ul>
                 <div class="flex items-center">
                     <a href="#" class="w-fit ml-4"><i class="bi bi-pencil no-text"></i></a>

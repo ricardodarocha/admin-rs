@@ -17,6 +17,7 @@ pub async fn abrir_lista_produtos(pool: &Pool<Sqlite>, filtro: &query::QueryFilt
         model::Produto,
         r#" select
                  id,
+                 nome,
                  descricao,
                  preco as "preco: f32",
                  avatar
@@ -35,6 +36,7 @@ pub async fn abrir_produto(pool: &Pool<Sqlite>, id: &String) -> Result<Produto> 
         Produto,
         r#" select
                  id,
+                 nome,
                  descricao,
                  preco as "preco: f32",
                  avatar
