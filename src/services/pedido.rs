@@ -96,8 +96,8 @@ pub async fn abrir_lista_pedidos(pool: &Pool<Sqlite>, cliente: &String, filtro: 
     match pedido {
         Ok(value) => {
             info!("📋 pedidos listados ");
-            info!("🙎‍♂️ cliente {}", cliente);
-            info!("🗃 página {}, {}..{} ", pagina, ini, fim);
+            info!("🙎‍ cliente {}", cliente);
+            info!("📖 página {}, {}..{} ", pagina, ini + 1, fim);
             value
         }
         Err(err) => {

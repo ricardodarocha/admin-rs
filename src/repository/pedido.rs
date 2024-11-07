@@ -243,6 +243,7 @@ pub async fn abrir_lista_pedidos(
                     'produto', 
                          json_object(
                              'id', pro.id,
+                             'nome', pro.nome,
                              'descricao', pro.descricao,
                              'preco', pro.preco,
                              'avatar', pro.avatar
@@ -271,12 +272,26 @@ pub async fn abrir_lista_pedidos(
                 .into_iter()
                 .map(|pedido| {
                     
-                    let itens: Vec<ItemModel> = serde_json::from_str(&pedido.itens.unwrap_or("[]".to_string())).unwrap();
-                    let cliente: Cliente = serde_json::from_str(&pedido.cliente.unwrap_or("{}".to_string())).unwrap();
+                    let itens: Vec<ItemModel> = match serde_json::from_str(&pedido.itens.unwrap_or("[]".to_string())) {
+                        Ok(itens) => itens,
+                        Err(e) => {
+                            println!("Erro ao desserializar itens: {:?}", e);
+                            Vec::new() // Retorna um vetor vazio em caso de erro
+                        }
+                    };
+
+                    // Tenta desserializar o cliente; em caso de erro, retorna None e imprime o erro
+                    let cliente: Option<Cliente> = match serde_json::from_str(&pedido.cliente.unwrap_or("{}".to_string())) {
+                        Ok(cliente) => Some(cliente),
+                        Err(e) => {
+                            println!("Erro ao desserializar cliente: {:?}", e);
+                            None // Retorna None em caso de erro
+                        }
+                    };
 
                     PedidoModel {
                         num: pedido.num,
-                        cliente,
+                        cliente: cliente.unwrap(),
                         valor: pedido.valor.unwrap_or_default(),
                         status: pedido.status,
                         itens,
