@@ -9,9 +9,7 @@ use crate::services::produto as service;
 async fn products_index(
     data: web::Data<AppState>,
     filtro: web::Query<QueryFiltro>,
-
 ) -> impl Responder {
-
     let pool = &data.database;
     let find_menus = repo_menus::carregar_menus(&pool).await;
     let menus = match find_menus {
@@ -38,6 +36,61 @@ async fn products_index(
         .body(rendered)
 }
 
+#[get("/produtos/produto/criar")]
+async fn new_product(
+    data: web::Data<AppState>
+) -> impl Responder {
+    let pool = &data.database;
+    let find_menus = repo_menus::carregar_menus(&pool).await;
+    let menus = match find_menus {
+        Ok(menus) => {
+            menus
+        }
+        Err(_) => {
+            vec!()
+        }
+    };
+    let tmpl = data.render.get_template("admin/products/create.html").unwrap();
+
+    let rendered = tmpl.render(context! {
+        title => "Produtos",
+        active_menu => "produtos",
+        menus
+    }).unwrap();
+    HttpResponse::Ok()
+        .content_type("text/html")
+        .body(rendered)
+}
+
+#[get("/produtos/produto/editar/{product_id}")]
+async fn product_edit(
+    data: web::Data<AppState>
+) -> impl Responder {
+    let pool = &data.database;
+    let find_menus = repo_menus::carregar_menus(&pool).await;
+    let menus = match find_menus {
+        Ok(menus) => {
+            menus
+        }
+        Err(_) => {
+            vec!()
+        }
+    };
+    let tmpl = data.render.get_template("admin/products/edit.html").unwrap();
+
+    let rendered = tmpl.render(context! {
+        title => "Produtos",
+        active_menu => "produtos",
+        menus
+    }).unwrap();
+    HttpResponse::Ok()
+        .content_type("text/html")
+        .body(rendered)
+}
+
 pub fn routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(products_index);
+    cfg
+        .service(products_index)
+        .service(new_product)
+        .service(product_edit);
 }

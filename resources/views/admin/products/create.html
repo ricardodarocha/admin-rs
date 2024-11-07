@@ -1,9 +1,62 @@
 {% extends "admin/layout.html" %}
 {% block content %}
-<article>
-  <header>
-    <h2>Novo Produto</h2>
-    <p>Produtos / Novo Produto / Criar</p>
-  </header>
+<article class="p-10 max-w-screen-lg mx-auto">
+    <header class="flex items-center justify-between p-6 rounded bg-white drop-shadow">
+        <div class="w-fit">
+            <h2 class="w-fit">
+                <i class="bi bi-box text-xl mr-1"></i>
+                <span class="text-xl">Novo Produto</span>
+            </h2>
+            <p class="w-fit text-xs text-gray-500">
+                <i class="bi bi-chevron-double-right mr-1"></i>Admin / Produtos / Produto / Criar</p>
+        </div>
+    </header>
+    <div class="mt-6 rounded bg-white drop-shadow">
+        <div class="p-6 flex justify-between border-b border-gray-200">
+            <p class="w-fit text-sm font-medium uppercase">Dados do Produto</p>
+            <p class="w-fit flex items-center text-xs text-red-500">* Campos obrigatórios</p>
+        </div>
+        <form method="post" action="{{ url('admin/produtos/produto/novo') }}" autocomplete="off"
+              class="p-6 grid grid-cols-12 auto-cols-fr gap-3">
+            <div class="col-span-full">
+                <label for="descricao" class="block uppercase text-xs text-gray-600">* Produto:</label>
+                <input type="text" name="descricao" value="" id="descricao" autofocus required
+                       class="w-full p-3 border border-gray-600 rounded j_input">
+                <p class="j_input_message j_descricao_message text-xs text-red-500"></p>
+            </div>
+            <div class="col-span-6">
+                <label for="id" class="block uppercase text-xs text-gray-600">* Código:</label>
+                <input type="text" name="id" value="" id="id" class="w-full p-3 border border-gray-600 rounded j_input"
+                       required>
+                <p class="j_input_message j_id_message text-xs text-red-500"></p>
+            </div>
+            <div class="col-span-6">
+                <label for="preco" class="block uppercase text-xs text-gray-600">* Preço (R$):</label>
+                <input type="text" name="preco" value="" id="preco"
+                       class="w-full p-3 border border-gray-600 rounded j_input" required>
+                <p class="j_input_message j_preco_message text-xs text-red-500"></p>
+            </div>
+            <div class="col-span-full">
+                <label for="descricao" class="block uppercase text-xs text-gray-600">* Descrição:</label>
+                <textarea name="descricao" value="" id="descricao" rows="5" class="w-full p-3 border border-gray-600 rounded
+             resize-none j_input" required></textarea>
+                <p class="j_input_message j_descricao_message text-xs text-red-500"></p>
+            </div>
+            <div class="col-span-full">
+                <label for="avatar" class="block uppercase text-xs text-gray-600">Imagem: (JPG, JPEG ou PNG)</label>
+                <input type="file" name="avatar" value="" id="avatar" class="w-full p-3 border border-gray-600 rounded
+                j_input" accept=".jpg, .jpeg, .png">
+                <p class="j_input_message j_avatar_message text-xs text-red-500"></p>
+            </div>
+            <div class="col-span-full flex justify-end mt-3">
+                <button type="submit" class="px-6 h-12 flex items-center justify-center text-sm rounded bg-green-600 font-medium
+                        text-white hover:bg-green-500">
+                    <span class="basis-auto">GRAVAR</span>
+                    <img src="{{ url('resources/images/load-white.gif') }}" class="hidden w-7 ml-4 j_load basis-auto"
+                         alt="load">
+                </button>
+            </div>
+        </form>
+    </div>
 </article>
 {% endblock %}
