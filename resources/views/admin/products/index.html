@@ -11,7 +11,7 @@
                 <i class="bi bi-chevron-double-right mr-1"></i>Admin / Produtos / Lista</p>
         </div>
         <div class="w-fit">
-            <a href="{{ url('/admin/produtos/produto/criar') }}" class="p-2 text-sm text-white bg-blue-600 rounded hover:bg-blue-500">
+            <a href="{{ url('/admin/produtos/novo') }}" class="p-2 text-sm text-white bg-blue-600 rounded hover:bg-blue-500">
                 <i class="bi bi-plus-circle-fill text-sm mr-1"></i>Novo Produto</a>
         </div>
     </header>
@@ -20,7 +20,7 @@
         <article class="col-span-4 block bg-white drop-shadow rounded">
             <div class="w-full h-64">
                 <img src="{{ produto.avatar }}" alt="Imagem do produto {{ produto.id }} - {{ produto.nome }}"
-                     class="w-full h-full object-cover object-center">
+                     class="w-full h-full object-contain object-center">
             </div>
             <div class="p-3 grid grid-cols-2 auto-cols-fr gap-3 border-y border-gray-200">
                 <div>
@@ -41,7 +41,7 @@
                 </div>
             </div>
             <div class="py-3 flex justify-center gap-3">
-                <a href="{{ url('admin/produtos/produto/editar/' ~ produto.id) }}" class="px-2 h-8 flex justify-center items-center text-sm bg-blue-600 text-white rounded
+                <a href="{{ url('admin/produto/editar/' ~ produto.id) }}" class="px-2 h-8 flex justify-center items-center text-sm bg-blue-600 text-white rounded
                         hover:bg-blue-500">
                     <i class="bi bi-pencil text-sm mr-1"></i>Editar</a>
                 <a href="#" class="px-2 h-8 flex justify-center items-center text-sm bg-gray-200 rounded

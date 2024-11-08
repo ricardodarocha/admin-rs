@@ -23,7 +23,7 @@ use reqwest;
 use handlers::cliente::{json_all_cliente, json_cliente, web_cliente, web_cliente_submit};
 use handlers::grafico::{json_all_grafico, json_grafico};
 use handlers::pedido::{json_all_pedido, json_pedido, json_post_pedido, json_post_new_pedido};
-use handlers::produto::{json_all_produto, json_produto, web_produto, web_produto_submit};
+use handlers::produto::{json_all_produto, json_produto};
 use handlers::relatorio::vendas_por_mes;
 use crate::app::AppState;
 
@@ -47,7 +47,6 @@ async fn configure_minijinja() -> Arc<Environment<'static>> {
     env.add_function("fmt_cnpj", helpers::fmt_cnpj);
     env.add_function("fmt_cep", helpers::fmt_cep);
     env.add_function("numero_por_extenso", helpers::por_extenso::numero_por_extenso);
-    env.add_function("dinheiro_por_extenso", helpers::por_extenso::dinheiro_por_extenso);
 
 
     env.add_filter("fmtdate", helpers::filter::fmtdate);    
@@ -64,7 +63,6 @@ async fn configure_minijinja() -> Arc<Environment<'static>> {
     env.add_filter("fmt_cnpj", helpers::fmt_cnpj);
     env.add_filter("fmt_cep", helpers::fmt_cep);
     env.add_filter("numero_por_extenso", helpers::por_extenso::numero_por_extenso);
-    env.add_filter("dinheiro_por_extenso", helpers::por_extenso::dinheiro_por_extenso);
 
     env.add_function("format", helpers::filter::format_filter);
     // env.add_function("url_for", |route: String| minijinja_utils::url_for(&route));
@@ -146,8 +144,6 @@ async fn main() -> std::io::Result<()> {
             .configure(admin::routes)
             .configure(testes::routes)
             // rotas que exigem login
-            .service(web_produto)
-            .service(web_produto_submit)
             .service(web_cliente)
             .service(web_cliente_submit)
             .service(json_cliente)

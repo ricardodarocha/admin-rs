@@ -24,9 +24,9 @@ async fn login_submit(
     form: web::Form<LoginForm>,
     data: web::Data<AppState>,
 ) -> impl Responder {
-    const HORAS_DIA: u64 = 24;
-    const MINUTOS_HORA: u64 = 60;
-    const SEGUNDOS_MINUTO: u64 = 60;
+    const HORAS: u64 = 24;
+    const MINUTOS: u64 = 60;
+    const SEGUNDOS: u64 = 60;
 
     info!("Tentativa de LOGIN: {:?}", anonimizar(form.email.as_ref()));
     let web::Form(form) = form;
@@ -36,8 +36,9 @@ async fn login_submit(
     if let Some(valid_login) = login_inspect {
         if valid_login {
             info!("🙎‍♂️ Acesso concedido ✔ ");
-            let token = token(&form.email, Duration::from_secs(15 * HORAS_DIA * MINUTOS_HORA * SEGUNDOS_MINUTO))
-                .expect("Erro ao desempactoar o token");
+            let dias = HORAS * MINUTOS * SEGUNDOS;
+            let token = token(&form.email, Duration::from_secs(15 * dias))
+                .expect("Erro ao desempacotar o token");
 
             session.insert("token", token.clone()).unwrap();
             session.insert("user_id", form.email.clone()).unwrap();
@@ -73,7 +74,7 @@ async fn login_submit(
                         "email":"",
                         "password":""
                     },
-                    "toast":rendered
+                    "toast": rendered
                 }))
             /*
             Error::Detailed {

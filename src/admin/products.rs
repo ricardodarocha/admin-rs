@@ -1,10 +1,18 @@
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_session::Session;
+use actix_web::web::Path;
+use actix_web::{get, post, web, HttpResponse, Responder};
+use log::info;
 use minijinja::context;
 use crate::app::AppState;
+use crate::infra::jwt::jwt_secret;
+use crate::infra::toast::Toast;
+use crate::models::produto::FormProduto;
 use crate::models::QueryFiltro;
 use crate::repository::dashboard as repo_menus;
 use crate::services::produto as service;
+use crate::infra::sessao_usuario::Sessao;
 
+/// Exibe uma lista de produtos
 #[get("/produtos")]
 async fn products_index(
     data: web::Data<AppState>,
@@ -36,7 +44,8 @@ async fn products_index(
         .body(rendered)
 }
 
-#[get("/produtos/produto/criar")]
+/// Abre formulário que insere um produto
+#[get("/produtos/novo")]
 async fn new_product(
     data: web::Data<AppState>
 ) -> impl Responder {
@@ -62,10 +71,37 @@ async fn new_product(
         .body(rendered)
 }
 
-#[get("/produtos/produto/editar/{product_id}")]
+
+#[get("/produto/editar/{id}")]
 async fn product_edit(
-    data: web::Data<AppState>
+    data: web::Data<AppState>,
+    path: Path<String>,
+    session: Session,
+
 ) -> impl Responder {
+
+    let sessao_usuario = Sessao::from_session(&session, &jwt_secret()).unwrap();
+    
+    // aqui voce faz todo tipo de verificação 
+    if let Some(usuario_logado) = sessao_usuario.clone() {
+        
+        // Usuário admin
+        if usuario_logado.is_admin {
+
+        } else {
+
+        // Como esta rota requer nível admin, então redireciona
+        // return redireciona_loja();
+        };
+
+
+    } else {
+
+        // Como esta rota requer login, então redireciona
+        // return redireciona_login();
+    };
+        
+
     let pool = &data.database;
     let find_menus = repo_menus::carregar_menus(&pool).await;
     let menus = match find_menus {
@@ -77,15 +113,33 @@ async fn product_edit(
         }
     };
     let tmpl = data.render.get_template("admin/products/edit.html").unwrap();
+    let id = path.into_inner();
+    let produto = service::abrir_produto(pool, id).await;
 
     let rendered = tmpl.render(context! {
         title => "Produtos",
         active_menu => "produtos",
-        menus
+        menus,
+        produto
     }).unwrap();
     HttpResponse::Ok()
         .content_type("text/html")
         .body(rendered)
+}
+
+#[post("/produto/editar/{id}")]
+async fn web_produto_submit(
+    form: web::Form<FormProduto>,
+    data: web::Data<AppState>,
+
+) -> impl Responder {
+    
+    info!("Recebido POST com dados: {:?}", form);
+
+    let _tmpl = data.render.get_template("shared/views/ajaxToast.html").unwrap();
+
+    Toast::created("Produto inserido com sucesso")
+
 }
 
 pub fn routes(cfg: &mut web::ServiceConfig) {

@@ -1,3 +1,5 @@
+pub mod por_extenso;
+
 pub fn url(path: &str) -> String {
     let base_url = std::env::var("BASE_URL")
         .unwrap_or_else(|_| "http://localhost:8080".to_string());
@@ -227,83 +229,3 @@ pub mod filter {
         Value::from("")
         }
 }
-
-pub mod por_extenso {
-    use numero_por_extenso::{por_extenso, TipoExtenso};
-
-    pub fn numero_por_extenso(num: u32) -> String {
-        por_extenso(num, TipoExtenso::DECIMAL)
-    
-    }    
-    
-    pub fn dinheiro_por_extenso(num: u32) -> String {
-        por_extenso(num, TipoExtenso::MONETARIO)
-    }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_zero() {
-        assert_eq!(numero_por_extenso(0), "zero");
-    }
-
-    #[test]
-    fn test_unidades() {
-        assert_eq!(numero_por_extenso(1), "um");
-        assert_eq!(numero_por_extenso(9), "nove");
-    }
-
-    #[test]
-    fn test_dezenas() {
-        assert_eq!(numero_por_extenso(10), "dez");
-        assert_eq!(numero_por_extenso(12), "doze");
-        assert_eq!(numero_por_extenso(14), "quatorze");
-        assert_eq!(numero_por_extenso(21), "vinte e um");
-        assert_eq!(numero_por_extenso(94), "noventa e quatro");
-    }
-
-    #[test]
-    fn test_dezenas_especiais() {
-        assert_eq!(numero_por_extenso(11), "onze");
-        assert_eq!(numero_por_extenso(13), "treze");
-        assert_eq!(numero_por_extenso(19), "dezenove");
-    }
-
-    #[test]
-    fn test_centenas() {
-        assert_eq!(numero_por_extenso(100), "cem");
-        assert_eq!(numero_por_extenso(200), "duzentos");
-        assert_eq!(numero_por_extenso(999), "novecentos e noventa e nove");
-    }
-
-    #[test]
-    fn test_milhares() {
-        assert_eq!(numero_por_extenso(1_000), "mil");
-        assert_eq!(numero_por_extenso(2_000), "dois mil");
-        assert_eq!(numero_por_extenso(10_000), "dez mil");
-        assert_eq!(numero_por_extenso(50_000), "cinquenta mil");
-    }
-
-    #[test]
-    fn test_centenas_milhar() {
-        assert_eq!(numero_por_extenso(100_000), "cem mil");
-        assert_eq!(numero_por_extenso(200_000), "duzentos mil");
-        assert_eq!(numero_por_extenso(999_000), "novecentos e noventa e nove mil");
-    }
-
-    #[test]
-    fn test_milhares_e_centenas() {
-        assert_eq!(numero_por_extenso(123_456), "cento e vinte e três mil e quatrocentos e cinquenta e seis");
-        assert_eq!(numero_por_extenso(987_654), "novecentos e oitenta e sete mil e seiscentos e cinquenta e quatro");
-        assert_eq!(numero_por_extenso(100_001), "cem mil e um");
-    }
-
-    #[test]
-    fn test_numeros_complexos() {
-        assert_eq!(numero_por_extenso(305), "trezentos e cinco");
-        assert_eq!(numero_por_extenso(7_521), "sete mil e quinhentos e vinte e um");
-        assert_eq!(numero_por_extenso(450_780), "quatrocentos e cinquenta mil e setecentos e oitenta");
-    }
-}}

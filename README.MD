@@ -31,6 +31,6 @@ Para rodar o migrations, isntale o sqlx-cli
 `cargo install sqlx-cli`
 `sqlx migrate run`
 
-Para criar novas migrations é possível rodar sqlx migrate add <nome-tabela>, configurar o script `CREATE TABLE` e rodar novamente `migrate run`
+Para criar novas migrations é possível rodar sqlx migrate add `<nome-tabela>`, configurar o script `CREATE TABLE` e rodar novamente `migrate run`
 
-![](https://github.com/ricardodarocha/api/blob/templates/screen.PNG)
+![Previsualização do site](https://github.com/ricardodarocha/api/blob/templates/preview.GIF)

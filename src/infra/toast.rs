@@ -1,4 +1,5 @@
 
+use actix_web::{HttpResponse, Responder};
 use serde::Serialize;
 #[derive(Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -31,4 +32,35 @@ impl From<Error> for Toast {
             text,
         }
     }
+}
+
+impl Toast {
+    
+    pub fn created(mensagem: &str) -> impl Responder {
+
+        let toast = Toast {
+            tipo: TipoToast::Success,
+            icon: "bi-check-circle-fill".to_owned(),
+            text: mensagem.to_owned(),
+        };
+
+       HttpResponse::Created()
+        .content_type("application/json")
+        .json(toast) 
+    }
+
+    pub fn accepted(mensagem: &str) -> impl Responder {
+
+        let toast = Toast {
+            tipo: TipoToast::Success,
+            icon: "bi-check-circle-fill".to_owned(),
+            text: mensagem.to_owned(),
+        };
+
+       HttpResponse::Accepted()
+        .content_type("application/json")
+        .json(toast) 
+    }
+
+    
 }
