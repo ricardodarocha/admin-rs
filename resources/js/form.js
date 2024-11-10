@@ -51,8 +51,10 @@ $('html, body').on('submit', 'form:not(.j_ajax_off)', function (e) {
                 ajaxMessage(response.message);
             }
             if (response.toast) {
-                alert(response.toast);
                 ajaxToast(response.toast);
+            }
+            if(response.reset){
+                form.trigger('reset');
             }
         },
         complete: function () {

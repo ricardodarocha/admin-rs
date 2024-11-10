@@ -71,7 +71,7 @@
                          class="w-auto max-h-48 mx-auto object-contain object-center">
                 </div>
                 <form method="post" action="{{ url('admin/produto/'~ produto.id ~'/atualizar/imagem') }}"
-                      class="col-span-full">
+                      class="col-span-full" enctype="multipart/form-data">
                     <input type="hidden" name="_method" value="PATCH">
                     <label for="avatar" class="flex items-center justify-center w-full p-4 text-xs text-gray-500
                         text-center bg-gray-50 border-dashed border-2 border-gray-500 hover:bg-blue-50

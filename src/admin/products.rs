@@ -1,6 +1,8 @@
 use actix_session::Session;
-use actix_web::web::Path;
+use actix_web::web::{Path};
 use actix_web::{get, put, patch, web, HttpResponse, Responder};
+use actix_multipart::Multipart;
+use serde_json::json;
 use log::info;
 use minijinja::context;
 use crate::app::AppState;
@@ -77,30 +79,24 @@ async fn admin_product_edit(
     data: web::Data<AppState>,
     path: Path<String>,
     session: Session,
-
 ) -> impl Responder {
-
     let sessao_usuario = Sessao::from_session(&session, &jwt_secret()).unwrap();
-    
+
     // aqui voce faz todo tipo de verificação 
     if let Some(usuario_logado) = sessao_usuario.clone() {
-        
+
         // Usuário admin
-        if usuario_logado.is_admin {
+        if usuario_logado.is_admin {} else {
 
-        } else {
-
-        // Como esta rota requer nível admin, então redireciona
-        // return redireciona_loja();
+            // Como esta rota requer nível admin, então redireciona
+            // return redireciona_loja();
         };
-
-
     } else {
 
         // Como esta rota requer login, então redireciona
         // return redireciona_login();
     };
-        
+
 
     let pool = &data.database;
     let find_menus = repo_menus::carregar_menus(&pool).await;
@@ -131,30 +127,32 @@ async fn admin_product_edit(
 async fn admin_product_update(
     form: web::Form<FormProduto>,
     data: web::Data<AppState>,
-
 ) -> impl Responder {
-    
-    info!("Recebido POST com dados: {:?}", form);
-
-    let _tmpl = data.render.get_template("resources/components/ajaxToast.html").unwrap();
-
-    Toast::created("Produto inserido com sucesso")
-
-}
-
-#[patch("/produto/{id}/atualiza/imagem")]
-async fn admin_product_update_image(
-    form: web::Form<FormProduto>,
-    data: web::Data<AppState>,
-
-) -> impl Responder {
-
     info!("Recebido PUT com dados: {:?}", form);
 
-    let _tmpl = data.render.get_template("resources/components/ajaxToast.html").unwrap();
+    let _tmpl = data.render.get_template("components/ajaxToast.html").unwrap();
 
-    Toast::created("Imagem atualizada com sucesso...")
+    Toast::created("Produto inserido com sucesso")
+}
 
+#[patch("/produto/{id}/atualizar/imagem")]
+async fn admin_product_update_image(
+    mut _payload: Multipart,
+    data: web::Data<AppState>,
+) -> impl Responder {
+    info!("Recebido PATCH com multipart");
+
+    let _tmpl = data.render.get_template("components/ajaxToast.html").unwrap();
+
+    let rendered = _tmpl.render(context! {
+                toast_type => "toast-success",
+                toast_icon => "bi-check-circle-fill",
+                toast_text =>"Imagem recebida"
+            }).unwrap();
+
+    HttpResponse::Ok()
+        .content_type("application/json")
+        .json(json!({"reset":true, "toast": rendered}))
 }
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
