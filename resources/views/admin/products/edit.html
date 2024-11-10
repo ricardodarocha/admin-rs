@@ -5,23 +5,28 @@
         <div class="w-fit">
             <h2 class="w-fit">
                 <i class="bi bi-box text-xl mr-1"></i>
-                <span class="text-xl">Nome do Produto Aqui</span>
+                <span class="text-xl">{{ produto.nome }}</span>
             </h2>
             <p class="w-fit text-xs text-gray-500">
                 <i class="bi bi-chevron-double-right mr-1"></i>Admin / Produtos / Editar</p>
         </div>
+        <div class="w-fit">
+            <a href="{{ url('/admin/produtos') }}" class="p-2 text-sm text-white bg-blue-600 rounded hover:bg-blue-500">
+                <i class="bi bi-arrow-left-circle-fill text-sm mr-1"></i>Voltar</a>
+        </div>
     </header>
     <div class="mt-6 flex gap-6 items-start">
-        <div class="flex-grow rounded bg-white drop-shadow">
+        <div class="basis-9/12 rounded bg-white drop-shadow">
             <div class="p-6 flex justify-between border-b border-gray-200">
                 <p class="w-fit text-sm font-medium uppercase">Dados do Produto</p>
                 <p class="w-fit flex items-center text-xs text-red-500">* Campos obrigatórios</p>
             </div>
-            <form method="post" action="{{ url('admin/produtos/produto/novo') }}" autocomplete="off"
+            <form method="post" action="{{ url('admin/produtos/produto/'~ produto.id ~'/atualizar') }}"
+                  autocomplete="off"
                   class="p-6 grid grid-cols-12 auto-cols-fr gap-3">
                 <input type="hidden" name="_method" value="PUT"/>
                 <div class="col-span-full">
-                    <label for="nome" class="block uppercase text-xs text-gray-600">* Produto:</label>
+                    <label for="nome" class="block uppercase text-xs text-gray-600">* Nome:</label>
                     <input type="text" name="nome" value="{{ produto.nome }}" id="nome" autofocus required
                            class="w-full p-3 border border-gray-600 rounded j_input">
                     <p class="j_input_message j_nome_message text-xs text-red-500"></p>
@@ -36,7 +41,7 @@
                 <div class="col-span-6">
                     <label for="preco" class="block uppercase text-xs text-gray-600">* Preço (R$):</label>
                     <input type="text" name="preco" value="{{ produto.preco }}" id="preco"
-                           class="w-full p-3 border border-gray-600 rounded j_input" required>
+                           class="w-full p-3 border border-gray-600 rounded j_input j_mask_money" required>
                     <p class="j_input_message j_preco_message text-xs text-red-500"></p>
                 </div>
                 <div class="col-span-full">
@@ -44,12 +49,6 @@
                     <textarea name="descricao" value="{{ produto.descricao }}" id="descricao" rows="5" class="w-full p-3 border border-gray-600 rounded
              resize-none j_input" required></textarea>
                     <p class="j_input_message j_descricao_message text-xs text-red-500"></p>
-                </div>
-                <div class="col-span-full">
-                    <label for="avatar" class="block uppercase text-xs text-gray-600">Imagem: (JPG, JPEG ou PNG)</label>
-                    <input type="file" name="avatar" value="" id="avatar" class="w-full p-3 border border-gray-600 rounded
-                j_input" accept=".jpg, .jpeg, .png">
-                    <p class="j_input_message j_avatar_message text-xs text-red-500"></p>
                 </div>
                 <div class="col-span-full flex justify-end mt-3">
                     <button type="submit" class="px-6 h-12 flex items-center justify-center text-sm rounded bg-green-600 font-medium
@@ -62,23 +61,34 @@
                 </div>
             </form>
         </div>
-        <div class="basis-auto rounded bg-white drop-shadow">
+        <div class="basis-3/12 rounded bg-white drop-shadow">
             <div class="p-6 flex justify-between border-b border-gray-200">
                 <p class="w-fit text-sm font-medium uppercase">Detalhes</p>
             </div>
             <div class="p-6 grid grid-cols-12 auto-cols-fr gap-3">
-                <div class="col-span-full h-64">
-                    <img src="{{ produto.avatar }}" alt="Imagem do produto"
-                         class="w-full h-full object-contain object-center">
-                </div>
                 <div class="col-span-full">
-                    <label for="avatar" class="block uppercase text-xs text-gray-600">Imagem: (JPG, JPEG ou PNG)</label>
-                    <input type="file" name="avatar" value="" id="avatar" accept=".jpg, .jpeg, .png"
-                           class="w-full p-3 border border-gray-600 rounded j_input">
-                    <p class="j_input_message j_avatar_message text-xs text-red-500"></p>
+                    <img src="{{ produto.avatar }}" alt="Imagem do produto"
+                         class="w-auto max-h-48 mx-auto object-contain object-center">
                 </div>
+                <form method="post" action="{{ url('admin/produto/'~ produto.id ~'/atualizar/imagem') }}"
+                      class="col-span-full">
+                    <input type="hidden" name="_method" value="PATCH">
+                    <label for="avatar" class="flex items-center justify-center w-full p-4 text-xs text-gray-500
+                        text-center bg-gray-50 border-dashed border-2 border-gray-500 hover:bg-blue-50
+                        hover:border-blue-600 hover:text-blue-600 rounded">Clique aqui ou arraste uma imagem para fazer
+                        o envio</label>
+                    <input type="file" name="avatar" value="" id="avatar" class="hidden j_image_upload"
+                           accept=".jpg, .jpeg, .png">
+                </form>
             </div>
         </div>
     </div>
 </article>
+{% endblock %}
+{% block scripts %}
+<script>
+    $('.j_image_upload').on('change', function (e) {
+        $(this).closest('form').submit();
+    });
+</script>
 {% endblock %}

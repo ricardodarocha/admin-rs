@@ -1,6 +1,6 @@
 use actix_session::Session;
 use actix_web::web::Path;
-use actix_web::{get, post, web, HttpResponse, Responder};
+use actix_web::{get, put, patch, web, HttpResponse, Responder};
 use log::info;
 use minijinja::context;
 use crate::app::AppState;
@@ -14,7 +14,7 @@ use crate::infra::sessao_usuario::Sessao;
 
 /// Exibe uma lista de produtos
 #[get("/produtos")]
-async fn products_index(
+async fn admin_products_index(
     data: web::Data<AppState>,
     filtro: web::Query<QueryFiltro>,
 ) -> impl Responder {
@@ -46,7 +46,7 @@ async fn products_index(
 
 /// Abre formulário que insere um produto
 #[get("/produtos/novo")]
-async fn new_product(
+async fn admin_new_product(
     data: web::Data<AppState>
 ) -> impl Responder {
     let pool = &data.database;
@@ -72,8 +72,8 @@ async fn new_product(
 }
 
 
-#[get("/produto/editar/{id}")]
-async fn product_edit(
+#[get("/produto/{id}/editar")]
+async fn admin_product_edit(
     data: web::Data<AppState>,
     path: Path<String>,
     session: Session,
@@ -127,8 +127,8 @@ async fn product_edit(
         .body(rendered)
 }
 
-#[post("/produto/editar/{id}")]
-async fn web_produto_submit(
+#[put("/produto/{id}/atualizar")]
+async fn admin_product_update(
     form: web::Form<FormProduto>,
     data: web::Data<AppState>,
 
@@ -136,15 +136,32 @@ async fn web_produto_submit(
     
     info!("Recebido POST com dados: {:?}", form);
 
-    let _tmpl = data.render.get_template("shared/views/ajaxToast.html").unwrap();
+    let _tmpl = data.render.get_template("resources/components/ajaxToast.html").unwrap();
 
     Toast::created("Produto inserido com sucesso")
 
 }
 
+#[patch("/produto/{id}/atualiza/imagem")]
+async fn admin_product_update_image(
+    form: web::Form<FormProduto>,
+    data: web::Data<AppState>,
+
+) -> impl Responder {
+
+    info!("Recebido PUT com dados: {:?}", form);
+
+    let _tmpl = data.render.get_template("resources/components/ajaxToast.html").unwrap();
+
+    Toast::created("Imagem atualizada com sucesso...")
+
+}
+
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg
-        .service(products_index)
-        .service(new_product)
-        .service(product_edit);
+        .service(admin_products_index)
+        .service(admin_new_product)
+        .service(admin_product_edit)
+        .service(admin_product_update)
+        .service(admin_product_update_image);
 }
