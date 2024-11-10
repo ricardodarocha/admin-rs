@@ -1,3 +1,6 @@
+pub mod views;
+pub mod core;
+pub mod application;
 pub mod handlers;
 pub mod testes;
 pub mod services;

@@ -1,14 +1,16 @@
 use actix_session::Session;
 use actix_web::web::Path;
 use actix_web::{get, post, web, HttpResponse, Responder};
-use log::info;
+use log::{debug, error, info};
 use minijinja::context;
+use reqwest::StatusCode;
+use serde_json::json;
 use crate::app::AppState;
 use crate::infra::jwt::jwt_secret;
-use crate::infra::toast::Toast;
+use crate::infra::toast::{ApiResponse, Toast};
 use crate::models::produto::FormProduto;
 use crate::models::QueryFiltro;
-use crate::repository::dashboard as repo_menus;
+use crate::repository::{self, dashboard as repo_menus};
 use crate::services::produto as service;
 use crate::infra::sessao_usuario::Sessao;
 
@@ -71,7 +73,6 @@ async fn new_product(
         .body(rendered)
 }
 
-
 #[get("/produto/editar/{id}")]
 async fn product_edit(
     data: web::Data<AppState>,
@@ -94,14 +95,12 @@ async fn product_edit(
         // return redireciona_loja();
         };
 
-
     } else {
 
         // Como esta rota requer login, então redireciona
         // return redireciona_login();
     };
         
-
     let pool = &data.database;
     let find_menus = repo_menus::carregar_menus(&pool).await;
     let menus = match find_menus {
@@ -131,14 +130,29 @@ async fn product_edit(
 async fn web_produto_submit(
     form: web::Form<FormProduto>,
     data: web::Data<AppState>,
+    path: web::Path<String>,
 
 ) -> impl Responder {
-    
+    let pool = &data.database;
+    let id = path.into_inner();
+
     info!("Recebido POST com dados: {:?}", form);
+    let produto = repository::produto::atualizar_produto(pool, &id, form).await;
+    match produto {
+        Ok(produto) => {
+            let toast = Toast::with_status(StatusCode::ACCEPTED, "produto atualizado com sucesso");
+            debug!("{:?}", toast);
 
-    let _tmpl = data.render.get_template("shared/views/ajaxToast.html").unwrap();
-
-    Toast::created("Produto inserido com sucesso")
+            ApiResponse::new()
+            .with_data(json!(produto))
+            .with_toast(toast)
+            .send()
+        },
+        Err(err) => {
+            error!("{}", err);
+            err.into()
+        },
+    }
 
 }
 

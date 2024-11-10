@@ -19,7 +19,6 @@ pub struct EntidadeCliente {
     pub nome: String,
     pub cidade: String,
     pub avatar: String,
-
 }
 
 #[derive(Clone, Serialize, Deserialize)]

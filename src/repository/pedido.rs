@@ -1,11 +1,11 @@
 
+use crate::core::entidades::pedido::{EntidadeCliente, EntidadeItem};
 use crate::infra::error::Error;
 use crate::infra::strings::anonimizar;
 
 use log::info;
 use sqlx::{Pool, Sqlite};
-use crate::models::cliente::Cliente;
-use crate::models::pedido::{ItemModel, PedidoModel, PostItem, PostPedido};
+use crate::models::pedido::{EntidadePedido, PayloadPedido, PostItem};
 use crate::{models as query, services};
 use crate::infra::result::Result;
 
@@ -30,7 +30,7 @@ pub async fn inserir_pedido(pool: &Pool<Sqlite>, cliente: &String) -> Result<i64
 pub async fn atualizar_pedido(pool: &Pool<Sqlite>, num_pedido: &i64, cliente: &String) -> Result<i64> {
     // Só pode atualizar pedido com status = novo
     let pedido_status = sqlx::query_scalar!(
-        r#"select  status  as "status: String" from pedido where num = $1"#, num_pedido)
+        r#"select  status  as "status: String" from pedido where num = $1 and lower(status) = 'novo'"#, num_pedido)
     .fetch_one(pool)
     .await;
 
@@ -58,11 +58,11 @@ pub async fn atualizar_pedido(pool: &Pool<Sqlite>, num_pedido: &i64, cliente: &S
     Ok(id)
 }
 
-pub async fn inserir_pedido_from_json(pool: &Pool<Sqlite>, novo_pedido: &PostPedido, id_pedido: &Option<i64>) -> Result<PedidoModel> {
+pub async fn inserir_pedido_from_json(pool: &Pool<Sqlite>, pedido: &PayloadPedido, id_pedido: &Option<i64>) -> Result<EntidadePedido> {
     
     //Antes de inserir o pedido, vamos verificar se o cliente ja foi cadastrado
     //Para isso precisa verificar o ID do cliente
-        let id_cliente = match novo_pedido.clone().cliente {
+        let id_cliente = match pedido.clone().cliente {
             query::cliente::PostCliente::IdCliente(id) => id,
             query::cliente::PostCliente::ClienteJaExiste(cliente) => cliente.id,
             query::cliente::PostCliente::NovoCliente(post_cliente) => {
@@ -83,7 +83,7 @@ pub async fn inserir_pedido_from_json(pool: &Pool<Sqlite>, novo_pedido: &PostPed
     
     //limpa itens e insere novamente
     let _ = sqlx::query!("delete from item where num_pedido = $1", id_pedido).execute(pool).await;
-    for item in novo_pedido.clone().itens.into_iter(){
+    for item in pedido.clone().itens.into_iter(){
         inserir_item_pedido(pool,  id_pedido, &item).await ?;              
         
     }   
@@ -156,7 +156,7 @@ pub async fn inserir_item_pedido(pool: &Pool<Sqlite>, pedido: i64, item: &PostIt
     Ok(true)
 }
 
-pub async fn abrir_pedido(pool: &Pool<Sqlite>, numero: i64) -> Result<PedidoModel> {
+pub async fn abrir_pedido(pool: &Pool<Sqlite>, numero: i64) -> Result<EntidadePedido> {
     let query = sqlx::query!(
         r#" SELECT 
             p.num AS "num",
@@ -195,9 +195,9 @@ pub async fn abrir_pedido(pool: &Pool<Sqlite>, numero: i64) -> Result<PedidoMode
 
     match query {
         Ok(pedido) => { 
-            let itens: Vec<ItemModel> = serde_json::from_str(&pedido.itens.unwrap_or("[]".to_string())).unwrap(); 
-            let cliente: Cliente = serde_json::from_str(&pedido.cliente.unwrap_or("{}".to_string())).unwrap(); 
-            let pedido = PedidoModel {
+            let itens: Vec<EntidadeItem> = serde_json::from_str(&pedido.itens.unwrap_or("[]".to_string())).unwrap(); 
+            let cliente: EntidadeCliente = serde_json::from_str(&pedido.cliente.unwrap_or("{}".to_string())).unwrap(); 
+            let pedido = EntidadePedido {
             num: pedido.num,
             // data: pedido.data,
             cliente,
@@ -218,7 +218,7 @@ pub async fn abrir_lista_pedidos(
     cliente: &String, 
     filtro: &query::QueryFiltroPedido,
 
-) -> Result<Vec<PedidoModel>> {
+) -> Result<Vec<EntidadePedido>> {
     
     let (limit, offset) = (
         filtro.size, 
@@ -268,11 +268,11 @@ pub async fn abrir_lista_pedidos(
 
     match pedidos_result {
         Ok(pedidos) => {
-            let pedidos_model: Vec<PedidoModel> = pedidos
+            let pedidos_model: Vec<EntidadePedido> = pedidos
                 .into_iter()
                 .map(|pedido| {
                     
-                    let itens: Vec<ItemModel> = match serde_json::from_str(&pedido.itens.unwrap_or("[]".to_string())) {
+                    let itens: Vec<EntidadeItem> = match serde_json::from_str(&pedido.itens.unwrap_or("[]".to_string())) {
                         Ok(itens) => itens,
                         Err(e) => {
                             println!("Erro ao desserializar itens: {:?}", e);
@@ -281,7 +281,7 @@ pub async fn abrir_lista_pedidos(
                     };
 
                     // Tenta desserializar o cliente; em caso de erro, retorna None e imprime o erro
-                    let cliente: Option<Cliente> = match serde_json::from_str(&pedido.cliente.unwrap_or("{}".to_string())) {
+                    let cliente: Option<EntidadeCliente> = match serde_json::from_str(&pedido.cliente.unwrap_or("{}".to_string())) {
                         Ok(cliente) => Some(cliente),
                         Err(e) => {
                             println!("Erro ao desserializar cliente: {:?}", e);
@@ -289,7 +289,7 @@ pub async fn abrir_lista_pedidos(
                         }
                     };
 
-                    PedidoModel {
+                    EntidadePedido {
                         num: pedido.num,
                         cliente: cliente.unwrap(),
                         valor: pedido.valor.unwrap_or_default(),

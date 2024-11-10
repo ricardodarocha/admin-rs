@@ -1,6 +1,5 @@
 use async_trait::async_trait;
 use sqlx::{Pool, Sqlite};
-use std::error::Error;
 use crate::infra::result::Result;
 
 /// Define um contrato de Repositório para qualquer entidade T
@@ -31,7 +30,7 @@ pub trait Repository {
 pub trait ConsultaBd { 
     type Entity;
     
-    async fn get(pool: &Pool<Sqlite>, filtro: Self) -> Result<Vec<Self::Entity>, Box<dyn Error>>;
-                
-}
-
+    async fn get<'a>(pool: &'a Pool<Sqlite>, filtro: &'a Self) -> Result<Vec<Self::Entity>>
+        where
+        Self: Sized;
+    }

@@ -3,7 +3,6 @@ pub mod sessao_usuario;
 pub mod jwt;
 pub mod toast;
 pub mod strings;
-pub mod repo;
 pub mod email;
 pub mod pagination;
 pub mod psw;

@@ -19,21 +19,20 @@ pub mod dto {
     }
 }
 
-
 use std::collections::HashMap;
-
+use async_trait::async_trait;
 use serde::{Serialize, Deserialize};
 use serde_json::Value;
+use sqlx::Pool;
+use sqlx::Sqlite;
+use crate::core::entidades::pedido::EntidadeCliente;
+use crate::core::entidades::pedido::EntidadeItem;
+use crate::core::tratados::ConsultaBd;
 use crate::models::cliente::*;
-use crate::models::produto::*;
-
-#[derive(Clone, Serialize, Deserialize)]
-    pub struct ItemModel {
-        pub num_pedido: i64, //would be Pedido, but as Item is an item of Pedido, it does not make sense
-        pub produto: Produto,
-        pub quant: f32,
-    }
-
+use crate::models::QueryFiltroPedido;
+use crate::infra::result::Result;
+use crate::repository::pedidos::sqlite::abrir_lista_pedidos;
+use validator::Validate;
 
 #[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct ProdutoExiste {
@@ -78,12 +77,16 @@ pub enum PostProduto {
         pub produto: String,
         pub quant: f32,
     }
-
     
-// Recebe dados do pedido via json
-#[derive(Clone, Serialize, Deserialize)]
-    pub struct PostPedido {
+/// Recebe dados do pedido via json
+/// Retorna o protocolo com os dados do pedido e os itens 
+#[derive(Clone, Serialize, Deserialize, Validate)]
+    pub struct PayloadPedido {
+
+        /// número do pedido em outro sistema
         pub nosso_numero: Option<String>,
+
+        /// data da criação    
         // pub data
         
         pub cliente: PostCliente,
@@ -92,32 +95,44 @@ pub enum PostProduto {
         pub itens: Vec<PostItem>,
     }
     
-// Recebe dados do pedido via form
-#[derive(Serialize, Deserialize)]
-    pub struct FormPedido {
-        pub num: i64,
+/// Recebe dados do cliente para inserir novo pedido em branco via form
+/// Retorna o protocolo com id do pedido
+#[derive(Serialize, Deserialize, Validate)]
+    pub struct NovoPedido {
         pub cliente: String,
     }
 
-///Reflect Business Model Logic
+///Reflect Business Model Logic of Record in Dataset
 #[derive(Clone, Serialize, Deserialize)]
-    pub struct PedidoModel {
+    pub struct EntidadePedido {
         pub num: i64,
         // pub data
-        pub cliente: Cliente,
+        pub cliente: EntidadeCliente,
         pub valor: f64,
         pub status: String,
-        pub itens: Vec<ItemModel>,
+        pub itens: Vec<EntidadeItem>,
     }
 
-    #[allow(dead_code)]
-    impl PedidoModel {
-        fn add_item(&mut self, produto: ItemModel) -> &Self{
+#[allow(dead_code)]
+impl EntidadePedido {
+    fn add_item(&mut self, item: EntidadeItem) -> &Self{
 
-            let total_item = (produto.quant * produto.produto.preco) as f64;
+        let total_item = (item.quant * item.produto.preco) as f64;
 
-            self.itens.push(produto.clone());
-            self.valor += total_item;
-            self
-        }
+        self.itens.push(item.clone());
+        self.valor += total_item;
+        self
     }
+}
+
+#[async_trait]
+impl ConsultaBd for QueryFiltroPedido {
+    type Entity = EntidadePedido;
+
+    async fn get<'a >(pool: &'a Pool<Sqlite>, filtro: &'a Self) -> Result<Vec<Self::Entity>> {
+        
+        let consulta = abrir_lista_pedidos(&pool, &filtro.cliente, &filtro).await;
+
+        consulta
+    }
+}

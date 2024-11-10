@@ -1,8 +1,10 @@
 use actix_session::Session;
 use actix_web::web::Path;
 use actix_web::{get, post, web, HttpResponse, Responder};
+use actix_web::http::StatusCode;
 use log::info;
 use crate::app::AppState;
+use crate::infra::toast::ApiResponse;
 use crate::models::QueryFiltroCliente;
 use minijinja::context;
 use crate::models::cliente::FormCliente;
@@ -27,7 +29,7 @@ use crate::repository::cliente as repo;
 //             .content_type("text/html")
 //             .body(rendered)
 //     } else {
-//         let error_tmpl = data.render.get_template("shared/views/ajaxToast.html").unwrap();
+//         let error_tmpl = data.render.get_template("components/ajaxToast.html").unwrap();
 //         let rendered = error_tmpl.render(context! {
 //             toast_icon => "bi-exclamation-circle",
 //             toast_class => "toast-error",
@@ -61,20 +63,9 @@ pub async fn web_cliente(
             .body(rendered)
     } 
     else {     
-        
-        let tmpl = data.render.get_template("shared/views/ajaxToast.html").unwrap();
-        let rendered = tmpl.render(context! {
-            toast_icon => "bi-check-circle",
-            toast_class => "toast-error",
-            toast_text => "Cliente não encontrado!",
-    }).unwrap();
-    
-    HttpResponse::Ok()
-        .content_type("text/html")
-        .body(rendered)
+        ApiResponse::new().with_status(StatusCode::INTERNAL_SERVER_ERROR).send()
 
     }
-    
 }
 
 #[post("/cliente/edit/{id}")]
@@ -90,7 +81,7 @@ pub async fn web_cliente_submit(
     info!("Recebido POST com dados: {:?}", form.clone());
     let web::Form(form) = form;
     let _cliente = service::inserir_ou_alterar_cliente(pool, id, form).await;
-    let tmpl = data.render.get_template("shared/views/ajaxToast.html").unwrap();
+    let tmpl = data.render.get_template("components/ajaxToast.html").unwrap();
     let rendered = tmpl.render(context! {
         toast_icon => "bi-check-circle",
         toast_class => "toast-success",

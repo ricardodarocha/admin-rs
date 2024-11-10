@@ -6,7 +6,7 @@ use log::{info, error};
 use crate::repository::pedido as repo;
 
 use crate::app::AppState;
-use crate::models::pedido::PostPedido;
+use crate::models::pedido::{NovoPedido, PayloadPedido};
 use crate::models::QueryFiltroPedido;
 use crate::services::pedido as service;
 
@@ -62,7 +62,7 @@ async fn json_all_pedido(
     pub async fn json_post_new_pedido(
         _data: web::Data<AppState>,
         _path: Path<i64>,
-        _pedido: web::Json<PostPedido>,
+        _pedido: web::Json<NovoPedido>,
         _session: Session 
 
     ) -> impl Responder {
@@ -76,7 +76,7 @@ async fn json_all_pedido(
 pub async fn json_post_pedido(
         data: web::Data<AppState>,
         path: Path<i64>,
-        pedido: web::Json<PostPedido>,
+        pedido: web::Json<PayloadPedido>,
         _session: Session
 
     ) -> impl Responder {

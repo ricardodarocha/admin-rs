@@ -445,6 +445,7 @@ dependencies = [
  "actix-session",
  "actix-web",
  "actix-web-validator",
+ "async-trait",
  "derive_more",
  "dotenv",
  "env_logger",

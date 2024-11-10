@@ -1,12 +1,14 @@
 use std::time::Duration;
 
 use crate::infra::error::Error;
+use crate::infra::toast::Toast;
 use crate::services::login::token;
 use crate::services::usuario as service;
+use crate::views::toast::render_toast;
 use crate::{app::AppState, auth::model::LoginForm, infra::strings::anonimizar};
 use actix_session::Session;
 use actix_web::{get, http::StatusCode, post, web, HttpResponse, Responder};
-use log::info;
+use log::{info, debug};
 use minijinja::context;
 use serde_json::json;
 
@@ -52,10 +54,15 @@ async fn login_submit(
                 session.insert("is_admin", is_admin).unwrap();
             }
 
+            let toast = Toast::with_status(StatusCode::OK, "Bem vindo");
+            let toast = render_toast(&data.render, toast);
+            info!("{:?}", toast);
+
             HttpResponse::Ok()
                 .content_type("application/json")
                 .json(json!({
-                "redirect": "/admin/painel"
+                    "toast": toast,
+                    "redirect": "/admin/painel"
                 }))
         } else {
             info!("🙇‍♂️ Acesso negado ❌ ");

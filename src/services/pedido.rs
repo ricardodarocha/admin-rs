@@ -1,12 +1,12 @@
 use log::{error, info};
 // use minijinja::context;
 use sqlx::{Pool, Sqlite};
-use crate::models::pedido::{PedidoModel, PostItem};
+use crate::models::pedido::{EntidadePedido, PostItem};
 
 use crate::models::QueryFiltroPedido;
 use crate::repository::pedido as repo;
 
-pub async fn abrir_pedido(pool: &Pool<Sqlite>, id: i64) -> Option<PedidoModel> {
+pub async fn abrir_pedido(pool: &Pool<Sqlite>, id: i64) -> Option<EntidadePedido> {
     let pedido = repo::abrir_pedido(pool, id).await;
 
     match pedido {
@@ -21,7 +21,7 @@ pub async fn abrir_pedido(pool: &Pool<Sqlite>, id: i64) -> Option<PedidoModel> {
     }
 }
 
-pub async fn inserir_pedido(pool: &Pool<Sqlite>, cliente: String) -> Option<PedidoModel> {
+pub async fn inserir_pedido(pool: &Pool<Sqlite>, cliente: String) -> Option<EntidadePedido> {
     let pedido_inserido = repo::inserir_pedido(pool, &cliente).await;
     
     match pedido_inserido {
@@ -48,7 +48,7 @@ pub async fn inserir_pedido(pool: &Pool<Sqlite>, cliente: String) -> Option<Pedi
     
 }
 
-pub async fn inserir_item(pool: &Pool<Sqlite>, pedido: i64, item: PostItem) -> Option<PedidoModel> {
+pub async fn inserir_item(pool: &Pool<Sqlite>, pedido: i64, item: PostItem) -> Option<EntidadePedido> {
     let item_inserido = repo::inserir_item_pedido(pool, pedido, &item).await;
     
     match item_inserido {
@@ -86,7 +86,7 @@ pub async fn inserir_item(pool: &Pool<Sqlite>, pedido: i64, item: PostItem) -> O
 }
 
 
-pub async fn abrir_lista_pedidos(pool: &Pool<Sqlite>, cliente: &String, filtro: &QueryFiltroPedido) -> Vec<PedidoModel> {
+pub async fn abrir_lista_pedidos(pool: &Pool<Sqlite>, cliente: &String, filtro: &QueryFiltroPedido) -> Vec<EntidadePedido> {
     let pedido = repo::abrir_lista_pedidos(pool, &cliente, &filtro).await;
 
     let pagina = filtro.page;
