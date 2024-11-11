@@ -6,6 +6,6 @@ pub fn routes(cfg: &mut ServiceConfig) {
     cfg.service(
         web::scope("/pedido")
             .configure(pedido::consulta::routes)
-            .configure(pedido::escrita::routes)
+            .configure(pedido::escrita::routes) 
     );
 }

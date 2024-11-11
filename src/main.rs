@@ -50,6 +50,7 @@ async fn configure_minijinja() -> Arc<Environment<'static>> {
     env.add_function("fmt_cnpj", helpers::fmt_cnpj);
     env.add_function("fmt_cep", helpers::fmt_cep);
     env.add_function("numero_por_extenso", helpers::por_extenso::numero_por_extenso);
+    env.add_function("multimidia", helpers::img_src::multimidia);
 
 
     env.add_filter("fmtdate", helpers::filter::fmtdate);    
@@ -132,11 +133,16 @@ async fn main() -> std::io::Result<()> {
             // )
 
             // .service(web::resource("/api/ping").route(web::get().to(ping)))
+             
+
+            //Resources
+            .service(actix_files::Files::new("/storage","./storage")
+            .show_files_listing()
+            .use_last_modified(true))
+
             // .service(actix_files::Files::new("/static","./static")
             // .show_files_listing()
-            // .use_last_modified(true)
-            // .index_file("index.html")
-            // )              
+            // .use_last_modified(true))
 
             // Rotas que não precisam de login
 

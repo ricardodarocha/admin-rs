@@ -8,7 +8,7 @@ use crate::views::toast::render_toast;
 use crate::{app::AppState, auth::model::LoginForm, infra::strings::anonimizar};
 use actix_session::Session;
 use actix_web::{get, http::StatusCode, post, web, HttpResponse, Responder};
-use log::{info, debug};
+use log::info;
 use minijinja::context;
 use serde_json::json;
 

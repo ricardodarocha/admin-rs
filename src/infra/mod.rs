@@ -1,3 +1,4 @@
+pub mod multimidia;
 pub mod validation;
 pub mod sessao_usuario;
 pub mod jwt;

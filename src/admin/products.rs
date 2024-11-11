@@ -1,22 +1,25 @@
 use actix_session::Session;
+
 use actix_web::web::Path;
-use actix_web::{get, post, web, HttpResponse, Responder};
 use log::{debug, error, info};
+use actix_web::{get, put, patch, web, HttpResponse, Responder};
+use actix_multipart::Multipart;
+use futures_util::StreamExt;
+use serde_json::json;
 use minijinja::context;
 use reqwest::StatusCode;
-use serde_json::json;
 use crate::app::AppState;
-use crate::infra::jwt::jwt_secret;
+use crate::infra::error::Error;
+use crate::infra::multimidia::storage;
 use crate::infra::toast::{ApiResponse, Toast};
 use crate::models::produto::FormProduto;
 use crate::models::QueryFiltro;
 use crate::repository::{self, dashboard as repo_menus};
 use crate::services::produto as service;
-use crate::infra::sessao_usuario::Sessao;
 
 /// Exibe uma lista de produtos
 #[get("/produtos")]
-async fn products_index(
+async fn admin_products_index(
     data: web::Data<AppState>,
     filtro: web::Query<QueryFiltro>,
 ) -> impl Responder {
@@ -48,7 +51,7 @@ async fn products_index(
 
 /// Abre formulário que insere um produto
 #[get("/produtos/novo")]
-async fn new_product(
+async fn admin_new_product(
     data: web::Data<AppState>
 ) -> impl Responder {
     let pool = &data.database;
@@ -73,34 +76,13 @@ async fn new_product(
         .body(rendered)
 }
 
-#[get("/produto/editar/{id}")]
-async fn product_edit(
+#[get("/produto/{id}/editar")]
+async fn admin_product_edit(
     data: web::Data<AppState>,
     path: Path<String>,
-    session: Session,
-
+    _session: Session,
 ) -> impl Responder {
-
-    let sessao_usuario = Sessao::from_session(&session, &jwt_secret()).unwrap();
-    
-    // aqui voce faz todo tipo de verificação 
-    if let Some(usuario_logado) = sessao_usuario.clone() {
-        
-        // Usuário admin
-        if usuario_logado.is_admin {
-
-        } else {
-
-        // Como esta rota requer nível admin, então redireciona
-        // return redireciona_loja();
-        };
-
-    } else {
-
-        // Como esta rota requer login, então redireciona
-        // return redireciona_login();
-    };
-        
+   
     let pool = &data.database;
     let find_menus = repo_menus::carregar_menus(&pool).await;
     let menus = match find_menus {
@@ -126,8 +108,8 @@ async fn product_edit(
         .body(rendered)
 }
 
-#[post("/produto/editar/{id}")]
-async fn web_produto_submit(
+#[put("/produto/{id}/atualizar")]
+async fn admin_product_update(
     form: web::Form<FormProduto>,
     data: web::Data<AppState>,
     path: web::Path<String>,
@@ -136,7 +118,7 @@ async fn web_produto_submit(
     let pool = &data.database;
     let id = path.into_inner();
 
-    info!("Recebido POST com dados: {:?}", form);
+    info!("Recebido PUT com dados: {:?}", form);
     let produto = repository::produto::atualizar_produto(pool, &id, form).await;
     match produto {
         Ok(produto) => {
@@ -153,12 +135,65 @@ async fn web_produto_submit(
             err.into()
         },
     }
+}
 
+
+#[patch("/produto/{id}/atualizar/imagem")]
+async fn admin_product_update_image(
+    mut payload: Multipart,
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+) -> impl Responder {
+    info!("Recebido PATCH com multimídia");
+    let id = path.into_inner();
+    let pool = &data.database;
+
+    while let Some(field) = payload.next().await {
+        
+        let field = match field {
+            Ok(field) => field,
+            Err(err) => return ApiResponse::from_error(Error::Simple(format!("{}", err))).send(),
+        };
+
+        if field.name() == Some(&"avatar") {
+            let storage_info = storage::FileStorage::salvar_imagem(field).await.unwrap();
+            info!("{:?}", storage_info.clone());
+            let resource_name = format!("{}/{}_<SIZE>.{}", storage_info.path, storage_info.avatar, storage_info.extension);
+            let _ = sqlx::query!("update produto set avatar = $1 where id = $2", resource_name, id)
+                .execute(pool).await;
+            for media in storage_info.resources.iter() {
+                info!("🖼 File saved {}", media)
+            }
+            // Write the file content to the file
+            // while let Some(chunk) = field.next().await {
+            //     let chunk = match chunk {
+            //         Ok(chunk) => chunk,
+            //         Err(e) => return Err(actix_web::error::ErrorBadRequest(e.to_string()))
+            //     };
+
+            //     let _ = file.write_all(&chunk).await?;
+            // }
+        }
+    }
+
+    let _tmpl = data.render.get_template("components/ajaxToast.html").unwrap();
+
+    let rendered = _tmpl.render(context! {
+                toast_type => "toast-success",
+                toast_icon => "bi-check-circle-fill",
+                toast_text =>"Imagem recebida"
+            }).unwrap();
+
+    HttpResponse::Ok()
+        .content_type("application/json")
+        .json(json!({"reset":true, "toast": rendered}))
 }
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg
-        .service(products_index)
-        .service(new_product)
-        .service(product_edit);
+        .service(admin_products_index)
+        .service(admin_new_product)
+        .service(admin_product_edit)
+        .service(admin_product_update)
+        .service(admin_product_update_image);
 }

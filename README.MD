@@ -65,3 +65,5 @@ src/
 └── lib.rs                # Importa módulos e inicializa a estrutura
 
 ```
+
+Se precisar atualizar o Rust use o comando `rustup update stable`
