@@ -158,7 +158,7 @@ async fn admin_product_update_image(
         if field.name() == Some(&"avatar") {
             let storage_info = storage::FileStorage::salvar_imagem(field).await.unwrap();
             info!("{:?}", storage_info.clone());
-            let resource_name = format!("{}/{}_<SIZE>.{}", storage_info.path, storage_info.avatar, storage_info.extension);
+            let resource_name = format!("{}/{}_1024w.{}", storage_info.path, storage_info.avatar, storage_info.extension);
             let _ = sqlx::query!("update produto set avatar = $1 where id = $2", resource_name, id)
                 .execute(pool).await;
             for media in storage_info.resources.iter() {

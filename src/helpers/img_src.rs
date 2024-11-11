@@ -1,13 +1,13 @@
 use minijinja::Error;
 
 pub fn multimidia(base_path: &str, alt: &str, classe: &str) -> Result<String, Error> {
-    // Definindo tamanhos e substituindo "<SIZE>" pelo valor
+    // Definindo tamanhos e substituindo "_1024w" pelo valor
     let sizes = vec![320, 480, 768, 1024];
     let mut srcset = Vec::new();
     
-    // Substitui "<SIZE>" em `base_path` por cada tamanho e monta o `srcset`
+    // Substitui "_1024w" em `base_path` por cada tamanho e monta o `srcset`
     for size in &sizes {
-        let image_path = base_path.replace("<SIZE>", &size.to_string());
+        let image_path = base_path.replace("_1024w", format!("_{size}w").as_ref() );
         srcset.push(format!("{} {}w", image_path, size));
     }
 
@@ -18,7 +18,7 @@ pub fn multimidia(base_path: &str, alt: &str, classe: &str) -> Result<String, Er
                       1024px";
 
     // Caminho principal (maior resolução) para `src`
-    let src = base_path.replace("<SIZE>", "1024");
+    let src = base_path.replace("_1024w", "_1024w");
 
     // Gerando a tag completa `<img>`
     let img_tag = format!(

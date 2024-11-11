@@ -19,7 +19,7 @@
         {% for produto in produtos %}
         <article class="col-span-4 block bg-white drop-shadow rounded">
             <div class="w-full h-64">
-                <img src="{{ produto.avatar }}" alt="Imagem do produto {{ produto.id }} - {{ produto.nome }}"
+                <img src="{{ url(produto.avatar) }}" alt="Imagem do produto {{ produto.id }} - {{ produto.nome }}"
                      class="w-full h-full object-contain object-center">
             </div>
             <div class="p-3 grid grid-cols-2 auto-cols-fr gap-3 border-y border-gray-200">

@@ -1,6 +1,10 @@
 pub mod por_extenso;
 pub mod img_src;
 pub fn url(path: &str) -> String {
+    if path.contains("http") || path.contains("www.") {
+        return path.to_string()
+    };
+
     let base_url = std::env::var("BASE_URL")
         .unwrap_or_else(|_| "http://localhost:8080".to_string());
     let path = if path.starts_with('/') { &path[1..] } else { path };
