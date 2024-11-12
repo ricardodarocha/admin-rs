@@ -19,7 +19,8 @@ pub async fn abrir_lista_produtos(pool: &Pool<Sqlite>, filtro: &query::QueryFilt
                  id,
                  nome,
                  descricao,
-                 preco as "preco: f32",
+                 printf("%.2f", preco) as "preco: f64",
+                 printf("%.2f", preco) as "precofmt: String",
                  avatar
             from produto
            limit $1 offset $2"#,
@@ -38,7 +39,8 @@ pub async fn abrir_produto(pool: &Pool<Sqlite>, id: &String) -> Result<Produto> 
                  id,
                  nome,
                  descricao,
-                 preco as "preco: f32",
+                 printf("%.2f", preco) as "preco: f64",
+                 printf("%.2f", preco) as "precofmt: String",
                  avatar
             from produto
            where id = $1"#,

@@ -1,5 +1,3 @@
-use actix_session::Session;
-
 use actix_web::web::Path;
 use log::{debug, error, info};
 use actix_web::{get, put, patch, web, HttpResponse, Responder};
@@ -76,11 +74,11 @@ async fn admin_new_product(
         .body(rendered)
 }
 
+/// Abre um formulário que edita um produto
 #[get("/produto/{id}/editar")]
 async fn admin_product_edit(
     data: web::Data<AppState>,
     path: Path<String>,
-    _session: Session,
 ) -> impl Responder {
    
     let pool = &data.database;
@@ -108,11 +106,12 @@ async fn admin_product_edit(
         .body(rendered)
 }
 
-#[put("/produto/{id}/atualizar")]
+/// Salva o formulário de produtos
+#[put("produtos/produto/{id}/atualizar")]
 async fn admin_product_update(
     form: web::Form<FormProduto>,
-    data: web::Data<AppState>,
     path: web::Path<String>,
+    data: web::Data<AppState>,
 
 ) -> impl Responder {
     let pool = &data.database;
@@ -128,6 +127,7 @@ async fn admin_product_update(
             ApiResponse::new()
             .with_data(json!(produto))
             .with_toast(toast)
+            .with_redirect("/admin/produtos")
             .send()
         },
         Err(err) => {
@@ -137,7 +137,7 @@ async fn admin_product_update(
     }
 }
 
-
+/// Salva a foto do produto
 #[patch("/produto/{id}/atualizar/imagem")]
 async fn admin_product_update_image(
     mut payload: Multipart,
@@ -191,9 +191,9 @@ async fn admin_product_update_image(
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg
+        .service(admin_product_update)
         .service(admin_products_index)
         .service(admin_new_product)
         .service(admin_product_edit)
-        .service(admin_product_update)
         .service(admin_product_update_image);
 }

@@ -1,2 +1,2 @@
-pub mod escrita;
-pub mod consulta;
+pub mod acoes;
+pub mod consultas;

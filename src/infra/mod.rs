@@ -1,3 +1,4 @@
+pub mod decimal;
 pub mod multimidia;
 pub mod validation;
 pub mod sessao_usuario;

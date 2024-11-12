@@ -1,3 +1,4 @@
+pub mod api;
 pub mod views;
 pub mod core;
 pub mod application;
@@ -25,8 +26,9 @@ use reqwest;
 //todo! refactory all services routes to handler/route
 use handlers::cliente::{json_all_cliente, json_cliente, web_cliente, web_cliente_submit};
 use handlers::grafico::{json_all_grafico, json_grafico};
-use handlers::pedido::{json_all_pedido, json_pedido, json_post_pedido, json_post_new_pedido};
 use handlers::produto::{json_all_produto, json_produto};
+use application::controller::pedido::consultas as consultas_pedido;
+use application::controller::pedido::acoes as acoes_pedido;
 use handlers::relatorio::vendas_por_mes;
 use crate::app::AppState;
 
@@ -152,19 +154,17 @@ async fn main() -> std::io::Result<()> {
             .service(vendas_por_mes)
             .configure(admin::routes)
             .configure(testes::routes)
+            .configure(acoes_pedido::routes)
+            .configure(consultas_pedido::routes)
             // rotas que exigem login
             .service(web_cliente)
             .service(web_cliente_submit)
             .service(json_cliente)
             .service(json_produto)
-            .service(json_pedido)
             .service(json_grafico)
             .service(json_all_cliente)
             .service(json_all_produto)
-            .service(json_all_pedido)
             .service(json_all_grafico)
-            .service(json_post_pedido)
-            .service(json_post_new_pedido)
             .default_service(web::to(not_found))
     })
         .bind(format!("{}:{}", host, port))?

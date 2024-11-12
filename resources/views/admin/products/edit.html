@@ -21,7 +21,7 @@
                 <p class="w-fit text-sm font-medium uppercase">Dados do Produto</p>
                 <p class="w-fit flex items-center text-xs text-red-500">* Campos obrigatórios</p>
             </div>
-            <form method="post" action="{{ url('admin/produtos/produto/'~ produto.id ~'/atualizar') }}"
+            <form method="PUT" action="{{ url('admin/produtos/produto/'~ produto.id ~'/atualizar') }}"
                   autocomplete="off"
                   class="p-6 grid grid-cols-12 auto-cols-fr gap-3">
                 <input type="hidden" name="_method" value="PUT"/>
@@ -40,14 +40,14 @@
                 </div>
                 <div class="col-span-6">
                     <label for="preco" class="block uppercase text-xs text-gray-600">* Preço (R$):</label>
-                    <input type="text" name="preco" value="{{ produto.preco }}" id="preco"
+                    <input type="text" name="preco" value="{{ produto.precofmt }}" id="preco"
                            class="w-full p-3 border border-gray-600 rounded j_input j_mask_money" required>
                     <p class="j_input_message j_preco_message text-xs text-red-500"></p>
                 </div>
                 <div class="col-span-full">
                     <label for="descricao" class="block uppercase text-xs text-gray-600">* Descrição:</label>
-                    <textarea name="descricao" value="{{ produto.descricao }}" id="descricao" rows="5" class="w-full p-3 border border-gray-600 rounded
-             resize-none j_input" required></textarea>
+                    <textarea name="descricao" id="descricao" rows="5" class="w-full p-3 border border-gray-600 rounded
+             resize-none j_input" required> {{ produto.descricao }} </textarea>
                     <p class="j_input_message j_descricao_message text-xs text-red-500"></p>
                 </div>
                 <div class="col-span-full flex justify-end mt-3">

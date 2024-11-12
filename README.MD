@@ -39,14 +39,16 @@ Para criar novas migrations é possível rodar sqlx migrate add `<nome-tabela>`,
 
 ```Php
 src/
+├── admin/                # Acessa as urls com permissão restrita a administrador 
 ├── application/          # Camada de aplicação - lógica de casos de uso, 
 │   │                     # .. interage com a camada de domínio
-│   ├── commands/         # Comandos de criação, atualização e deleção
+│   ├── operacoes/        # Comandos de criação, atualização e deleção
 │   │   └── create_order.rs
 │   │   └── update_order.rs
-│   └── queries/          # Consultas (ex.: buscar por ID, listar todos)
+│   └── consulta/          # Consultas (ex.: buscar por ID, listar todos)
 │       └── get_order.rs
 │       └── list_orders.rs
+├── api/                  # Disponibiliza a api para terceiros
 ├── config/               # Configuração da aplicação, como leitura de arquivos de ambiente
 │   └── database.rs
 ├── core/                 # Camada de domínio - modelos, repositórios e lógica de negócio
