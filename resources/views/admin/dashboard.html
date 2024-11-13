@@ -110,46 +110,43 @@
                 
             </div>
         </article>
+
+        {% with clientes = [{
+            "img": "../resources/images/user-01.png",
+            "nome": "Pereira e Cia",
+            "tel": "(00) 9 9999-9999"
+        },{
+            "img": "../resources/images/user-02.png",
+            "nome": "Eva Contabilidade",
+            "tel": "(00) 9 9999-9999"
+        },{
+            "img": "../resources/images/user-03.png",
+            "nome": "Javier Sistemas",
+            "tel": "(00) 9 9999-9999"
+        },{
+            "img": "../resources/images/user-04.png",
+            "nome": "Mara Lúcia Cabelereira",
+            "tel": "(00) 9 9999-9999"
+        },{
+            "img": "../resources/images/user-05.png",
+            "nome": "Breno Transportes",
+            "tel": "(00) 9 9999-9999"
+        }] %} 
         <article class="w-4/12 p-6 bg-white drop-shadow">
             <header>
                 <h2 class="font-semibold">Clientes Recentes</h2>
             </header>
             <div class="w-full mt-6">
+                {% for cliente in clientes %}
                 <div class="pb-2 flex items-center border-b border-gray-200">
-                    <img class="w-12 h-12" src="../resources/images/user-01.png">
+                    <img class="w-12 h-12" src={{ cliente.img }}>
                     <div class="ml-4 text-xs">
-                        <p><i class="bi bi-patch-check-fill text-green-500 mr-1"></i>Lorem ipsum dolor.</p>
-                        <p><i class="bi bi-whatsapp mr-1"></i>(00) 9 9999-9999</p>
+                        <p><i class="bi bi-patch-check-fill text-green-500 mr-1"></i>{{ cliente.nome }}</p>
+                        <p><i class="bi bi-whatsapp mr-1"></i> {{ cliente.tel }} </p>
                     </div>
                 </div>
-                <div class="py-2 flex items-center border-b border-gray-200">
-                    <img class="w-12 h-12" src="../resources/images/user-02.png">
-                    <div class="ml-4 text-xs">
-                        <p><i class="bi bi-exclamation-circle-fill text-orange-500 mr-1"></i>Lorem ipsum dolor.</p>
-                        <p><i class="bi bi-whatsapp mr-1"></i>(00) 9 9999-9999</p>
-                    </div>
-                </div>
-                <div class="py-2 flex items-center border-b border-gray-200">
-                    <img class="w-12 h-12" src="../resources/images/user-03.png">
-                    <div class="ml-4 text-xs">
-                        <p><i class="bi bi-patch-check-fill text-green-500 mr-1"></i>Lorem ipsum dolor.</p>
-                        <p><i class="bi bi-whatsapp mr-1"></i>(00) 9 9999-9999</p>
-                    </div>
-                </div>
-                <div class="py-2 flex items-center border-b border-gray-200">
-                    <img class="w-12 h-12" src="../resources/images/user-04.png">
-                    <div class="ml-4 text-xs">
-                        <p><i class="bi bi-exclamation-circle-fill text-orange-500 mr-1"></i>Lorem ipsum dolor.</p>
-                        <p><i class="bi bi-whatsapp mr-1"></i>(00) 9 9999-9999</p>
-                    </div>
-                </div>
-                <div class="pt-2 flex items-center">
-                    <img class="w-12 h-12" src="../resources/images/user-05.png">
-                    <div class="ml-4 text-xs">
-                        <p><i class="bi bi-patch-check-fill text-green-500 mr-1"></i>Lorem ipsum dolor.</p>
-                        <p><i class="bi bi-whatsapp mr-1"></i>(00) 9 9999-9999</p>
-                    </div>
-                </div>
+                {% endfor %}
+                {% endwith %}
             </div>
         </article>
     </section>
