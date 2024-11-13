@@ -2,40 +2,6 @@
 {% block content %}
 <div class="p-10 max-w-screen-2xl mx-auto">
     <section class="w-full grid grid-cols-4 auto-cols-fr gap-8">
-        {% with kpis = [
-            {
-            "valor": "3.456",
-            "icone": "bi bi-eye",
-            "titulo": "Visualizações do cardápio",
-            "variacao": "0.43%",
-            "decorator": "bi bi-arrow-up",
-            },
-            {
-            "valor": "R$ 4.520,00",
-            "icone": "bi bi-cart2",
-            "titulo": "Vendido",
-            "variacao": "0.43%",
-            "decorator": "bi bi-arrow-up",
-            "color": "text-green-600"
-            },
-            {
-            "valor": "450",
-            "icone": "bi bi-bag",
-            "titulo": "Pedidos",
-            "variacao": "2.59%",
-            "decorator": "bi bi-arrow-up",
-            "color": "text-green-600"
-            },
-            {
-            "valor": "450",
-            "icone": "bi bi-people",
-            "titulo": "Novos clientes",
-            "variacao": "0.95%",
-            "decorator": "bi bi-arrow-down",
-            "color": "text-red-500"
-            }
-        ]
-         %}
 
         {% for card in kpis %}
         <article class="p-6 drop-shadow bg-white">
@@ -51,7 +17,6 @@
             </div>
         </article>
         {% endfor %}
-        {% endwith %}
         
        
     </section>

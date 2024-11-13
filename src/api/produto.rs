@@ -61,3 +61,8 @@ async fn json_all_produto(
     
 }
 
+pub fn routes(cfg: &mut web::ServiceConfig) {
+    cfg
+        .service(json_produto)
+        .service(json_all_produto);
+}

@@ -236,6 +236,28 @@ pub async fn check_admin_auth(
     }
 }
 
+pub async fn check_api_auth(
+    req: ServiceRequest,
+    next: Next<BoxBody>,
+) -> Result<ServiceResponse<BoxBody>, Error> {
+
+    let session = req.extensions().get::<Session>().cloned().expect("Session não encontrada. Obtenha um CLIENT-ID para acessar a API ");
+    let user_session = Sessao::from_session(&session, &jwt_secret())?;
+    let user_is_admin = if let Some(user_session) = user_session {
+        user_session.is_admin  
+    } else 
+    {
+        return Err(actix_web::error::ErrorForbidden("Obtenha um CLIENT-ID para acessar a API"));
+    };
+
+    if user_is_admin {
+        let res = next.call(req).await?;
+        Ok(res)
+    } else {
+        Err(actix_web::error::ErrorForbidden("Obtenha um CLIENT-ID para acessar a API"))
+    }
+}
+
 // pub async fn check_user_auth(
 //     req: ServiceRequest,
 //     next: Next<BoxBody>,
