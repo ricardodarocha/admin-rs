@@ -23,7 +23,7 @@ templates/devAwesome-master/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea//target
 /target/
-/storage/*
+/storage/
 !/storage/images/2024/11/*
 meu_banco.db-*
 cert/
