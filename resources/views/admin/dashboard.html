@@ -52,17 +52,44 @@
                     "nome": "Combo X-Salada",
                     "data": "23/02/2020",
                     "total": "204.000",
-                    "valor_medio": "82,00"
+                    "valor_medio": "82,00",
+                    "img": "../resources/images/JbKBmEPwSKpP_320w.png"
                 },
                 {   "nome": "X-Burger com Fritas",
                     "data": "20/02/2020",
                     "total": "63.000",
-                    "valor_medio": "R$ 63,00"
+                    "valor_medio": "R$ 63,00",
+                    "img": "../resources/images/JbKBmEPwSKpP_320w.png"
+                },
+                {   "nome": "Batata Frita",
+                    "data": "23/02/2020",
+                    "total": "59.000",
+                    "valor_medio": "R$ 13,00",
+                    "img": "../resources/images/JbKBmEPwSKpP_320w.png"
+                },
+                {   "nome": "Milkshake de morango",
+                    "data": "23/02/2020",
+                    "total": "56.000",
+                    "valor_medio": "R$ 9,00",
+                    "img": "../resources/images/JbKBmEPwSKpP_320w.png"
+                },
+                {   "nome": "X-Egg-Burger",
+                    "data": "24/02/2020",
+                    "total": "56.000",
+                    "valor_medio": "R$ 29,00",
+                    "img": "../resources/images/JbKBmEPwSKpP_320w.png"
+                },
+                {   "nome": "Nuggets",
+                    "data": "23/02/2020",
+                    "total": "55.000",
+                    "valor_medio": "R$ 31,00",
+                    "img": "../resources/images/JbKBmEPwSKpP_320w.png"
                 }
                 ]
                 %} 
                     <ul class="p-2 grid grid-cols-12 auto-cols-auto bg-gray-100 border border-gray-200 text-xs font-semibold">
-                        <li class="col-span-6">Item</li>
+                        <li class="col-span-2"></li>
+                        <li class="col-span-4">Item</li>
                         <li class="col-span-2">Última Venda</li>
                         <li class="col-span-2">Total Vendido</li>
                         <li class="col-span-2">Valor Médio</li>
@@ -71,11 +98,11 @@
                     {% for record in itens_mais_vendidos %}
                    
                     <ul class="p-2 grid grid-cols-12 auto-cols-auto text-xs">
-                    <img class="col-span-2 w-8 h-8" src="../resources/images/JbKBmEPwSKpP_320w.png">
-                        <li class="col-span-4">{{ record.nome}}</li>
-                        <li class="col-span-2">{{ record.data}}</li>
-                        <li class="col-span-2">{{ record.total}}</li>
-                        <li class="col-span-2">{{ record.valor_medio}} </li>
+                    <img class="col-span-2 w-8 h-8" src= {{ record.img }}>
+                        <li class="col-span-4">{{ record.nome }}</li>
+                        <li class="col-span-2">{{ record.data }}</li>
+                        <li class="col-span-2">{{ record.total }}</li>
+                        <li class="col-span-2">{{ record.valor_medio }} </li>
                     </ul>
                     {% endfor %}
 
