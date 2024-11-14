@@ -8,19 +8,18 @@
   - [x] Autenticar
   - [x] Salvar usuário logado na Session
   - [x] Gerar token JWT expirável
-  - [ ] Middleware Guest Aut
+  - [x] Middleware Guest Aut
   - [x] Criar usuário
-  - [ ] Usuário convidado
-- [] Frontend
+- [ ] Frontend
   - [x] Layout básico
   - [x] Renderizar menu do usuário logado
-  - [ ] Formulário de cadastro de clientes
-  - [ ] Formulário de cadastro de produto
+  - [x] Formulário de cadastro de clientes
+  - [x] Formulário de cadastro de produto
   - [ ] Formulário de cadastro de pedido
 - [x] Cadastrar um usuário
 - [x] Mostrar uma notificação
 - [ ] Lista de mensagens do usuário
-- [ ] Menu personalizado
+- [x] Menu personalizado
 - [ ] Tema personalizado
 - [ ] Api
   - [x] GET One Pedido
