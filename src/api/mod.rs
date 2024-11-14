@@ -1,8 +1,8 @@
 use actix_web::web;
 use actix_web::middleware::from_fn;
 
-use crate::application::controller::{self, pedido};
 use crate::infra::sessao_usuario::check_api_auth;
+use crate::application::controller;
 
 pub mod kpis;
 pub mod produto;

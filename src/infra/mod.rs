@@ -1,3 +1,4 @@
+pub mod minijinja;
 pub mod decimal;
 pub mod multimidia;
 pub mod validation;
