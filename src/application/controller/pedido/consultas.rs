@@ -10,7 +10,6 @@ use crate::repository::pedidos::sqlite::{abrir_lista_pedidos, abrir_pedido};
 #[get("/pedido/{id}")]
 async fn consulta_pedido_por_id(
     data: web::Data<AppState>,
-    _filtro: web::Query<QueryFiltroPedido>,
     _session: Session,
     path: web::Path<i64>,
 
@@ -32,7 +31,7 @@ async fn consulta_pedido_por_id(
 
 }
 
-#[get("/")]
+#[get("/json")]
 async fn consulta_pedido_por_cliente(
     data: web::Data<AppState>,
     query: web::Query<QueryFiltroPedido>,

@@ -156,6 +156,7 @@ async fn main() -> std::io::Result<()> {
             .configure(testes::routes)
             .configure(acoes_pedido::routes)
             .configure(consultas_pedido::routes)
+            .configure(api::routes)
             // rotas que exigem login
             .service(web_cliente)
             .service(web_cliente_submit)

@@ -1,5 +1,6 @@
 use actix_web::middleware::Next;
 use actix_web::HttpMessage;
+use log::{error, info};
 use serde::{Deserialize, Serialize};
 use actix_web::{Error, HttpResponse, http::header};
 use actix_session::{Session, SessionExt};
@@ -13,6 +14,7 @@ use super::jwt::jwt_secret;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Sessao {
     pub user_id: String,
+    pub user_api: Option<String>,
     pub jwt_token: String,
     pub user_name: Option<String>,
     pub user_level: Option<String>,
@@ -42,7 +44,7 @@ impl Sessao {
         };
 
         // Verifica se o token é válido para o `user_id`
-        if !crate::infra::jwt::validate_jwt(&jwt_token, secret, &user_id)? {
+        if crate::infra::jwt::validate_jwt(&jwt_token, secret).is_err() {
             return Ok(None); // Retorna None se o token não for válido
         }
 
@@ -61,6 +63,7 @@ impl Sessao {
             user_name,
             user_level,
             is_admin,
+            user_api: Some("Demo".to_string())
         }))
     }
 }
@@ -76,9 +79,9 @@ pub async fn auth_middleware(
 
     if let Some(jwt_token) = token {
         let secret = jwt_secret();
-        if let Some(user_id) = session.get::<String>("user_id").unwrap_or(None) {
-            match validate_jwt(&jwt_token, secret.as_slice(), &user_id) {
-                Ok(true) => next.call(req).await, // Token válido, prossegue
+        if let Some(_user_id) = session.get::<String>("user_id").unwrap_or(None) {
+            match validate_jwt(&jwt_token, secret.as_slice()) {
+                Ok(_api) => next.call(req).await, // Token válido, prossegue
                 _ => Ok(req.into_response(
                     HttpResponse::Found()
                         .append_header((header::LOCATION, "/entrar"))
@@ -219,7 +222,7 @@ pub async fn check_admin_auth(
     next: Next<BoxBody>,
 ) -> Result<ServiceResponse<BoxBody>, Error> {
 
-    let session = req.extensions().get::<Session>().cloned().expect("Session não encontrada. Acesso restrito para administradores ");
+    let session = req.get_session();
     let user_session = Sessao::from_session(&session, &jwt_secret())?;
     let user_is_admin = if let Some(user_session) = user_session {
         user_session.is_admin  
@@ -240,22 +243,87 @@ pub async fn check_api_auth(
     req: ServiceRequest,
     next: Next<BoxBody>,
 ) -> Result<ServiceResponse<BoxBody>, Error> {
+    info!("🔓 checking credentials");
+    info!("🔓 -----api middleware ----");
+    let session = req.get_session();
+    
+    let user_session = Sessao::from_session(&session, &jwt_secret());
+    match user_session{
+        Ok(user_session) => {
+            // Logado no navegador
+            if let Some(session) = user_session  {
+                // Valida pela session
+                let user_api = &session.user_api;  
+                info!("🔓 {:?}", &session);
 
-    let session = req.extensions().get::<Session>().cloned().expect("Session não encontrada. Obtenha um CLIENT-ID para acessar a API ");
-    let user_session = Sessao::from_session(&session, &jwt_secret())?;
-    let user_is_admin = if let Some(user_session) = user_session {
-        user_session.is_admin  
-    } else 
-    {
-        return Err(actix_web::error::ErrorForbidden("Obtenha um CLIENT-ID para acessar a API"));
-    };
+                if let Some(_api) = user_api {
+                    req.extensions_mut().insert(session);
+                    next.call(req).await
+                } else {
+                    
+                    error!("🔥🔓 Unauthorized. A session foi encontrada, mas a chave user_api não foi informada. Verificando header ");
+                    // todo! Verificar header
+                    Ok(req.into_response(HttpResponse::Unauthorized().finish().map_into_boxed_body()))
+                    }
+       
+            } else {    
+                // Não logado no navegador
+                // Valida pelo header
+                
+                info!("🔓 Verificando Bearer Token (1) Usuário não logado");
+                //todo! Refactoring to reuse
+                let token = req.headers()
+                    .get("Authorization")
+                    .and_then(|header| header.to_str().ok())
+                    .and_then(|header| header.strip_prefix("Bearer "));
 
-    if user_is_admin {
-        let res = next.call(req).await?;
-        Ok(res)
-    } else {
-        Err(actix_web::error::ErrorForbidden("Obtenha um CLIENT-ID para acessar a API"))
+                if let Some(token) = token {
+                    let claims =  validate_jwt(token, &jwt_secret()); 
+                    if let Ok(decoded_claims) = claims {
+
+                            req.extensions_mut().insert(decoded_claims);
+                            next.call(req).await
+                        } else  {
+                            error!("🔥🔓 Unauthorized. Claims does not match ");
+                            Ok(req.into_response(HttpResponse::Unauthorized().finish().map_into_boxed_body()))
+                    }
+                }
+                else {
+                error!("🔥🔓 Unauthorized. Bearer Token não informado ");
+                Ok(req.into_response(HttpResponse::Unauthorized().finish().map_into_boxed_body()))
+                }
+                    
+            }
+        },
+        Err(_err) => {
+            // Valida pelo header
+                
+                info!("🔓 Verificando Bearer Token (2)");
+                let token = req.headers()
+                    .get("Authorization")
+                    .and_then(|header| header.to_str().ok())
+                    .and_then(|header| header.strip_prefix("Bearer "));
+
+                if let Some(token) = token {
+                    let claims =  validate_jwt(token, &jwt_secret()); 
+                    if let Ok(decoded_claims) = claims {
+
+                            req.extensions_mut().insert(decoded_claims);
+                            next.call(req).await
+                        } else  {
+                            error!("🔥🔓 Unauthorized. Claims does not match ");
+                            Ok(req.into_response(HttpResponse::Unauthorized().finish().map_into_boxed_body()))
+                    }
+                }
+                else {
+                error!("🔥🔓 Unauthorized. Bearer Token não informado ");
+                Ok(req.into_response(HttpResponse::Unauthorized().finish().map_into_boxed_body()))
+                }
+                    
+            
+        }
     }
+
 }
 
 // pub async fn check_user_auth(

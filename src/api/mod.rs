@@ -1,6 +1,7 @@
 use actix_web::web;
 use actix_web::middleware::from_fn;
 
+use crate::application::controller::{self, pedido};
 use crate::infra::sessao_usuario::check_api_auth;
 
 pub mod kpis;
@@ -11,6 +12,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         web::scope("/api")
             .wrap(from_fn(check_api_auth))
             .configure(kpis::routes)
+            .configure(controller::routes)
             .configure(produto::routes),
     );
 }

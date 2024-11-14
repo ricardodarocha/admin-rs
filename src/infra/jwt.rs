@@ -15,7 +15,7 @@ pub fn jwt_secret() -> Vec<u8> {
    
 // Estrutura para as reivindicações (claims) do JWT
 #[derive(Debug, Serialize, Deserialize)]
-struct Claims {
+pub struct Claims {
     sub: String, // Subject será o hash do user_id
     exp: usize,  // Data de expiração do token
 }
@@ -45,12 +45,10 @@ pub fn create_jwt(user_id: &str, secret: &[u8], duration: Duration) -> Result<St
 }
 
 // Função para validar o token JWT
-pub fn validate_jwt(token: &str, secret: &[u8], user_id: &str) -> Result<bool, Error> {
+pub fn validate_jwt(token: &str, secret: &[u8]) -> Result<Claims, Error> {
     let validation = Validation::default();
-    let hashed_id = hash_user_id(user_id);
-
-    match decode::<Claims>(token, &DecodingKey::from_secret(secret), &validation) {
-        Ok(decoded) if decoded.claims.sub == hashed_id => Ok(true), // Verifica se o hash bate
-        _ => Ok(false),
-    }
+    
+    decode::<Claims>(token, &DecodingKey::from_secret(secret), &validation)
+    .map(|data| data.claims).map_err(|err| Error::Simple(err.to_string()))
+    
 }
