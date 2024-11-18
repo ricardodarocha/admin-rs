@@ -103,12 +103,3 @@ use validator::Validate;
                         .json(Toast::from(err))
     }
 }
-
-pub fn routes(cfg: &mut web::ServiceConfig) {
-    cfg
-        .service(inserir_pedido_from_form)
-        .service(inserir_pedido_from_json)
-        .service(atualizar_pedido_from_form)
-        .service(atualizar_pedido_from_json)
-        ;
-}

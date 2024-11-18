@@ -2,19 +2,22 @@
 use log::{error, info};
 use sqlx::{Pool, Sqlite};
 use crate::models::cliente::{Cliente, ClienteNovo, FormCliente};
-use crate::models::QueryFiltroCliente;
-use crate::repository::cliente as repo;
+use crate::models::QueryFiltro;
+use crate::repository;
+use crate::repository::api::clientes::sqlite as api;
+use crate::repository::admin::clientes::sqlite as admin;
+use actix_web::web;
 
-pub async fn inserir_cliente_json(pool: &Pool<Sqlite>, form: ClienteNovo) -> Option<Cliente> {
+pub async fn inserir_cliente_json(pool: &Pool<Sqlite>, form: web::Json<ClienteNovo>) -> Option<Cliente> {
 
-    let id_cliente = repo::inserir_cliente_json(pool, form).await.unwrap_or("-1".to_owned());
+    let id_cliente = api::inserir_cliente_json(pool, form.into_inner()).await.unwrap_or("-1".to_owned());
     abrir_cliente(pool, &id_cliente).await
 
 }
 
-pub async fn inserir_cliente_form(pool: &Pool<Sqlite>, form: FormCliente) -> Option<Cliente> {
+pub async fn inserir_cliente_form(pool: &Pool<Sqlite>, form: web::Form<FormCliente>) -> Option<Cliente> {
 
-    let id_cliente = repo::inserir_cliente(pool, form).await;
+    let id_cliente = admin::inserir_cliente_form(pool, form.into_inner()).await;
 
     match id_cliente {
         Ok(id) => {
@@ -28,14 +31,14 @@ pub async fn inserir_cliente_form(pool: &Pool<Sqlite>, form: FormCliente) -> Opt
 
 }
 
-pub async fn atualizar_cliente(pool: &Pool<Sqlite>, id: String, form: FormCliente) -> Option<Cliente> {
+pub async fn atualizar_cliente(pool: &Pool<Sqlite>, id: String, form: FormCliente) -> Option<String> {
 
-    let id_cliente = repo::atualizar_cliente(pool, &id, form).await;
+    let cliente = repository::admin::clientes::sqlite::atualizar_cliente(pool, &id, form).await;
 
-    match id_cliente {
+    match cliente {
         Ok(id) => {
             info!("Cliente atualizado {}", id);
-            abrir_cliente(pool, &id).await
+            Some(id)
         }
         Err(err) => {
             error!("❌ {}", err);
@@ -45,7 +48,7 @@ pub async fn atualizar_cliente(pool: &Pool<Sqlite>, id: String, form: FormClient
 }
 
 pub async fn abrir_cliente(pool: &Pool<Sqlite>, id: &str) -> Option<Cliente> {
-    match repo::abrir_cliente(pool, &id.to_string()).await {
+    match repository::admin::clientes::sqlite::abrir_cliente(pool, &id.to_string()).await {
         Ok(cliente) => {
             info!("🙋‍♂️ cliente {}", id);
             Some(cliente)},
@@ -57,15 +60,21 @@ pub async fn abrir_cliente(pool: &Pool<Sqlite>, id: &str) -> Option<Cliente> {
 }
 
 pub async fn inserir_ou_alterar_cliente(pool: &Pool<Sqlite>, id: String, form: FormCliente) -> Option<Cliente> {
+    let id = 
     match id.as_ref() {
-        "0" => inserir_cliente_form(pool, form).await,
-        id => atualizar_cliente (pool, id.to_string(), form).await,
-    } 
+        "0" => repository::admin::clientes::sqlite::inserir_cliente_form(pool, form).await,
+        id => Ok(atualizar_cliente (pool, id.to_string(), form).await.unwrap()),
+    };
+
+    if let Ok(id) = id {
+        abrir_cliente(pool, &id).await
+    } else {None}
+    
 }
 
-pub async fn abrir_lista_clientes(pool: &Pool<Sqlite>, filtro: &QueryFiltroCliente) -> Vec<Cliente> {
+pub async fn abrir_lista_clientes(pool: &Pool<Sqlite>, filtro: &QueryFiltro) -> Vec<Cliente> {
      
-    let lista = repo::abrir_lista_clientes(pool, &filtro).await;
+    let lista = repository::api::clientes::sqlite::abrir_lista_clientes(pool, filtro).await;
     match lista {
         Ok(value) => {
             info!("👥👤 {} clientes... ", value.len());

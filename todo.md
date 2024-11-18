@@ -32,3 +32,6 @@
   - [x] POST pedido `<Json>`
   - [ ] POST pedido `<Form>`
   - [ ] POST pedido `<Form>`
+-[ ] Testes
+  - [x] Testes unitários
+  - [ ] Testes de integração

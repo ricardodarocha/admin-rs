@@ -31,7 +31,7 @@ use crate::core::tratados::ConsultaBd;
 use crate::models::cliente::*;
 use crate::models::QueryFiltroPedido;
 use crate::infra::result::Result;
-use crate::repository::pedidos::sqlite::abrir_lista_pedidos;
+use crate::repository::api::pedidos::sqlite::abrir_lista_pedidos; //todo! Inversion of dependency
 use validator::Validate;
 
 #[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]

@@ -1,14 +1,14 @@
 use actix_web::{get, web, HttpResponse, Responder};
 use minijinja::context;
 use crate::app::AppState;
-use crate::models::QueryFiltroCliente;
+use crate::models::QueryFiltro;
 use crate::repository::dashboard as repo_menus;
 use crate::services::cliente as service;
 
 #[get("/clientes")]
 async fn customers_index(
     data: web::Data<AppState>,
-    filtro: web::Query<QueryFiltroCliente>,
+    filtro: web::Query<QueryFiltro>,
 
 ) -> impl Responder {
 

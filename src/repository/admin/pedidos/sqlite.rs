@@ -6,7 +6,7 @@ use crate::infra::strings::anonimizar;
 use log::info;
 use sqlx::{Pool, Sqlite};
 use crate::models::pedido::{EntidadePedido, PayloadPedido, PostItem};
-use crate::{models as query, services};
+use crate::{models as query, repository, services};
 use crate::infra::result::Result;
 
 pub async fn inserir_pedido(pool: &Pool<Sqlite>, cliente: &String) -> Result<i64> {
@@ -66,7 +66,7 @@ pub async fn inserir_pedido_from_json(pool: &Pool<Sqlite>, pedido: &PayloadPedid
             query::cliente::PostCliente::IdCliente(id) => id,
             query::cliente::PostCliente::ClienteJaExiste(cliente) => cliente.id,
             query::cliente::PostCliente::NovoCliente(post_cliente) => {
-                let id = services::cliente::inserir_cliente_json(&pool, post_cliente.clone()).await.unwrap().id;
+                let id = repository::api::clientes::sqlite::inserir_cliente_json(&pool, post_cliente.clone()).await.unwrap();
                 id
             },
         };

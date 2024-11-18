@@ -1,37 +1,36 @@
 pub mod api;
-pub mod views;
-pub mod core;
-pub mod application;
-pub mod handlers;
-pub mod testes;
-pub mod services;
-pub mod models;
-pub mod repository;
-pub mod product;
-pub mod infra;
 pub mod app;
+pub mod application;
+pub mod core;
+pub mod handlers;
 pub mod helpers;
+pub mod infra;
+pub mod models;
+pub mod product;
+pub mod repository;
+pub mod services;
+pub mod testes;
+pub mod views;
 mod auth;
 mod site;
 mod admin;
 
 use actix_files::Files;
-use actix_web::{web, App, HttpServer, HttpResponse, Responder};
+use actix_web::{web, App};
+use actix_web::{cookie::Key, middleware};
+use actix_web::{HttpServer, HttpResponse, Responder};
+use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 use env_logger::Env;
+use log::info;
+
+use crate::app::AppState;
+use crate::infra::minijinja::configure_minijinja;
 
 //todo! refactory all services routes to handler/route
 use handlers::cliente::{json_all_cliente, json_cliente, web_cliente, web_cliente_submit};
 use handlers::grafico::{json_all_grafico, json_grafico};
 use handlers::produto::{json_all_produto, json_produto};
-use application::controller::pedido::consultas as consultas_pedido;
-use application::controller::pedido::acoes as acoes_pedido;
 use handlers::relatorio::vendas_por_mes;
-use log::info;
-use crate::app::AppState;
-use crate::infra::minijinja::configure_minijinja;
-
-use actix_web::{cookie::Key, middleware};
-use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 
 fn get_host_port() -> (String, String) {
     
@@ -127,18 +126,13 @@ async fn main() -> std::io::Result<()> {
             .service(actix_files::Files::new("/storage","./storage")
             .show_files_listing()
             .use_last_modified(true))
-
-            // .service(actix_files::Files::new("/static","./static")
-            // .show_files_listing()
-            // .use_last_modified(true))
-
-            .configure(site::routes)
+            
             .configure(auth::routes)
             .configure(admin::routes)
-            .configure(testes::routes)
-            .configure(acoes_pedido::routes)
-            .configure(consultas_pedido::routes)
             .configure(api::routes)
+            .configure(site::routes)
+            .configure(testes::routes)
+
             .service(vendas_por_mes)
             .service(web_cliente)
             .service(web_cliente_submit)
@@ -150,6 +144,7 @@ async fn main() -> std::io::Result<()> {
             .service(json_all_grafico)
 
             .default_service(web::to(not_found))
+            
     })  .workers(threads)
         .bind(format!("{}:{}", host, port))?
         .run()

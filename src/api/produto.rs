@@ -3,7 +3,7 @@ use actix_web::{get, web, HttpResponse, Responder};
 use crate::models::QueryFiltro;
 use crate::app::AppState;
 use crate::services::produto as service;
-use crate::repository::produto as repo;
+use crate::repository::api::produtos::sqlite as repo;
 
 #[get("/produto/json/{id}")]
 async fn json_produto(

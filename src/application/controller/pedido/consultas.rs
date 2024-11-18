@@ -5,7 +5,7 @@ use serde_json::json;
 use crate::app::AppState;
 use crate::infra::toast::{ApiResponse, Toast};
 use crate::models::QueryFiltroPedido;
-use crate::repository::pedidos::sqlite::{abrir_lista_pedidos, abrir_pedido};
+use crate::repository::api::pedidos::sqlite::{abrir_lista_pedidos, abrir_pedido};
 
 #[get("/pedido/{id}")]
 async fn consulta_pedido_por_id(
@@ -51,10 +51,5 @@ async fn consulta_pedido_por_cliente(
 
 }
 
-pub fn routes(cfg: &mut web::ServiceConfig) {
-    cfg
-        .service(consulta_pedido_por_id)
-        .service(consulta_pedido_por_cliente)
-        ;
-}
+
 

@@ -118,7 +118,7 @@ async fn admin_product_update(
     let id = path.into_inner();
 
     info!("Recebido PUT com dados: {:?}", form);
-    let produto = repository::produto::atualizar_produto(pool, &id, form).await;
+    let produto = repository::admin::produtos::sqlite::atualizar_produto(pool, &id, form).await;
     match produto {
         Ok(produto) => {
             let toast = Toast::with_status(StatusCode::ACCEPTED, "produto atualizado com sucesso");

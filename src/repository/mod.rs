@@ -1,8 +1,8 @@
-pub mod pedidos;
+pub mod api;
+pub mod site;
+pub mod admin;
+
 pub mod dashboard;
-pub mod usuario;
-pub mod relatorio;
 pub mod grafico;
-pub mod cliente;
-pub mod pedido;
-pub mod produto;
+pub mod relatorio;
+pub mod usuario;

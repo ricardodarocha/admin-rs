@@ -9,7 +9,8 @@ use crate::models::QueryFiltroCliente;
 use minijinja::context;
 use crate::models::cliente::FormCliente;
 use crate::services::cliente as service;
-use crate::repository::cliente as repo;
+use crate::repository::site::clientes::sqlite as repo;
+//todo! remove handlers folder. Change to site/controller
 
 // #[get("/clientes/lista")]
 // pub async fn web_listar_clientes(
