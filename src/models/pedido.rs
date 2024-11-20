@@ -9,10 +9,15 @@
 /// Reflect exactly database structure
 pub mod dto {
     use serde::{Serialize, Deserialize};
+    use time::OffsetDateTime; //, PrimitiveDateTime
+
     #[derive(Serialize, Deserialize, sqlx::FromRow)]
     pub struct PedidoDto {
         pub num: String,
-        // pub data
+
+        #[serde(with = "time::serde::iso8601")]
+        pub data: OffsetDateTime,
+
         pub cliente: String,
         pub valor: f32,
         pub status: String
@@ -23,8 +28,8 @@ use std::collections::HashMap;
 use async_trait::async_trait;
 use serde::{Serialize, Deserialize};
 use serde_json::Value;
-use sqlx::Pool;
-use sqlx::Sqlite;
+use sqlx::types::Type;
+use sqlx::{Pool, Sqlite};
 use crate::core::entidades::pedido::EntidadeCliente;
 use crate::core::entidades::pedido::EntidadeItem;
 use crate::core::tratados::ConsultaBd;
@@ -33,6 +38,7 @@ use crate::models::QueryFiltroPedido;
 use crate::infra::result::Result;
 use crate::repository::api::pedidos::sqlite::abrir_lista_pedidos; //todo! Inversion of dependency
 use validator::Validate;
+use time::OffsetDateTime;
 
 #[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct ProdutoExiste {
@@ -103,10 +109,13 @@ pub enum PostProduto {
     }
 
 ///Reflect Business Model Logic of Record in Dataset
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Type)]
     pub struct EntidadePedido {
         pub num: i64,
-        // pub data
+
+        #[serde(with = "time::serde::iso8601")]
+        pub data: OffsetDateTime,
+
         pub cliente: EntidadeCliente,
         pub valor: f64,
         pub status: String,
