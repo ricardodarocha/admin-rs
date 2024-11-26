@@ -1,0 +1,1 @@
+update menus set link = 'cardapio/principal' where titulo = 'Cardápio'

@@ -1,7 +1,7 @@
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
-use sha2::{Sha256, Digest};
-use std::env;
+// use sha2::{Sha256, Digest};
+use std::{env, fmt};
 use std::time::{SystemTime, Duration, UNIX_EPOCH};
 use crate::infra::error::Error;
 use crate::infra::result::Result;
@@ -20,13 +20,19 @@ pub struct Claims {
     exp: usize,  // Data de expiração do token
 }
 
-// Função para gerar um hash truncado do user_id
-fn hash_user_id(user_id: &str) -> String {
-    let mut hasher = Sha256::new();
-    hasher.update(user_id);
-    let result = hasher.finalize();
-    hex::encode(result)[2..8].to_string() // Trunca para os primeiros 6 caracteres
+impl fmt::Display for Claims {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.sub.as_ref())
+    }
 }
+
+// Função para gerar um hash truncado do user_id
+// fn hash_user_id(user_id: &str) -> String {
+//     let mut hasher = Sha256::new();
+//     hasher.update(user_id);
+//     let result = hasher.finalize();
+//     hex::encode(result)[2..8].to_string() // Trunca para os primeiros 6 caracteres
+// }
 
 // Função para criar um novo token JWT com duração customizável
 pub fn create_jwt(user_id: &str, secret: &[u8], duration: Duration) -> Result<String> {
@@ -36,7 +42,8 @@ pub fn create_jwt(user_id: &str, secret: &[u8], duration: Duration) -> Result<St
         + duration;
 
     let claims = Claims {
-        sub: hash_user_id(user_id),
+        // sub: hash_user_id(user_id),
+        sub: user_id.to_string(),
         exp: expiration.as_secs() as usize,
     };
 

@@ -64,6 +64,7 @@ create table if not exists cardapio(
     disponivel integer not null default 9999,
     preco float
 );
+
 --insere todas as pizzas no cardápio
 INSERT INTO cardapio (produto, opcao, descricao, preco)
 SELECT produto.id AS produto,
@@ -86,6 +87,7 @@ SELECT produto.id AS produto,
     produto.preco * 1 AS preco
 FROM produto
 where grupo = 'PIZZA';
+
 --INSERE AS BEBIDAS NO CARDÁPIO
 INSERT INTO cardapio (produto, opcao, descricao, preco)
 SELECT produto.id AS produto,
@@ -94,6 +96,7 @@ SELECT produto.id AS produto,
     produto.preco * 1 AS preco
 FROM produto
 where grupo = 'BEBIDA';
+
 --INSERE AS SOBREMESAS NO CARDÁPIO
 INSERT INTO cardapio (produto, opcao, descricao, preco)
 SELECT produto.id AS produto,

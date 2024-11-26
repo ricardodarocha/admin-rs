@@ -1,3 +1,4 @@
+pub mod token;
 pub mod minijinja;
 pub mod decimal;
 pub mod multimidia;

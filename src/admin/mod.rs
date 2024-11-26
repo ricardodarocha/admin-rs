@@ -1,3 +1,4 @@
+pub mod cardapio;
 mod dashboard;
 mod products;
 mod customers;
@@ -11,5 +12,6 @@ pub fn routes(cfg: &mut ServiceConfig) {
             .configure(dashboard::routes)
             .configure(products::routes)
             .configure(customers::routes)
+            .configure(cardapio::routes)
     );
 }

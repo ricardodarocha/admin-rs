@@ -11,9 +11,18 @@ use actix_web::{get, http::StatusCode, post, web, HttpResponse, Responder};
 use log::info;
 use minijinja::context;
 use serde_json::json;
+use actix_web::http::header::LOCATION;
+use actix_web::cookie::Cookie;
 
 #[get("/entrar")]
-async fn login(data: web::Data<AppState>) -> impl Responder {
+async fn login(session: Session, data: web::Data<AppState>) -> impl Responder {
+
+     if let Some(_user_id) = session.get::<String>("user_id").unwrap() {
+        return HttpResponse::SeeOther()
+            .insert_header((LOCATION, "/"))
+            .finish()
+        };
+
     let tmpl = data.render.get_template("auth/login.html").unwrap();
     let rendered = tmpl.render(context! {title => "Login"}).unwrap();
 
@@ -45,6 +54,12 @@ async fn login_submit(
             session.insert("token", token.clone()).unwrap();
             session.insert("user_id", form.email.clone()).unwrap();
 
+            let cookie = Cookie::build("AUTHORIZATION", format!("Bearer {}", token))
+                .http_only(true) // Evita acesso via JavaScript
+                .secure(true)    // Requer HTTPS
+                .path("/")       // Disponível em toda a aplicação
+                .finish();
+
             //Vamos tentar pegar outros dados do usuario para incorporar na sessao
             let abrir_usuario = service::abrir_usuario(pool, form.email).await;
             if let Some(usuario) = abrir_usuario {
@@ -60,6 +75,7 @@ async fn login_submit(
 
             HttpResponse::Ok()
                 .content_type("application/json")
+                .cookie(cookie)
                 .json(json!({
                     "toast": toast,
                     "redirect": "/admin/painel"

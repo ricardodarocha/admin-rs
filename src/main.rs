@@ -21,6 +21,7 @@ use actix_web::{cookie::Key, middleware};
 use actix_web::{HttpServer, HttpResponse, Responder};
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 use env_logger::Env;
+use infra::token;
 use log::info;
 
 use crate::app::AppState;
@@ -132,6 +133,7 @@ async fn main() -> std::io::Result<()> {
             .configure(api::routes)
             .configure(site::routes)
             .configure(testes::routes)
+            .configure(token::routes)
 
             .service(vendas_por_mes)
             .service(web_cliente)

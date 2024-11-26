@@ -1,5 +1,7 @@
+// use actix_web::error::ErrorUnauthorized;
 use actix_web::middleware::Next;
 use actix_web::HttpMessage;
+// use actix_web_validator::error;
 use log::{error, info};
 use serde::{Deserialize, Serialize};
 use actix_web::{Error, HttpResponse, http::header};
@@ -39,12 +41,17 @@ impl Sessao {
         };
 
         let jwt_token = match session.get::<String>("token")? {
-            Some(token) => token,
-            None => return Ok(None), // Retorna None se `jwt_token` não estiver na sessão
+            Some(token) => {
+                info!("{}", &token);
+                token},
+            None => {
+                info!("token não informado");
+                return Ok(None)}, // Retorna None se `jwt_token` não estiver na sessão
         };
 
         // Verifica se o token é válido para o `user_id`
         if crate::infra::jwt::validate_jwt(&jwt_token, secret).is_err() {
+            error!("Token inválido");
             return Ok(None); // Retorna None se o token não for válido
         }
 
@@ -239,90 +246,59 @@ pub async fn check_admin_auth(
     }
 }
 
+async fn authenticate_request(req: &ServiceRequest) -> Result<String, Error> {
+    if let Some(user_data) = check_session(req).await.or_else(|| check_header(req)).or_else(|| check_cookie(req)) {
+        Ok(user_data)
+    } else {
+        Err(actix_web::error::ErrorUnauthorized("Acesso restrito para administradores"))
+    }
+}
+
+fn check_cookie(req: &ServiceRequest) -> Option<String> {
+    info!("🔓 Verificando cookie AUTHORIZATION");
+    info!("{:?}", req);
+    req.cookie("AUTHORIZATION").map(|cookie| cookie.value().to_string())
+}
+
+// Validação de sessão
+async fn check_session(req: &ServiceRequest) -> Option<String> {
+    info!("🔓 Verificando sessão");
+    let session = req.get_session();
+    if let Ok(Some(sessao)) = Sessao::from_session(&session, &jwt_secret()) {
+        return Some(sessao.user_api.unwrap_or_default());
+    }
+    None
+}
+
+// Validação de token JWT no cabeçalho
+fn check_header(req: &ServiceRequest) -> Option<String> {
+    info!("🔓 Verificando Bearer Token no header");
+    req.headers()
+        .get("Authorization")
+        .and_then(|header| header.to_str().ok())
+        .and_then(|header| header.strip_prefix("Bearer "))
+        .and_then(|token| validate_jwt(token, &jwt_secret()).ok().map(|f| f.to_string()))
+}
+
 pub async fn check_api_auth(
     req: ServiceRequest,
     next: Next<BoxBody>,
 ) -> Result<ServiceResponse<BoxBody>, Error> {
     info!("🔓 checking credentials");
     info!("🔓 -----api middleware ----");
-    let session = req.get_session();
-    
-    let user_session = Sessao::from_session(&session, &jwt_secret());
-    match user_session{
-        Ok(user_session) => {
-            // Logado no navegador
-            if let Some(session) = user_session  {
-                // Valida pela session
-                let user_api = &session.user_api;  
-                info!("🔓 {:?}", &session);
-
-                if let Some(_api) = user_api {
-                    req.extensions_mut().insert(session);
+    match authenticate_request(&req).await {
+                Ok(user_data) => {
+                    // Insere os dados de autenticação no contexto da requisição
+                    req.extensions_mut().insert(user_data);
                     next.call(req).await
-                } else {
-                    
-                    error!("🔥🔓 Unauthorized. A session foi encontrada, mas a chave user_api não foi informada. Verificando header ");
-                    // todo! Verificar header
-                    Ok(req.into_response(HttpResponse::Unauthorized().finish().map_into_boxed_body()))
-                    }
-       
-            } else {    
-                // Não logado no navegador
-                // Valida pelo header
-                
-                info!("🔓 Verificando Bearer Token (1) Usuário não logado");
-                //todo! Refactoring to reuse
-                let token = req.headers()
-                    .get("Authorization")
-                    .and_then(|header| header.to_str().ok())
-                    .and_then(|header| header.strip_prefix("Bearer "));
-
-                if let Some(token) = token {
-                    let claims =  validate_jwt(token, &jwt_secret()); 
-                    if let Ok(decoded_claims) = claims {
-
-                            req.extensions_mut().insert(decoded_claims);
-                            next.call(req).await
-                        } else  {
-                            error!("🔥🔓 Unauthorized. Claims does not match ");
-                            Ok(req.into_response(HttpResponse::Unauthorized().finish().map_into_boxed_body()))
-                    }
                 }
-                else {
-                error!("🔥🔓 Unauthorized. Bearer Token não informado ");
-                Ok(req.into_response(HttpResponse::Unauthorized().finish().map_into_boxed_body()))
+                Err(_) => {
+                    error!("🔥🔓 Unauthorized request.");
+                    Ok(req.into_response(
+                        HttpResponse::Unauthorized().finish().map_into_boxed_body(),
+                    ))
                 }
-                    
             }
-        },
-        Err(_err) => {
-            // Valida pelo header
-                
-                info!("🔓 Verificando Bearer Token (2)");
-                let token = req.headers()
-                    .get("Authorization")
-                    .and_then(|header| header.to_str().ok())
-                    .and_then(|header| header.strip_prefix("Bearer "));
-
-                if let Some(token) = token {
-                    let claims =  validate_jwt(token, &jwt_secret()); 
-                    if let Ok(decoded_claims) = claims {
-
-                            req.extensions_mut().insert(decoded_claims);
-                            next.call(req).await
-                        } else  {
-                            error!("🔥🔓 Unauthorized. Claims does not match ");
-                            Ok(req.into_response(HttpResponse::Unauthorized().finish().map_into_boxed_body()))
-                    }
-                }
-                else {
-                error!("🔥🔓 Unauthorized. Bearer Token não informado ");
-                Ok(req.into_response(HttpResponse::Unauthorized().finish().map_into_boxed_body()))
-                }
-                    
-            
-        }
-    }
 
 }
 
