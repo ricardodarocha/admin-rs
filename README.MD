@@ -4,6 +4,8 @@ Template SAAS com Rust e Minijinja
 Visual: Daisy Ui
 Backend: Actix web
 
+![Previa](https://github.com/ricardodarocha/admin-rs/blob/main/preview.gif?raw=true)
+
 ## Como testar
 
 clone este regositorio em sua pasta, em seguida instale as dependências com `npm install`
